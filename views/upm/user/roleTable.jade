@@ -1,0 +1,52 @@
+//
+   Created by tanyuan on 8/5/14.
+
+table.table.mm-box
+    tr.th-inverse
+        th(style='width:30%') 角色名
+        th(style='width:30%') 编码
+        th(style='width:30%') 应用系统
+    tbody#data
+        each role in roles
+            tr.cust-record(data-id='#{role._id}', name='#{role._id}')
+                td #{role.name}
+                td #{role.code}
+                td #{role.appName}
+
+style.
+    .highlight {color: #FFFFFF; background-color: #428bca; }
+    .hover {background-color: #F7F7F7; }
+script.
+    $('#data tr').click(function() {
+        $('tr').removeClass('hover')
+        $('tr').removeClass('highlight')
+        $(this).toggleClass('highlight');
+    })
+    $('#data tr').hover(
+        function() {
+            if(!$(this).hasClass('highlight')) {
+                $('tr').removeClass('hover')
+                $(this).addClass('hover');
+            }
+        },
+        function () {
+           $(this).removeClass('hover');
+        }
+    )
+    $('.cust-record').click(function() {
+        var id = $(this).data('id');
+        var url = '/ump/user/function/'+id;
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: url,
+            success: function(data) {
+                if(data.flag == 1) {
+                    $('.tree').treeview({data: data.viewTree, nodeIcon: 'glyphicon glyphicon-tree-conifer', levels: 2});
+                }else {
+                    $('.tree').treeview({data: data.viewTree, nodeIcon: 'glyphicon glyphicon-tree-conifer', levels: 3});
+                }
+            }
+        })
+    })
+

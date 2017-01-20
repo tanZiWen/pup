@@ -1,0 +1,94 @@
+//
+   Created by michael on 5/29/14.
+
+.list-group
+
+    each contact in data.msgContacts
+        a.list-group-item(href='#', id="#{contact.comment}", accountNickname='#{contact.belongAccount.accountNickname}', accountData='#{contact.belongAccount.accountCode}', contactId="#{contact._id}", contactData="#{contact.comment}")
+            table(style="width:100%;")
+                tbody
+                    tr
+                        td
+                            img.thumbnail(width='60px', height='60px', src='/crm/wechat/avatar/#{contact.belongAccount.accountCode}_#{contact.comment}')
+                        td
+                            .row
+                                .col-sm-12.text-left
+                                    span
+                                        if contact.sex && contact.sex == '女'
+                                            i.icon.icon-female-2.small.text-muted.text-danger
+                                        else
+                                            i.icon.icon-male-2.small.text-muted.text-primary
+                                    span
+                                        |#{contact.comment}
+                            .row
+                                .col-sm-5.text-left
+                                    span
+                                        i.small.text-muted.m-r-15
+                                            | #{contact.belongAccount.accountCode}
+                                .col-sm-5.text-left
+                                    span
+                                        if contact.lastChat && contact.lastChat.ctime
+                                            i.icon.icon-clock-8.small.text-muted
+                                                | #{format(contact.lastChat.ctime, 'hh-mm')}
+                                .col-sm-2.text-right
+                                    #unReadMsg.label.label-danger #{contact.count}
+                            .row
+                                .col-sm-12.text-left(style='width:230px;')
+                                    span.small.text-muted.m-r-15(style='width:130px; height:25px;overflow:hidden;white-space: nowrap;text-overflow: ellipsis;')
+                                        if contact.lastChat && contact.lastChat.content
+                                            | #{contact.lastChat.content}
+
+    input(type='hidden', id='hiddenTotalMsgCount', value='#{data.unReadMsgCount}')
+
+script.
+
+    var unReadMsgCount = $('#hiddenTotalMsgCount').val();
+
+    if(unReadMsgCount == '0') {
+        $("#unReadTotalMsg").html("");
+    } else {
+        $("#unReadTotalMsg").html(unReadMsgCount);
+    }
+
+    $('#msgContactListTable .list-group-item').click(function(ev) {
+        ev.stopPropagation();
+        if(massFlag) {
+            //$('#contactListTable .list-group-item').find("input[name='selectMassContact']").each(function(value) {
+            //    $(this).hide();
+            //    $(this).prop('checked', true);
+            //});
+            $('#massMsgBtn').find("span").html('群发');
+            massFlag = false;
+        }
+        $("#chatDialog").hide();
+        $('#chatDialog').find("a[href='#moments']").show();
+
+        curAccountId = $(this).attr('accountData');
+        $("#chatDialog").attr("accountId", curAccountId);
+        curAccountNickname = $(this).attr('accountNickname');
+        var condition = {accountData : $(this).attr('accountData')};
+        if($(this).attr('contactData') != '' && $(this).attr('contactData') != undefined) {
+            $("#contactTitle").html($(this).attr('accountData') + "   " + $(this).attr("contactData"));
+            condition.contactData = $(this).attr("contactData");
+            curContactId = $(this).attr("contactData");
+            curContactType = 'contact';
+            $("#chatDialog").attr("contactId", curContactId);
+        } else if($(this).attr('groupData') != '' && $(this).attr('groupData') != undefined) {
+            $("#contactTitle").html($(this).attr('accountData') + "   " + $(this).attr("groupData"));
+            condition.groupData = $(this).attr("groupData");
+            curContactId = $(this).attr("groupData");
+            curContactType = 'group';
+        }
+
+        $("#curChatNo").val($(this).attr("id"));
+        $("#chatDialog").show();
+        modifyMsgTotalCount(this);
+
+        hiddenContactMsgCount($(this).attr("contactId"));
+
+        $(this).find("#unReadMsg").hide();
+
+        //get msg history
+        var msgHistoryPagination = new pup.Pagination({templateKey : "wechat.historyList", pageCount : 50});
+        msgHistoryPagination.setCondition(condition).setSort({ctime : -1}).first();
+    });

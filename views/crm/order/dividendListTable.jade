@@ -1,0 +1,15 @@
+//
+   Created by michael on 5/29/14.
+
+table.table.m-b-0
+    tr.th-inverse
+        th.col-sm-2  成立日期
+        th.col-sm-2  起息日期
+        th.col-sm-2  金额(万元)
+        th.col-sm-4  备注
+    each dividend in data
+        tr.cust-record
+            td  #{format(dividend.establishDate)}
+            td  #{format(dividend.valueDate)}
+            td  #{dividend.amount}
+            td  #{dividend.comment}

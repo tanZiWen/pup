@@ -1,0 +1,371 @@
+//
+   Created by wangnan on 14-6-11.
+form#edit(action='/crm/customer/custm/edit', enctype="multipart/form-data")
+    .modal-header
+        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row
+            .col-md-3
+                h4.modal-title 客户信息
+
+    .modal-body
+        .row.text-center
+            h4 基本信息
+        .row.m-t-20
+            span.col-md-2.text-right.text-muted.small 编号
+            .col-md-3.text-left
+                input.holo(type='text', id='code', name='code', value='#{customer.code}', readonly)
+            span.col-md-2.text-right.text-muted.small 姓名
+            .col-md-3.text-left
+                if(customer.name)
+                    input.holo(type='text', id='name', name='name', value='#{customer.name}', placeholder='姓名')
+                else
+                    input.holo(type='text', id='name', name='name', value='', placeholder='姓名')
+
+
+        .row.m-t-20
+            span.col-md-2.text-right.text-muted.small 性别
+            .col-md-3.text-left
+                .btn-group(data-toggle='buttons-radio', id='sex', name='sex')
+                    each sex, i in sexList
+                        if(customer.sex)
+                            if(sex.key == customer.sex)
+                                button.btn-sm.btn.btn-light-info.active(type='button', value='#{sex.key}') #{sex.name}
+                            else
+                                button.btn-sm.btn.btn-light-info(type='button', value='#{sex.key}') #{sex.name}
+                        else
+                            if(i==0)
+                                button.btn-sm.btn.btn-light-info.active(type='button', value='#{sex.key}') #{sex.name}
+                            else
+                                button.btn-sm.btn.btn-light-info(type='button', value='#{sex.key}') #{sex.name}
+
+
+            span.col-md-2.text-right.text-muted.small 生日
+            .col-md-3.text-left
+                if(customer.birthday)
+                    input(type='text', id='birthday', name='birthday', value='#{format(customer.birthday)}', class='birthday form-control', placeholder='生日')
+                else
+                    input(type='text', id='birthday', name='birthday', value='', class='birthday form-control', placeholder='生日')
+
+
+        .row.m-t-20
+            span.col-md-2.text-right.text-muted.small 手机号
+            .col-md-3.text-left
+                input.holo(type='text', id='telNo', name='telNo', value='#{customer.telNo}', readonly='readonly')
+            span.col-md-2.text-right.text-muted.small Email
+            .col-md-3.text-left
+                if(customer.email)
+                    input.holo(type='text', id='email', name='email', value='#{customer.email}', class='email', placeholder='Email')
+                else
+                    input.holo(type='text', id='email', name='email', value='', class='email', placeholder='Email')
+
+        .row.m-t-20
+            span.col-md-2.text-right.text-muted.small 微信号
+            .col-md-3.text-left
+                if(customer.wechatNo)
+                    input.holo(type='text', id='wechatNo', name='wechatNo', value='#{customer.wechatNo}', placeholder='微信号')
+                else
+                    input.holo(type='text', id='wechatNo', name='wechatNo', value='', placeholder='微信号')
+
+            span.col-md-2.text-right.text-muted.small 住房信息
+            .col-md-3.text-left
+                .btn-group(data-toggle='buttons-radio', id='houseInfo', name='houseInfo')
+                    each houseInfo, i in houseInfos
+                        if(customer.houseInfo)
+                            if(customer.houseInfo == houseInfo.key)
+                                button.btn-sm.btn.btn-light-info.active(type='button', value='#{houseInfo.key}') #{houseInfo.name}
+                            else
+                                button.btn-sm.btn.btn-light-info(type='button', value='#{houseInfo.key}') #{houseInfo.name}
+                        else
+                            if(i==0)
+                                button.btn-sm.btn.btn-light-info.active(type='button', value='#{houseInfo.key}') #{houseInfo.name}
+                            else
+                                button.btn-sm.btn.btn-light-info(type='button', value='#{houseInfo.key}') #{houseInfo.name}
+
+
+        .row.m-t-20
+            span.col-md-2.text-right.text-muted.small 职业
+            .col-md-3.text-left
+                .btn-group(data-toggle='buttons-radio', id='professionType', name='professionType')
+                    each professionType, i in professionTypes
+                        if(customer.profession)
+                            if (professionType.key == customer.profession.type)
+                                button.btn-sm.btn.btn-light-info.active(onclick='selectProfessionType("#{professionType.key}")', type='button', value='#{professionType.key}') #{professionType.name}
+                            else
+                                button.btn-sm.btn.btn-light-info(onclick='selectProfessionType("#{professionType.key}")', type='button', value='#{professionType.key}') #{professionType.name}
+                        else
+                            if(i==0)
+                                button.btn-sm.btn.btn-light-info.active(onclick='selectProfessionType("#{professionType.key}")', type='button', value='#{professionType.key}') #{professionType.name}
+                            else
+                                button.btn-sm.btn.btn-light-info(onclick='selectProfessionType("#{professionType.key}")', type='button', value='#{professionType.key}') #{professionType.name}
+
+                if(customer.profession)
+                    if(customer.profession.describe)
+                        input.holo(type='text', id='professionDescribe', name='professionDescribe', placeholder='描述信息', value='#{customer.profession.describe}', style='display: none;')
+                    else
+                        input.holo(type='text', id='professionDescribe', name='professionDescribe', placeholder='描述信息', value='', style='display: none;')
+                else
+                    input.holo(type='text', id='professionDescribe', name='professionDescribe', placeholder='描述信息', value='', style='display: none;')
+
+            span.col-md-2.text-right.text-muted.small 工作地点
+            .col-md-3.text-left
+                if(customer.workAddress)
+                    input.holo(type='text', id='workAddress', name='workAddress', value='#{customer.workAddress}', placeholder='工作地点')
+                else
+                    input.holo(type='text', id='workAddress', name='workAddress', value='', placeholder='工作地点')
+        .row.m-t-20
+            span.col-md-2.text-right.text-muted.small 车型
+            .col-md-3.text-left
+                if(customer.carType)
+                    input.holo(type='text', id='carType', name='carType', value='#{customer.carType}', placeholder='车型')
+                else
+                    input.holo(type='text', id='carType', name='carType', value='', placeholder='车型')
+
+
+        .row.m-t-20.text-center.cust-record(onclick='customerInvestInfo()')
+            a(href='javascript:void(0);', onclick='', title='加载更多')
+                i.icon.icon-angle-double-down
+
+
+        .row.m-t-20.text-center#title(style='display:none')
+            h4 投资信息
+
+        .row.m-t-20(style='display:none;')
+            span.col-md-2.text-right.text-muted.small 投资期限偏好
+            .col-md-3.text-left
+                .btn-group(data-toggle='buttons-radio', id='investmentTimePreference', name='investmentTimePreference')
+                    each investmentTimePreference, i in investmentTimePreferences
+                        if(customer.investmentTimePreference)
+                            if(investmentTimePreference.key == customer.investmentTimePreference)
+                                button.btn-sm.btn.btn-light-info.active(type='button', value='#{investmentTimePreference.key}') #{investmentTimePreference.name}
+                            else
+                                button.btn-sm.btn.btn-light-info(type='button', value='#{investmentTimePreference.key}') #{investmentTimePreference.name}
+                        else
+                            if(i==0)
+                                button.btn-sm.btn.btn-light-info.active(type='button', value='#{investmentTimePreference.key}') #{investmentTimePreference.name}
+                            else
+                                button.btn-sm.btn.btn-light-info(type='button', value='#{investmentTimePreference.key}') #{investmentTimePreference.name}
+
+
+            span.col-md-2.text-right.text-muted.small 风险偏好
+            .col-md-3.text-left
+                .btn-group(data-toggle='buttons-radio', id='venturePreference',  name='venturePreference')
+                    each venturePreference, i in venturePreferences
+                        if(customer.venturePreference)
+                            if(venturePreference.key == customer.venturePreference)
+                                button.btn-sm.btn.btn-light-info.active(type='button', value='#{venturePreference.key}') #{venturePreference.name}
+                            else
+                                button.btn-sm.btn.btn-light-info(type='button', value='#{venturePreference.key}') #{venturePreference.name}
+                        else
+                            if(i==0)
+                                button.btn-sm.btn.btn-light-info.active(type='button', value='#{venturePreference.key}') #{venturePreference.name}
+                            else
+                                button.btn-sm.btn.btn-light-info(type='button', value='#{venturePreference.key}') #{venturePreference.name}
+
+
+        .row.m-t-20(style='display:none')
+            span.col-md-2.text-right.text-muted.small 是否愿意参加活动
+            .col-md-3.text-left
+                .switch.switch-mini(data-on="info")
+                    if(customer.isLikeAction == true)
+                        input(type='checkbox', id='isLikeAction', name='isLikeAction', checked)
+                    else
+                        input(type='checkbox', id='isLikeAction', name='isLikeAction')
+
+
+            span.col-md-2.text-right.text-muted.small 资金回笼时间
+            .col-md-3.text-left
+                if(customer.fundBackTime)
+                    input(class='form-control', type='text', id='fundBackTime', name='fundBackTime', placeholder='半年内有资金回笼', value='#{format(customer.fundBackTime)}')
+                else
+                    input(class='form-control', type='text', id='fundBackTime', name='fundBackTime', placeholder='半年内有资金回笼')
+
+        .row.m-t-20(style='display:none;')
+            span.col-md-2.text-right.text-muted.small 资金体量
+            .col-md-10.text-left
+                .btn-group(data-toggle='buttons-radio', id='bodyMass', name='bodyMass')
+                    each bodyMass, i in bodyMassList
+                        if(customer.bodyMass)
+                            if(bodyMass.key == customer.bodyMass)
+                                button.btn-sm.btn.btn-light-info.active(type='button', value='#{bodyMass.key}') #{bodyMass.name}
+                            else
+                                button.btn-sm.btn.btn-light-info(type='button', value='#{bodyMass.key}') #{bodyMass.name}
+                        else
+                            if(i==0)
+                                button.btn-sm.btn.btn-light-info.active(type='button', value='#{bodyMass.key}') #{bodyMass.name}
+                            else
+                                button.btn-sm.btn.btn-light-info(type='button', value='#{bodyMass.key}') #{bodyMass.name}
+
+
+        .row.m-t-20(style='display:none;')
+            span.col-md-2.text-right.text-muted.small 投资经验
+            .col-md-10.text-left
+                .btn-group(data-toggle='buttons-radio', id='investmentPreferenceType', name='investmentPreferenceType')
+                    each investmentPreference, i in investmentPreferences
+                        if(customer.investmentPreference)
+                            if(investmentPreference.key == customer.investmentPreference.type)
+                                button.btn-sm.btn.btn-light-info.active(onclick='selectInvestmentPreference("#{investmentPreference.key}")', type='button', value='#{investmentPreference.key}') #{investmentPreference.name}
+                            else
+                                button.btn-sm.btn.btn-light-info(onclick='selectInvestmentPreference("#{investmentPreference.key}")', type='button', value='#{investmentPreference.key}') #{investmentPreference.name}
+                        else
+                            if(i==0)
+                                button.btn-sm.btn.btn-light-info.active(onclick='selectInvestmentPreference("#{investmentPreference.key}")', type='button', value='#{investmentPreference.key}') #{investmentPreference.name}
+                            else
+                                button.btn-sm.btn.btn-light-info(onclick='selectInvestmentPreference("#{investmentPreference.key}")', type='button', value='#{investmentPreference.key}') #{investmentPreference.name}
+                if(customer.investmentPreference)
+                    if(customer.investmentPreference.describe)
+                        input.holo(type='text', id='investDescribe', name='investmentPreferenceDescribe', placeholder='描述信息', value='#{customer.investmentPreference.describe}', style='display: none;')
+                    else
+                        input.holo(type='text', id='investDescribe', name='investmentPreferenceDescribe', placeholder='描述信息', value='', style='display: none;')
+                else
+                    input.holo(type='text', id='investDescribe', name='investmentPreferenceDescribe', placeholder='描述信息', value='', style='display: none;')
+
+        .row.m-t-20(style='display:none;')
+            span.col-md-2.text-right.text-muted.small 状态
+            .col-md-10.text-left
+                .btn-group(data-toggle='buttons-radio', id='status', name='status')
+                    if(customer.status == 'potential' || customer.status == undefined || customer.status == '')
+                        button.btn-sm.btn.btn-light-info(type='button', value='') 外拨
+                        button.btn-sm.btn.btn-light-info.active(type='button', value='potential') 可跟进
+                    else if customer.status == 'bc20'
+                        each status, i in statusList
+                            if(i >= 0 && status.key != 'bc40')
+                                if(status.key == customer.status)
+                                    button.btn-sm.btn.btn-light-info.active(type='button', value='#{status.key}') #{status.name}
+                                else
+                                    button.btn-sm.btn.btn-light-info(type='button', value='#{status.key}') #{status.name}
+                    else if(customer.status == 'bc40')
+                        each status, i in statusList
+                            if(i >= 1)
+                                if(status.key == customer.status)
+                                    button.btn-sm.btn.btn-light-info.active(type='button', value='#{status.key}') #{status.name}
+                                else
+                                    button.btn-sm.btn.btn-light-info(type='button', value='#{status.key}') #{status.name}
+                    else
+                        each status, i in statusList
+                            if(i >= 2)
+                                if(status.key == customer.status)
+                                    button.btn-sm.btn.btn-light-info.active(type='button', value='#{status.key}') #{status.name}
+                                else
+                                    button.btn-sm.btn.btn-light-info(type='button', value='#{status.key}') #{status.name}
+
+        .row.m-t-20(style='display:none;')
+            span.col-md-2.text-right.text-muted.small 暂无投资意向原因
+            .col-md-8
+                if(customer.noInvestmentReason)
+                    input.holo(type='text', style='width: 100%;', placeholder='暂无投资意向原因', id='noInvestmentReason', name='noInvestmentReason', value='#{customer.noInvestmentReason}')
+                else
+                    input.holo(type='text', style='width: 100%;', placeholder='暂无投资意向原因', id='noInvestmentReason', name='noInvestmentReason', value='')
+                input.holo(type='hidden', value='#{customer._id}', id='id')
+
+    .modal-footer
+        .text-center
+            button#customerEditCancel.btn.btn-lg.btn-default(style='margin-right: 40px;', data-dismiss='modal', type='button') 取消
+            button#customerTagOk.btn.btn-lg.btn-success(type='submit') 确定
+
+script.
+    var now = new Date();
+    var except = new Date(now.getTime() - 1000*60*60*24*365*40);
+    if(!$('#edit #birthday').val()) {
+        $('#edit #birthday').val(format(except))
+    }
+
+    $('#edit #telNo').css({background: "#F0F0F0"});
+
+    $('#edit #code').css({background: "#F0F0F0"});
+
+    $('[name=isLikeAction]').bootstrapSwitch();
+
+    $('[name=fundBackTime]').datetimepicker({format : 'yyyy-mm-dd', autoclose: true, weekStart: 1, todayBtn: true, minView : 'month'});
+    $('[name=birthday]').datetimepicker({format : 'yyyy-mm-dd', autoclose: true, weekStart: 1, todayBtn: true, minView : 'month'});
+
+    $('#customerEditCancel').click(function() {
+        $('#customerEditModal').modal('hide');
+    });
+
+    $('#edit').submit(function(ev){
+        ev.preventDefault();
+        $(this).validate_popover({popoverPosition : 'top'});
+        var sex = $('#edit #sex > .btn.active').val();
+        var houseInfo = $('#edit #houseInfo > .btn.active').val();
+        var professionType = $('#edit #professionType > .btn.active').val();
+        var professionType = $('#edit #professionType > .btn.active').val();
+        var investmentPreferenceType = $('#edit #investmentPreferenceType > .btn.active').val();
+        var status = $('#edit #status > .btn.active').val();
+        var venturePreference = $('#edit #venturePreference > .btn.active').val();
+        var bodyMass = $('#edit #bodyMass > .btn.active').val();
+        var isLikeAction = $('#edit #isLikeAction').is(':checked');
+        var _id = $('#edit #id').val();
+        var formData = $(this).serializeObject();
+        formData.sex=sex;
+        formData.houseInfo=houseInfo;
+        formData.professionType = professionType;
+        formData.investmentPreferenceType = investmentPreferenceType;
+        formData.venturePreference = venturePreference;
+        formData.bodyMass=bodyMass;
+        formData.isLikeAction = isLikeAction;
+        formData._id = _id;
+        formData.status = status;
+        console.log(formData);
+        if($(this).validate().form()){
+            var url = $(this).attr('action');
+            $.ajax({
+                type : 'POST',
+                dataType : 'json',
+                url : url,
+                data : formData,
+                success : function(data){
+                    if(data.msg.type == 'success'){
+                        $('#customerEditModal').modal('hide');
+                        loadCustomerBaseInfo();
+                    }
+                    toast(data.msg);
+                }
+            });
+        }
+        return false;
+    });
+
+    $('#customerEditModal').on('hidden.bs.modal', function (e) {
+        $('#customerEditModal').html('');
+    });
+    jQuery.validator.addMethod("mobile", function(value, element) {
+        var length = value.length;
+        var mobile = /^0?(13[0-9]|15[012356789]|18[02356789]|14[57])[0-9]{8}$/ ;
+        return this.optional(element) || mobile.test(value);
+        }, "请输入正确的手机号码");
+
+    function customerInvestInfo() {
+        $('#edit #showInvestInfo').hide();
+        $('#edit #title').show();
+        $('#edit #investInfo').closest('.row').show();
+        $('#edit #investmentPreferenceType').closest('.row').show();
+        $('#edit #investmentTimePreference').closest('.row').show();
+        $('#edit #venturePreference').closest('.row').show();
+        $('#edit #isLikeAction').closest('.row').show();
+        $('#edit #bodyMass').closest('.row').show();
+        $('#edit #status').closest('.row').show();
+        $('#edit #fundBackTime').closest('.row').show();
+        $('#edit #noInvestmentReason').closest('.row').show();
+    }
+
+    var professionType = $('#edit #professionType > .btn.active').val();
+    selectProfessionType(professionType);
+    var investmentPreferenceType = $('#edit #investmentPreferenceType > .btn.active').val();
+    selectInvestmentPreference(investmentPreferenceType);
+
+    function selectInvestmentPreference(type) {
+        if(type == 'other'){
+            $('#edit #investDescribe').show();
+        }else {
+            $('#edit #investDescribe').hide();
+        }
+    }
+
+    function selectProfessionType(type) {
+        if(type == 'other'){
+            $('#edit #professionDescribe').show();
+        }else {
+            $('#edit #professionDescribe').hide();
+        }
+    }
+

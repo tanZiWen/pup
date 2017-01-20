@@ -1,0 +1,123 @@
+.style
+
+table.table.mm-box
+    tr.th-inverse
+        th(style="width: 18%")  姓名
+        th(style="width: 8%")  性别
+        th(style="width: 20%")  分公司
+        th(style="width: 12%")  部门
+        th(style="width: 10%")  状态
+        th(style="width: 17%")  入职时间
+        th(style="width: 15%")  操作
+    tbody
+        each employee in data
+            tr
+                td #{employee.name}
+                td
+
+                    if (employee.sex == 'male')
+                        | 男
+                    else
+                        | 女
+                td #{employee.areaName}
+                td #{employee.orgName}
+                td
+                    if (employee.status == 'working')
+                        | 在职
+                    else
+                        | 离职
+                td #{format(employee.ctime)}
+                td
+                    .text-center
+                        span.icon-btn.edit(id='#{employee._id}', title='编辑')
+                            i.icon.icon-edit-3
+                        span.icon-btn.trash(title='删除', id='#{employee._id}')
+                            i.icon.icon-trash
+
+#employeePageBar
+
+#opAcceptConfirm.modal(tabindex='-1', style='display: none;')
+    .modal-body
+        p#confirmMsg 确定删除？
+        p#opStatus(style='font-size: 20px; font-face: bold; display: none;')
+            i.icon.icon-spin5.animate-spin.text-success
+    .modal-footer
+        .text-center
+            button.cancel.btn.btn-default(style='margin-right: 40px;', data-dismiss='modal') 取消
+            button#ok.btn.btn-danger 确定
+script.
+    $('.edit').click(function() {
+        var url = '/crm/employee/' + $(this).attr('id');
+        $.ajax({
+            type: 'POST',
+            url: url,
+            dataType: 'json',
+            data: '',
+            success: function (data) {
+                var formData = data.msg.body;
+                //console.log(formData);
+                if(data.msg.type == 'success'){
+                    $('#formModify #name').val(formData.name);
+                    $('#formModify #workno').val(formData.workno);
+                    $("#formModify #sex").find('button').each(function() {
+                        if(formData.sex == $(this).val()) {
+                            $(this).button('toggle');
+                        }
+                    });
+                    $('#formModify #telNo').val(formData.telNo);
+                    $('#formModify #email').val(formData.email);
+                    $("#formModify #status").find('button').each(function() {
+                        if(formData.status == $(this).val()) {
+                            $(this).button('toggle');
+                        }
+                    });
+                    $("#formModify #area").find('button').each(function() {
+                        if(formData.area == $(this).val()) {
+                            $(this).button('toggle');
+                            appendOption('formModify', formData.departments);
+                        }
+                    });
+                    $("#formModify #orgCode option").each(function() {
+                        if(formData.orgCode == $(this).val()) {
+                            $(this).attr('selected', 'selected');
+                        }
+                    });
+                    $('.selectpicker').selectpicker('refresh');
+                    $('#formModify #comment').val(formData.comment);
+                    $('#formModify #_id').val(formData._id);
+                    $('#formModify #cuserid').val(formData.cuserid);
+                    $('#formModify #cusername').val(formData.cusername);
+                    $('#formModify #crealName').val(formData.crealName);
+                    $('#formModify #ctime').val(formData.ctime);
+                    $('#detail').modal('show');
+                }else{
+                    toast(data.msg);
+                }
+            }
+        });
+
+    });
+
+    employeePagination.bar('#employeePageBar');
+
+    var toDelEmployeeId = 0;
+    $('tr .trash').click(function(ev) {
+        ev.stopPropagation();
+        $('#opAcceptConfirm').modal('show');
+        toDelEmployeeId = $(this).attr('id');
+    });
+
+    $('#opAcceptConfirm #ok').click(function() {
+        var url = '/crm/employee/' + toDelEmployeeId;
+        $('#opAcceptConfirm').modal('hide');
+        $.ajax({
+            type: 'DELETE',
+            url: url,
+            dataType: 'json',
+            data: {},
+            success: function (data) {
+                employeePagination.first();
+                toast(data.msg);
+            }
+        });
+    });

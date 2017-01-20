@@ -1,0 +1,121 @@
+//
+   Created by wangnan on 14-6-11.
+
+.row.m-t-25
+    .col-sm-8.col-sm-offset-2.mm-box.form-horizontal
+        #taskListForm
+            .row.m-t-20
+                .form-group
+                    label.control-label.col-md-2 任务类型
+                    .col-md-10
+                        #selectTaskType.labelRadio
+                            each t in typeList
+                                input(name='type', type='radio', value='#{t.key}', data-name="#{t.name}")
+                .form-group
+                    label.control-label.col-md-2 完成状态
+                    .col-md-10
+                        #selectTaskDone.labelRadio
+                            input(name='done', type='radio', value='true', data-name="已完成")
+                            input(name='done', type='radio', value='false', data-name="未完成", checked)
+
+                .form-group#callListRequestShow(style='display:none')
+                    label.control-label.col-md-2 申领状态
+                    .col-md-10
+                        #selectCallListRequestStatus.labelRadio
+                            each callListRequestStatus in callListRequestStatusList
+                                if callListRequestStatus.key != 'unassigned'
+                                    input(name='callListRequestStatus', type='radio', value='#{callListRequestStatus.key}', data-name="#{callListRequestStatus.name}")
+.row.m-t-25
+    .col-sm-8.col-sm-offset-1
+        #taskListTable
+
+#customerActionPlanCompleteModal.modal(tabindex='-1', data-width='760', style='display: none;')
+#opAcceptConfirm.modal(tabindex='-1', style='display: none;')
+    .modal-body
+        p 确定签收？
+        p(style='font-size: 20px; font-face: bold; display: none;')
+            i.icon.icon-spin5.animate-spin.text-success
+    .modal-footer
+        .text-center
+            button.cancel.btn.btn-default(style='margin-right: 40px;', data-dismiss='modal') 取消
+            button#opAcceptConfirmOk.btn.btn-success 确定
+#callListRequestTaskModal.modal(tabindex='-1', data-width='960', style='display: none;')
+    .modal-header
+        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row
+            .col-md-3
+                h4.modal-title 名单申领
+    #callListRequestTaskBody.modal-body
+
+    .modal-footer
+        .text-center
+            button.cancel.btn.btn-default(style='margin-right: 40px;', data-dismiss='modal') 取消
+            button#callListRequestTaskBtn.btn.btn-success 确定
+
+    #assignMask.box-mask.mask-full(style='opacity: .9;')
+        .row(style='margin-top: 60px')
+            .col-sm-6.col-sm-offset-3.text-center
+                h3#assignProgress(style='color: #FFFFFF;') 正在处理
+        .row#assign-next-actions(style='margin-top: 20px; display: none;')
+            .col-sm-6.col-sm-offset-3.text-center
+                button#assignConBtn.btn.btn-primary 继续分配
+                button#assignCloseBtn.btn.btn-success.m-l-15 关闭
+script.
+
+    var typelableRadio = new pup.widgets.labelRadio('#selectTaskType').radio(function() {
+        taskListSearch();
+    });
+
+    var donelableRadio = new pup.widgets.labelRadio('#selectTaskDone').radio(function() {
+        taskListSearch();
+    });
+
+    var callListRequestStatusRadio = new pup.widgets.labelRadio('#selectCallListRequestStatus').radio(function() {
+        taskListSearch();
+    });
+
+    var taskListPagination = new pup.Pagination({templateKey : "crm.task.list.table"});
+    taskListPagination.setPageCount(12);
+    taskListPagination.condition('done', false);
+    taskListPagination.first();
+
+    var actionPlanCallCenter = new CallCenter('actionPlanCallCenter');
+
+    $('#customerActionPlanCompleteModal').on('hidden.bs.modal', function (e) {
+        taskListPagination.reload();
+    });
+
+    $('#opAcceptConfirmOk').click(function() {
+        var signId = $(this).data('signId');
+        console.log('task sign confirm ok. signId:' + signId);
+        taskListSign(signId, false);
+    });
+
+    function taskListSearch() {
+        var type = typelableRadio.val();
+        var done = donelableRadio.val();
+        var status = callListRequestStatusRadio.val();
+        if(type == 'callListRequest' && done == 'true') {
+            $('#taskListForm #callListRequestShow').show();
+        }else {
+            $('#taskListForm #callListRequestShow').hide();
+            status = '';
+        }
+
+
+
+        console.log('type : ' + type + ', done : ' + done);
+
+        taskListPagination.clear();
+
+        if(type) {
+            taskListPagination.condition('type', type);
+        }
+        if(done) {
+            taskListPagination.condition('done', done == 'true' ? true : false);
+        }
+        if(status) {
+            taskListPagination.condition('refObj.status', status);
+        }
+        taskListPagination.first();
+    }

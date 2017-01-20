@@ -1,0 +1,82 @@
+//
+   Created by tanyuan on 7/7/15.
+
+each wechatAppoint in wechatAppoints
+    if wechatAppoint.isDone == 'unfinished'
+        .row.m-t-10
+            .pull-right
+                span.m-l-15.icon-btn(onclick='openAppointResultModal(#{wechatAppoint._id})')
+                    i.icon.icon-pencil
+
+    .row.m-t-10
+        span.col-md-2.text-right.text-muted.small 约见时间
+        span.col-md-2.text-left #{wechatAppoint.appointDate}
+        span.col-md-2.text-right.text-muted.small RM
+        span.col-md-2.text-left #{wechatAppoint.rmInfo}
+        span.col-md-2.text-right.text-muted.small 见面地点
+        span.col-md-2.text-left #{wechatAppoint.addressTypeName}
+    .row.m-t-10
+        span.col-md-2.text-right.text-muted.small 约见类型
+        span.col-md-2.text-left #{wechatAppoint.meetTypeName}
+        span.col-md-2.text-right.text-muted.small 是否完成约见
+        span.col-md-2.text-left #{wechatAppoint.doneTypeName}
+    .row.m-t-10
+        span.col-md-2.text-right.text-muted.small 约见情况
+        span.col-md-2.text-left #{wechatAppoint.appointComment}
+    .row.m-t-10
+        span.col-md-2.text-right.text-muted.small 备注
+        span.col-md-2.text-left #{wechatAppoint.comment}
+    .row.m-t-10
+        .divider.divider-default
+
+#appointResult.modal(style='display: none;', data-width='760px')
+    .modal-header
+        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row
+            .col-md-3
+                h4.modal-title 约见预约情况
+    .modal-body
+        .row
+            .col-md-2.text-right.text-muted 约见预约情况
+            .col-md-10.text-left
+                input.holo(name='appointComment', id='appointComment', type='text', placeholder='约见预约情况', class='required')
+
+    .modal-footer
+        .text-center
+            button#cancel.cancel.btn.btn-lg.btn-primary(onclick='submitAppointResult("canceled")') 取消
+            button#submit.btn.btn-lg.btn-success(onclick='submitAppointResult("finished")') 完成
+
+
+
+script.
+    var appointId;
+    function openAppointResultModal(id) {
+        $('#appointResult').modal('show');
+        appointId = id;
+    }
+    $('#appointResultForm').validate_popover({popoverPosition: 'top'});
+
+    function submitAppointResult(isDone) {
+        var url = '/crm/wechat/appointResult';
+        var data = {};
+        data.appointComment = $('#appointResult #appointComment').val();
+        data.id = appointId;
+        data.isDone = isDone;
+
+        if ($(this).validate().form()) {
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: data,
+                dataType: 'JSON',
+                success: function (data) {
+                    if (data.msg.type == 'success') {
+                        $('#appointResult').modal('hide');
+                        appointManageListPagination.reload();
+                    }
+                    toast(data.msg);
+                }
+            })
+        }
+        return false;
+    };

@@ -1,0 +1,139 @@
+//
+   Created by tanyuan on 11/9/15.
+
+form#formUploadImage(action='/crm/product/image/upload')
+    .modal-header
+        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row
+            .col-md-3
+                h4.modal-title 上传图片
+    .modal-body
+        .row.m-t-10
+            span.col-md-2.text-right.text-muted.small 标签名称
+            .col-md-9.text-left
+                select(class='selectpicker', id='tagcode', name='tagcode', data-size='5', data-live-search="true")
+                    each tag in tags
+                        option(value='#{tag.tagcode}') #{tag.brief}
+        .row.m-t-10
+            span.col-md-2.text-right.text-muted.small 名称
+            .col-md-10.text-left
+                .row
+                    .col-md-4
+                        input.holo(type='text', name='prefix_dir', id='prefix_dir', readonly='readonly')
+                    .col-md-2.text-center
+                        span ---
+                    .col-md-4.text-left
+                        input.holo(type='text', placeholder='suffix directory name', name='suffix_dir', id='suffix_dir')
+        .row.m-t-20
+            span.col-md-2.text-right.text-muted.small 上传图片
+            .col-md-9.text-left
+                input(type='file', class='filestyle', name='files[]' multiple)
+        .row.m-t-20
+            span.col-md-2.text-right.text-muted.small 图片名称
+            .col-md-9.text-left
+                input.holo(name='imageNames', type='text', data-role='tagsinput')
+    .modal-footer
+        .text-center
+            button.cancel.btn.btn-lg.btn-default(style='margin-right: 40px;', type='button', data-dismiss='modal') 取消
+            button#ok.btn.btn-lg.btn-success(type='submit') 确定
+
+script.
+    $('#formUploadImage').find('[name=imageNames]').tagsinput({
+        trimValue: true,
+        maxTags: 10
+    });
+
+    $('#formUploadImage :file').filestyle({
+        'buttonText': '图片上传',
+        'classButton': 'btn btn-success',
+        'classIcon': 'icon-plus-1',
+        'input': false
+    });
+
+    $('.selectpicker').selectpicker({noneSelectedText: '请选择'});
+
+    $('#formUploadImage #prefix_dir').val(moment(new Date()).format('YYYYMMDD'));
+
+    var filesList = [];
+    var paramNames = [];
+    var imageNames = [];
+
+    $('[name=imageNames]').on('beforeItemRemove', function (event) {
+        // event.item: contains the item
+        // event.cancel: set to true to prevent the item getting removed
+        var idx = paramNames.indexOf(event.item);
+        if (idx != -1) {
+            paramNames.splice(idx, 1);
+        }
+        _.each(filesList, function (value, key) {
+            if (value.name == event.item) {
+                filesList.splice(key, 1);
+            }
+        })
+    });
+
+    $('#formUploadImage :file').fileupload({
+        autoUpload: false,
+        change: function (e, data) {
+            $.each(data.files, function (index, file) {
+                $('#formUploadImage').find('[name=imageNames]').tagsinput('add', file.name);
+            });
+        },
+        add: function(e, data) {
+            if (!_.contains(filesList, data.files[0])) {
+                filesList.push(data.files[0]);
+            }
+            if (!_.contains(paramNames, data.files[0].name)) {
+                paramNames.push(data.files[0].name);
+            }
+        }
+    });
+
+    $('#formUploadImage').submit(function (e) {
+        e.preventDefault();
+        $('#formUploadImage :file').fileupload('send', {files: filesList, paramName: paramNames}).done(function(e, data) {
+            if (data == 'success') {
+                filesList = [];
+                paramNames = [];
+                $('[name=imageNames]').tagsinput('removeAll');
+                $('#uploadImage').modal('hide');
+                toast({
+                    "type": "success",
+                    "body": "上传成功!"
+                });
+            }else {
+                toast({
+                    "type": "error",
+                    "body": "上传失败!"
+                });
+            }
+        });
+    });
+
+    //
+    //    $('#formUploadImage').submit(function (ev) {
+    //        ev.preventDefault();
+    //        var dir = '';
+    //        var prefix = $(this).find('#prefix_dir').val();
+    //        var suffix = $(this).find('#suffix_dir').val();
+    //        if (suffix == '') {
+    //            dir = prefix;
+    //        } else {
+    //            dir = prefix + '_' + suffix;
+    //        }
+    //        var url = $(this).attr('action');
+    //        $.ajax({
+    //            type: "POST",
+    //            url: url,
+    //            dataType: 'json',
+    //            data: {newsdir: dir},
+    //            success: function (data) {
+    //                if (data.msg.type == 'success') {
+    //                    $('#mkdirActivity').modal('hide');
+    //                    $('#formUploadImage').find('#suffix_dir').val('');
+    //                }
+    //                toast(data.msg)
+    //            }
+    //        });
+    //        return false;
+    //    });

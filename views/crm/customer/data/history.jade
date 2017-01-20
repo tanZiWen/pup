@@ -1,0 +1,99 @@
+form#historyForm
+    .row
+        .col-sm-8.col-sm-offset-2.mm-box.form-horizontal
+            .row.m-t-10
+                .form-group
+                    label.col-sm-2.control-label(for='name') 批次名
+                    .col-sm-4
+                        input.holo(type='text', id='name', placeholder='关键字')
+                    .col-sm-4
+                        select(class='selectpicker', name='userId', id='userId', data-live-search='true')
+                            option(value='') 全部
+                            each user in users
+                                option(value='#{user._id}') #{user.realName}
+            .row.m-t-10
+                .form-group
+                    label.col-sm-2.control-label(for='name') 导入日期
+                    .col-sm-4
+                        input(type='text', id='start_date', placeholder='开始日期', class='form-control')
+                    .col-sm-4
+                        input(type='text', id='end_date', placeholder='截止日期', class='legalNumber form-control')
+            .row.m-t-10
+                .form-group
+                    label.col-sm-2.control-label(for='cycle') 归属
+                    .col-sm-4
+                        .btn-group(data-toggle='buttons-radio', id='areaCode', name='areaCode')
+                            button.btn.btn-sm.btn-light-info.active(type='button', value='all') 全部
+                            each area, i in areas
+                                button.btn.btn-sm.btn-light-info(value='#{area.code}')  #{area.name}
+            .row.m-t-10.m-b-10
+                .divider.divider-default
+            .row.text-center.m-b-10
+                button.btn.btn-primary(id='historyBtn')
+                    i.icon.icon-filter-1
+                    | 过滤
+.row.m-t-25
+    .col-sm-8.col-sm-offset-2
+        #historyListData.row
+
+#batchDetail.modal(tabindex='-1', data-width='760', style='display: none;')
+    .modal-header
+        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row
+            .col-md-3
+                h4.modal-title 分配详情
+    .modal-body
+        #batchDetailDataList
+    .modal-footer
+        .text-center
+            button.cancel.btn.btn-lg.btn-success(data-dismiss='modal', type='button') 关闭
+
+script.
+
+    $('.selectpicker').selectpicker({noneSelectedText:'请选择'});
+
+    $('#start_date').datetimepicker({format : 'yyyy-mm-dd', autoclose: true, weekStart: 1, todayBtn: true, minView : 'month'});
+    $('#end_date').datetimepicker({format : 'yyyy-mm-dd', autoclose: true, weekStart: 1, todayBtn: true, minView : 'month'});
+    var historyPagination = new pup.Pagination({
+        templateKey : "customerBatch.history.dataList",
+        paginationParamName : "pagination"
+    });
+    historyPagination.setSort({ctime : -1}).first();
+
+    $('.cancel').click(function() {
+        $('#main .modal').modal('hide');
+    });
+
+    $('#historyForm #historyBtn').click(function(){
+        var name = $('#historyForm #name').val().trim();
+        var areaCode = $('#historyForm #areaCode > .btn.active').val();
+        var start_date = $('#historyForm #start_date').val();
+        var userId = $('#historyForm #userId').val();
+        var end_date = $('#historyForm #end_date').val();
+        var conditions = {};
+        $('#historyForm').validate_popover({onsubmit: false, popoverPosition: 'top'});
+        if($('#historyForm').validate().form()){
+            if(name != '') conditions.name = name;
+            if(areaCode != 'all') conditions['belongArea.areaCode'] = areaCode;
+            if(userId != ''){
+                conditions['assign.assignTo.userid'] = userId;
+            }
+            if(start_date != '' && end_date != '') {
+                conditions.ctime = {$gte: start_date, $lte: end_date};
+            }
+            if(start_date != '' && end_date == ''){
+                conditions.ctime = {$gte: start_date};
+                console.log(conditions);
+            }
+            if(start_date == '' && end_date != ''){
+                conditions.ctime = {$lte: end_date};
+            }
+            historyPagination.setCondition(conditions).setSort({ctime : -1}).first();
+        }
+        return false;
+    });
+    jQuery.validator.addMethod("legalNumber", function(value, element) {
+        var end_date = $(element).val();
+        var start_date = $('#start_date').val();
+        return this.optional(element) || (end_date >= start_date);
+    }, "请填写合法字段");

@@ -1,0 +1,83 @@
+.row.m-t(style='padding-top: 10px; padding-bottom: 10px;')
+    .col-sm-12
+        .col-md-3.text-left(style='width: 50%;')
+            table.table.table-bordered.mm-box.col-md-10#reallocateData
+                tr
+                    td.table-bordered
+                        .row.m-l-5.text-left
+                            .form-group
+                                label.control-label.col-md-2 组员
+                                input(type='hidden', id='workGroup', value='#{workGroup}')
+                                .col-md-10(style='margin-top:5px;')
+                                    select(class='selectpicker', name='groupUser', id='groupUser')
+                                        option(value='') 全部
+                                        each groupUser in groupUsers
+                                            option(value='#{groupUser._id}') #{groupUser.realName}
+                            .form-group
+                                label.control-label.col-md-2 类型
+                                #customerStatus.labelRadio
+                                    input(name='status', type='radio', value='', data-name="全部", checked='checked')
+                                    each status, i in statusList
+                                        if i < 4
+                                            input(name='status', type='radio', value='#{status.key}', data-name="#{status.name}")
+                tr
+                    td#reallocateListData
+
+        .col-md-3.text-left(style='width: 5%;margin-top:100px;')
+            span.icon.icon-right-big
+        .col-md-3.text-left(style='width: 45%;')
+            table.table.table-bordered.mm-box.col-md-10#reallocateUserData
+                tr
+                    td
+                        table.table
+                            tr
+                                th 人员
+                                th 勾选
+                            each user, i in users
+                                tr.cust-record
+                                    td.col-xs-4 #{user.realName}
+                                    td
+                                        if i == 0
+                                            input.radio(checked='checked',type='radio', name='userRadio', id='userRadio#{user._id}', value='#{user._id}')
+                                        else
+                                            input.radio(type='radio', name='userRadio', id='userRadio#{user._id}', value='#{user._id}')
+
+#reallocateMask.box-mask.mask-full(style='opacity: .9;')
+    .row(style='margin-top: 60px')
+        .col-sm-6.col-sm-offset-3.text-center
+            h3#reallocateProgress(style='color: #FFFFFF;') 正在处理
+    .row#reallocate-next-actions(style='margin-top: 20px; display: none;')
+        .col-sm-6.col-sm-offset-3.text-center
+            button#reallocateConBtn.btn.btn-primary 继续回收
+            button#reallocateCloseBtn.btn.btn-success.m-l-15 关闭
+
+script.
+    $('.selectpicker').selectpicker({noneSelectedText:'请选择'});
+
+    var statusRadio = new pup.widgets.labelRadio('#reallocateData #customerStatus').radio(function(value) {
+        queryRecycleCallList();
+    });
+
+    if($('#reallocateData #workGroup').val() != '') {
+        queryRecycleCallList();
+    }
+
+    $('#reallocateData #groupUser').change(function() {
+        queryRecycleCallList();
+    });
+
+    function queryRecycleCallList() {
+        var condition = {};
+
+        condition.workGroup = $('#reallocateData #workGroup').val();
+
+        if($('#reallocateData #groupUser').val() !=null && $('#reallocateData #groupUser').val() != '') {
+            condition.groupUser = $('#reallocateData #groupUser').val();
+        }
+        if(statusRadio.val() != null && statusRadio.val() != '') {
+            condition.status = statusRadio.val();
+        }
+
+        pup.template.renderTemplateByKey("customer.data.reallocateList", condition);
+    }
+

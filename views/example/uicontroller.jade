@@ -1,0 +1,69 @@
+//
+   Created by wangnan on 14-8-20.
+
+html
+    head
+        meta(charset='utf-8')
+        script.
+            var pathToDwrServlet = "http://localhost:55505/ui";
+        script(type='text/javascript', src='http://localhost:55505/ui/engine.js')
+        script(type='text/javascript', src='http://localhost:55505/ui/interface/UIController.js')
+        script.
+
+            console.log('pathToDwrServlet=' + pathToDwrServlet);
+            function callback(v)
+            {
+                alert(JSON.stringify(v));
+            }
+            function Login(){
+                //String user 参数用户名
+                //String password 参数密码
+                //返回的字符串为sessionid
+                UIController.loginUser("admin","admin",callback);
+            }
+            function GetGroupInfo(){
+                UIController.getGroupList("","","",callback);
+            }
+            function Add(){
+                //String user 参数用户名，省略则自动使用Login登录的http session
+                //String sessionid 参数Login返回的字符串，省略则自动使用Login登录的http session
+                //String username 参数添加的用户名
+                UIController.addUser("","","userjs","1084f870-fa15-494b-959f-bb6f87ba1280",callback);
+            }
+            function Remove(){
+                //String user 参数用户名，省略则自动使用Login登录的http session
+                //String sessionid 参数Login返回的字符串，省略则自动使用Login登录的http session
+                //String username 参数删除的用户名
+                UIController.removeUser("","","userjs",callback);
+            }
+            function Logout(){
+                //String user 参数用户名，省略则自动使用Login登录的http session
+                //String sessionid 参数Login返回的字符串，省略则自动使用Login登录的http session
+                UIController.logoutUser("","",callback);
+            }
+            function Search()
+            {
+                //int nBegin,int nEnd 开始页面位置，和一页的长度
+                //String startDateTime,String endDateTime 开始时间和结束时间，格式必须是 yyyy-MM-dd hh:mm:ss
+                //String user 参数用户名，省略则自动使用Login登录的http session
+                //String sessionid 参数Login返回的字符串，省略则自动使用Login登录的http session
+                //String caller,String called,String ext,String agent 主叫、被叫、分机、工号、可为零长度字符串忽略
+                //int nBak,int nLock,int nDel,int nAnswer,int nDir,int nInside
+                //nBak(0全部，1备份过，2无备份过),nLock（0全部，1加锁，2无加锁），nDel（0全部，1删除，2没删除）
+                //nAnswer(0全部，1应答，2无应答)，nDir呼叫方向(0全部，1呼出，2呼入)，nInside（0全部，1内线，2外线）
+                //String sDialup,二次拨号可忽略
+                //int nLength,long nMaxLength, 录音最小长度和录音最大长度，0则忽略
+                //String sUcid, PBX唯一标识，可忽略
+                //String sGuidId, 录音唯一标识，可忽略
+                //String sGroupGuid, 组唯一标识，可怒略
+                //callback 回调函数
+                UIController._path = 'http://localhost:55505/ui';
+                UIController.searchRecords("","",0,100,"2011-1-1 0:0:0","2014-8-8 23:59:59","","","","",0,0,0,0,0,0, "", 0,0,"", "","",callback);
+            }
+    body
+        input(type='button', value='UIController.GetGroupInfo', onclick='javascript:GetGroupInfo();')
+        input(type='button', value='UIController.AddUser', onclick='javascript:Add();')
+        input(type='button', value='UIController.RemoveUser', onclick='javascript:Remove();')
+        input(type='button', value='UIController.Login', onclick='javascript:Login();')
+        input(type='button', value='UIController.Logout', onclick='javascript:Logout();')
+        input(type='button', value='UIController.Search', onclick='javascript:Search();')

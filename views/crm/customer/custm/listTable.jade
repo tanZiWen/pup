@@ -1,0 +1,140 @@
+//
+   Created by wangnan on 14-6-11.
+
+.row.m-b-20
+    .list-container
+        each c in dataList
+            .mm-box.t-cust-card(style='cursor:pointer;width: 236px; height: 160px;margin: 5px;position: relative;', data-id='#{c._id}')
+                .row(style='height: 100%')
+                    .row
+                        .col-md-12
+                            .col-md-3.text-right(style='padding-right: 5px;')
+                                if c.sex == 'male'
+                                    i.glyphicon.glyphicon-user.blue
+                                else if c.sex == 'female'
+                                    i.glyphicon.glyphicon-user.red
+                                else
+                                    i.glyphicon.glyphicon-user
+                            .col-md-5.text-left(style='padding-left: 5px;')
+                                span
+                                    if c.name
+                                        | #{c.name}
+                                    else
+                                        | 还未留下姓名
+
+                            .col-md-4.text-right
+                                span.small.m-r-10 #{c.statusName}
+                    .row
+                        .col-md-12
+                            .col-md-3.text-right(style='padding-right: 5px;')
+                                i.icon-phone-3.text-muted.small
+                            .col-md-9.text-left(style='padding-left: 5px;')
+                                span.small #{c.telNo}
+                    .row
+                        .col-md-12
+                            .col-md-3.text-right(style='padding-right: 5px;')
+                                i.text-muted.small 顾问
+                            .col-md-9.text-left(style='padding-left: 5px;')
+                                if c.refSeller
+                                    span.small.m-r-5 #{c.refSeller.realName}
+
+                    .row
+                        .col-md-12
+                            .col-md-3.text-right(style='padding-right: 5px;')
+                                i.text-muted.small RM
+                            .col-md-9.text-left(style='padding-left: 5px;')
+                                if c.refManager
+                                    span.small.m-r-5 #{c.refManager.realName}
+
+                    .row
+                        .col-md-12
+                            .col-md-3.text-right(style='padding-right: 5px;')
+                                i.text-muted.small 近联
+                            .col-md-9.text-left(style='padding-left: 5px;')
+                                span.small #{c.lastContact.dateStr}
+                    .col-md-12
+                        .divider.divider-danger
+                    .col-md-12
+                        p.small.text-muted(style='margin-top: 5px; padding: 0px 6px;')
+                            if c.comment
+                                | #{c.comment}
+                            else
+                                | 还没留下任何备注信息
+                .box-mask.bg-grass-static.f-action
+                    .col-sm-12(style='height: 110px;')
+                        .row.m-t-10
+                            .col-sm-12
+                                p.text-left.text-white 体量 #{c.bodyMassStr}
+                        .row
+                            .col-sm-12
+                                p.text-left.text-white 偏好 #{c.investmentPreferenceStr}
+                        .row
+                            .col-sm-12.text-left
+                                if c.tags
+                                    - for(var i = 0; i < c.tags.length; i++) {
+                                    -    if(i < 3) {
+                                            .label.label-info.m-l-5 #{c.tags[i]}
+                                    -    } else {
+                                            .label.label-info.m-l-5 ...
+                                    -       break;
+                                    -    }
+                                    - }
+
+                    .divider.divider-white
+                    .row.text-center(style='height: 46px;position:relative;')
+                        .col-sm-12(style='height: 100%;')
+                            .customer-list-t-call.action.bg-grass.col-sm-6.text-center(data-id='#{c._id}', style='border-right: 1px solid #FFFFFF')
+                                i.icon-phone-3
+                                span.m-l-5 拨打
+                            .customer-list-t-email.action.bg-grass.col-sm-6.text-center(data-email='#{c.email}')
+                                i.icon-mail-8
+                                span.m-l-5 发邮件
+#customerListPageBar
+
+script.
+    var customerListCallCenter = new CallCenter('customerListCallCenter');
+    $('.customer-list-t-call').click(function(e) {
+        console.log('customer List call : ' + $(this).data('id'));
+        customerListCallCenter.show($(this).data('id'));
+        return false;
+    });
+    $('.t-cust-card').click(function(e) {
+        var id = $(this).data('id');
+        pup.widgets.layerManager.open({
+            layerKey : null,
+            targetSelector : null,
+            html : '',
+            template : {
+                key : 'customer.detail',
+                dataParam : {id : id, type: 'customer'},
+                beforeRender : function() {toastr.clear();},
+                afterRender : function() {}
+            },
+            closeButton : {
+                visible : false
+            },
+            beforeClose : function() {
+                console.log('close customer detail layer...');
+                toastr.clear();
+                customerListPagination.reload();
+                return true;
+            }
+        });
+        return false;
+    });
+    $('.t-cust-card').mouseleave(function() {
+        $(this).find('.f-action').slideUp(50);
+    });
+    $('.t-cust-card').mouseenter(function() {
+        $(this).find('.f-action').slideDown(50);
+    });
+    $('.customer-list-t-email').click(function() {
+        var email = $(this).data('email');
+        if(email != null) {
+            window.location.href = 'mailto:' + email;
+        }
+        return false;
+    });
+
+    customerListPagination.setPageCount(12);
+    customerListPagination.bar('#customerListPageBar');

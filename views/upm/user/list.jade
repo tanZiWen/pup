@@ -1,0 +1,271 @@
+//
+   Created by tanyuan on 7/28/14.
+.sidebar.sidebar-left.mm-box
+    #addUser.sidemenu
+        i.icon.icon-user-1
+        | 新用户
+
+#employee.modal(style='display:none', data-width='960px')
+    .modal-header
+        button.close(type='button', data-dismiss='modal') &times
+        .row
+            .col-md-3
+                h4.modal-title 第一步:&nbsp&nbsp选择员工
+
+    .modal-body
+        .row
+            .col-md-10.col-md-offset-1
+                .row.m-t-20
+                    label.control-label.col-md-2.text-right 姓名
+                    .col-md-6
+                        input.holo(type='text', id='name', name='name')
+                    .col-md-2
+                        button.btn.btn-primary.text-left#selectByName(style='width:120px', type='button')
+                            i.icon-search-8(style='margin-right: 10px;')
+                            span 快速查找
+                .row.m-t-20
+                    label.col-md-2.text-right 分公司:
+                    .col-md-10
+                        #selectArea.labelRadio
+                            each area in areaList
+                                input(type='radio', value='#{area.code}', data-name='#{area.name}')
+        #employeeData
+    .modal-footer
+        .row
+            .text-center
+                button.btn.btn-lg.btn-default(type='button', data-dismiss='modal') 取消
+                button.btn.btn-lg.btn-success#next(type='button') 下一步
+
+.row.m-t-20
+    .col-sm-8.col-sm-offset-2.mm-box.form-horizontal.filter-pan
+        .form-group
+            label.col-md-2.text-right 登录名/姓名
+            .col-md-6
+                input.holo(type='text', id='username', name='username')
+            button.btn.btn-primary#findByUsername
+                i.icon-search-8(style='margin-right: 10px;')
+                span 快速查找
+        .form-group.m-t-20
+            label.col-md-2.text-right 员工姓名
+            .col-md-4
+                select(class='selectpicker show-tick form-control', id='employeeid', data-size='5', data-live-search="true")
+                    option(value='') 请选择
+                    each employee in employees
+                        option(value='#{employee._id}') #{employee.name}
+
+        .form-group.m-t-20
+            label.col-md-2.text-right 分公司
+            .col-md-10
+                #selectUserArea.labelRadio
+                    each area in areaList
+                        input(type='radio', value='#{area.code}', data-name='#{area.name}')
+        .form-group.m-t-20
+            label.col-md-2.text-right 职位
+            .col-md-10
+                #selectPosition.labelRadio
+                    each position in positionList
+                        input(type='radio', value='#{position.key}', data-name='#{position.name}')
+        .form-group.m-t-20
+            label.col-md-2.text-right 角色
+            .col-md-10
+                #selectRoleCode.labelRadio
+                    each roleCode in roleCodeList
+                        input(type='radio', value='#{roleCode.code}', data-name='#{roleCode.name}')
+.row.m-t-20
+    .col-md-8.col-md-offset-2
+        #userData.row
+
+#add.modal(data-width='760', style='display: none;')
+    #listNewUser
+
+#edit.modal(style='display: none', data-width='760px')
+    #listDetailUser
+
+#delete.modal(style='display: none')
+    .modal-body
+        p 确认删除？
+    .modal-footer
+        .text-center
+            button.btn.btn-default(type='button', data-dismiss='modal') 取消
+            button.btn.btn-danger#ok(type='button') 确定
+
+#restPwd.modal(style='display: none')
+    .modal-header
+        button.close(type='button', data-dismiss='modal') &times
+        .row
+            .col-md-3
+                h4.modal-title 重置密码
+    .modal-body
+        .row
+            .col-md-8.col-md-offset-2
+                input.holo(type='text', id='pwd', name='pwd', placeholder='请输入重置密码', value='prosnav8888')
+    .modal-footer
+        .text-center
+            button.btn.btn-default(type='button', data-dismiss='modal') 取消
+            button.btn.btn-danger#ok(type='button') 确定
+
+
+script.
+    $('.selectpicker').selectpicker('refresh');
+    var userPagination = new pup.Pagination({templateKey : 'user.listData'});
+    userPagination.first();
+    var employeePagination = new pup.Pagination({templateKey: 'employee.listData'});
+    $('#addUser').click(function() {
+        employeePagination.clear();
+        employeePagination.first();
+        $('#employee').modal('show');
+    })
+    function search() {
+        var name = $('#name').val();
+        var area = orgRadio.val();
+        employeePagination.clear();
+        if(name) {
+            employeePagination.condition('name', name);
+        }
+        if(area) {
+            employeePagination.condition('area', area);
+        }
+        employeePagination.first();
+    }
+    var orgRadio = new pup.widgets.labelRadio('#selectArea').radio(function() {
+        search();
+    });
+    function userSearch() {
+        var username = $('#username').val();
+        var employeeid = $('#employeeid').val();
+        var orgCode = userAreaRadio.val();
+        var position = positionRadio.val();
+        var roleCodes = roleCodeRadio.val();
+        userPagination.clear();
+        if(username) {
+            userPagination.condition('username', username);
+        }
+        if(employeeid) {
+            userPagination.condition('employeeid', employeeid);
+        }
+        if(orgCode) {
+           userPagination.condition('orgCode', orgCode);
+        }
+        if(position) {
+           userPagination.condition('position', position);
+        }
+        if(roleCodes) {
+            userPagination.condition('roleCodes', {$in: [roleCodes]});
+        }
+        userPagination.first();
+    }
+    var userAreaRadio = new pup.widgets.labelRadio('#selectUserArea').radio(function() {
+        userSearch();
+    });
+    var positionRadio = new pup.widgets.labelRadio('#selectPosition').radio(function() {
+        userSearch();
+    });
+    var roleCodeRadio = new pup.widgets.labelRadio('#selectRoleCode').radio(function() {
+        userSearch();
+    });
+
+    $('#selectByName').click(function() {
+       search()
+    })
+    $('#findByUsername').click(function() {
+       userSearch();
+    })
+    $('#next').click(function() {
+        var id = $("input[type='checkbox']:checked").attr('name');
+        var orgCode = $("input[type='checkbox']:checked").attr('id');
+        if(id){
+            var data = {};
+            data.id = id;
+            data.orgCode = orgCode;
+            var url = '/upm/user/view';
+            $.ajax({
+               type: 'POST',
+               dataType: 'json',
+               url: url,
+               data: data,
+               success: function(data) {
+                   if(data.type == 'success') {
+                       $(':checkbox').prop('checked',false);
+                       var employee = data.employee;
+                       $('#employee').modal('hide');
+                       $('#add').modal('show');
+                       if(employee.name) {
+                           $('#add #realName').val(employee.name);
+                       }
+                       if(employee.sex) {
+                           $('#add #sex').find('button').each(function() {
+                               if(employee.sex == $(this).val()) {
+                                   $(this).button('toggle');
+                               }
+                           });
+                       }
+                       if(employee.email) {
+                           $('#add #email').val(employee.email)
+                       }
+                       if(employee.orgCode) {
+                           $('#add #orgCode').find('button').each(function() {
+                               if(employee.parentCode == $(this).val()) {
+                                   $(this).button('toggle');
+                               }else {
+                                   $(this).hide();
+                               }
+                           });
+                       }
+                       if(!_.isEmpty(employee.workGroup)) {
+                           _.each(employee.workGroup, function(value) {
+                               $('#add #workGroup').append('<option value="'+value._id+'">'+value.name+'</option>');
+                           })
+                           $('.selectpicker').selectpicker('refresh');
+                       }
+
+                       $('#add #employeeid').val(employee._id);
+                       $('#add #workno').val(employee.workno);
+                   }
+               }
+            });
+        }else {
+            toast({type: 'warning', body: '请选择员工'})
+        }
+    })
+    $('#delete #ok').click(function() {
+       var id = userId;
+       var url = '/upm/user/delete';
+       $.ajax({
+           type: 'POST',
+           dataType: 'json',
+           data: {id: id},
+           url: url,
+           success: function(data) {
+               if(data.msg.type = 'success') {
+                   $('#delete').modal('hide');
+                   userPagination.reload();
+               }
+               toast(data.msg);
+           }
+       });
+    });
+
+    $('#restPwd #ok').click(function() {
+        var id = userId;
+        var pwd = $('#restPwd #pwd').val();
+        if(pwd == '') {
+            toastr.clear();
+            toastr({type: 'info', body: '密码不能为空'});
+            return;
+        }
+        var url = '/upm/user/restPwd';
+        $.ajax({
+            type: 'PUT',
+            dataType: 'json',
+            data: {id: id, pwd: pwd},
+            url: url,
+            success: function (data) {
+                if (data.msg.type == 'success') {
+                    $('#restPwd').modal('hide');
+                }
+                toast(data.msg);
+            }
+        });
+    });
+
+

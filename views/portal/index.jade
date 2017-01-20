@@ -1,0 +1,128 @@
+extends layout
+block script
+    script.
+        $(function() {
+            $('#mu-apps').click(function() {
+                $('#apps').show();
+                $('#message').hide();
+            });
+            $('#mu-msg').click(function() {
+                $('#message').show();
+                $('#apps').hide();
+            });
+
+            $('.app-box').click(function() {
+                var path = $(this).data('href');
+                window.open(path);
+            });
+            $('.f-task').click(function() {
+                window.open('/crm/audit/detail');
+            });
+        });
+block content
+    #message.row(style='margin-top: 10px;')
+        .mm-box.col-md-2.f-task(style='height:200px;margin:10px;cursor:pointer;')
+            h4 20商机跟进
+            .row
+                .col-md-12
+                    i.icon-user-8(style='margin-right: 5px;')
+                    span 张先生
+            .row
+                .col-md-12
+                    i.icon-phone-3(style='margin-right: 5px;')
+                    span 13812345678
+            .row
+                .divider(style='background: #a52410;height: 1px;margin:10px auto;')
+            p.small.text-muted(style='margin-top: 5px') 介绍海外固定收益产品，客户了解怎么保证收益、时间、门槛、投资方式，表示感兴趣
+            .col-md-12.bottom
+                h6.text-info 顾问消息示例
+        .mm-box.col-md-2.f-task(style='height:200px;margin:10px;cursor:pointer;')
+            h4 40商机判定
+            .row
+                .col-md-12
+                    i.icon-user-8(style='margin-right: 5px;')
+                    span David
+            .row
+                .col-md-12
+                    i.icon-clock(style='margin-right: 5px;')
+                    span 今天 16:00
+            .row
+                .divider(style='background: #a52410;height: 1px;margin:10px auto;')
+            p.small.text-muted(style='margin-top: 5px') 电话跟进，约见
+            .col-md-12.bottom
+                h6.text-info 质检消息示例
+        .mm-box.col-md-3.f-task(style='height:200px;margin:10px;cursor:pointer;')
+            h4 到账通知
+            .row
+                .col-md-12
+                    i.icon-user-8(style='margin-right: 5px;')
+                    span 张xx 先生
+            .row
+                .col-md-12
+                    span 盛世神州苏州昂内地产基金
+            .row
+                .col-md-6
+                    i.icon-yen(style='margin-right: 5px;')
+                    span 1000万
+                .col-md-6
+                    i.icon-clock(style='margin-right: 5px;')
+                    span 今天 16:00
+            .col-md-12.bottom
+                h6.text-info RM消息示例
+        .mm-box.col-md-3.f-task(style='height:200px;margin:10px;cursor:pointer;')
+            h4 成立公告
+            .row
+                .col-md-12
+                    span 盛世神州苏州昂内地产基金
+            .row
+                .col-md-6
+                    i.icon-calendar(style='margin-right: 5px;')
+                    span 2014.2.1
+            .row
+                .divider(style='background: #a52410;height: 1px;margin:10px auto;')
+            .row
+                span.col-md-6.text-left 张xx 先生
+                span.col-md-6.text-right 1000万
+            .row
+                span.col-md-6.text-left 李xx 先生
+                span.col-md-6.text-right 800万
+            .row
+                span.col-md-6.text-left 王xx 先生
+                span.col-md-6.text-right 800万
+            .col-md-12.bottom
+                h6.text-info RM消息示例
+        .mm-box.col-md-3.f-task(style='height:200px;margin:10px;cursor:pointer;')
+            h4 订单通知
+            .row
+                .col-md-6
+                    i.icon-user-8(style='margin-right: 5px;')
+                    span 张xx 先生
+                .col-md-6
+                    i.icon-user-8(style='margin-right: 5px;')
+                    span David
+            .row
+                .col-md-6
+                    i.icon-yen(style='margin-right: 5px;')
+                    span 1000万
+                .col-md-6
+                    i.icon-clock(style='margin-right: 5px;')
+                    span 今天 16:00
+            .row
+                .col-md-12
+                    span 盛世神州苏州昂内地产基金
+            .row
+                .col-md-12
+                    span 合同编号: A12345678
+            .row
+                .divider(style='background: #a52410;height: 1px;margin:10px auto;')
+            p.text-muted.small 客户追投
+            .col-md-12.bottom
+                h6.text-info 产品消息示例
+    #apps.row(style='display: none;margin-top: 20px;')
+        if session.user.apps
+            each app in session.user.apps
+                .mm-box.app-box.col-md-12(style='background: #D46408;', data-href='#{app.prefix_url}')
+                    h1.text-center #{app.title}
+                    p.col-md-12.text-center #{app.name}
+
+

@@ -1,0 +1,493 @@
+//
+   Created by michael on 6/26/14.
+
+.row.m-t(style='padding-top: 10px; padding-bottom: 10px;')
+    .col-sm-12
+        .col-md-3.text-left(style='width: 50%;')
+            table.table.table-bordered.mm-box.col-md-10
+                tr
+                    td.table-bordered
+                        .row.m-l-5.text-left
+                            form#queryBatch(onsubmit='return fasle;')
+                                .form-group
+                                    label.control-label.col-md-2 归属
+                                    if requestId
+                                        input(type='hidden', id='requestId', value='#{requestId}')
+                                    else
+                                        input(type='hidden', id='requestId', value='')
+                                    if batchName
+                                        input(type='hidden', id='requestId', value='#{batchName}')
+                                    else
+                                        input(type='hidden', id='requestId', value='')
+                                    #area.btn-group(data-toggle='buttons-radio')
+                                        button.btn-sm.btn.btn-light-info.active(type='button', value='') 全部
+                                        each area in areas
+                                            button.btn-sm.btn.btn-light-info(type='button', value='#{area.code}') #{area.name}
+                                .form-group
+                                    label.control-label.col-md-2 等级
+                                    #type.btn-group(data-toggle='buttons-radio')
+                                        button.btn-sm.btn.btn-light-info.active(type='button', value='') 全部
+                                        each level in dataLevels
+                                            button.btn-sm.btn.btn-light-info(type='button', value='#{level.key}') #{level.name}
+                                .form-group
+                                    label.control-label.col-md-2 状态
+                                    #status.btn-group(data-toggle='buttons-radio')
+                                        button.btn-sm.btn.btn-light-info.active(type='button', value='0') 非商机
+                                        button.btn-sm.btn.btn-light-info(type='button', value='1') 商机
+                                    label.m-l-15
+                                        input(type='checkbox' name='clearPotential' id='clearPotential' value='1' checked)
+                                        label.text-danger.m-l-5 清除可跟进状态
+                                #bcRule.form-group
+                                    label.control-label.col-md-2
+                                    label
+                                        input(type='checkbox' name='bcRuleType' value='0')
+                                        label.text-danger.m-l-5 时间倒序分
+                                    label.m-l-10
+                                        input(type='checkbox' name='bcRuleType' value='1')
+                                        label.text-danger.m-l-5 时间先后分
+                                #callTypeTr.form-group
+                                    label.control-label.col-md-2 类型
+                                    #callType.btn-group(data-toggle='buttons-radio')
+                                        button.btn-sm.btn.btn-light-info.active(type='button', value='') 全部
+                                        button.btn-sm.btn.btn-light-info(type='button', value='0') 已拨
+                                        button.btn-sm.btn.btn-light-info(type='button', value='1') 未拨
+                                .form-group
+                                    label.control-label.col-md-2 规则
+                                    #rule.btn-group(data-toggle='buttons-radio')
+                                        button.btn-sm.btn.btn-light-info.active(type='button', value='0') 快速分配
+                                        button.btn-sm.btn.btn-light-info(type='button', value='1') 自定义分配
+                                .form-group
+                                    label.control-label.col-md-2 批号
+                                    input.input-md(name='batchNo',id='batchNo')
+                                    span(style='margin-right: 20px;')
+                                    button.btn.btn-info(data-toggle="modal", data-target="#detail", id='queryQuick')
+                                        i.icon-search-8(style='margin-right: 5px;')
+                                        span 过滤
+                tr
+                    td(id='batchListData')
+
+        .col-md-3.text-left(style='width: 5%; margin-top:130px;')
+            span.icon.icon-right-big
+        .col-md-3.text-left(style='width: 45%;')
+            table.table.table-bordered.mm-box.col-md-10
+                tr
+                    td.table-bordered
+                        .row.text-left
+                            .form-group
+                                label.control-label.col-md-3.text-right 机构
+                                select(class='selectpicker', name='orgCode', id='orgCode')
+                                    each org in orgs
+                                        option(value='#{org.code}') #{org.name}
+                        .row.text-left
+                            .form-group
+                                label.control-label.col-xs-3.text-right 小组
+                                select(class='selectpicker', name='workGroup', id='workGroup')
+
+                        .row.text-left
+                            .form-group
+                                label.control-label.col-md-3.text-right 方式
+                                #assignType.btn-group(data-toggle='buttons-radio')
+                                    button.btn-sm.btn.btn-light-info.active(type='button', value='avg') 平均分配
+                                    button.btn-sm.btn.btn-light-info(type='button', value='custon') 自定义分配
+                        .form-group.text-center
+                            button.btn.btn-info(data-toggle="modal", id='queryUser')
+                                i.icon-search-8(style='margin-right: 5px;')
+                                span 过滤
+                tr
+                    td#userListData
+
+#clearPotentialConfirm.modal(tabindex='-1', style='display: none;')
+    .modal-body
+        p#confirmMsg 确定清除可跟进数据状态？
+        p#opStatus(style='font-size: 20px; font-face: bold; display: none;')
+            i.icon.icon-spin5.animate-spin.text-success
+    .modal-footer
+        .text-center
+            button.cancel.btn.btn-default(style='margin-right: 40px;', data-dismiss='modal') 取消
+            button#ok.btn.btn-danger 确定
+
+script.
+    var dataCount = 0;
+    var validCount = dataCount;
+    var leftCount = validCount;
+    var assignCount = 0;
+
+    var batchSelectedIds = [];
+
+    $('#bcRule').hide();
+
+    if($('#batchName').val() != '') {
+        $('#batchNo').val($('#batchName').val());
+        queryBatchData();
+    } else {
+        getBatchCount();
+    }
+
+    function getBatchList(where) {
+        var condition = {};
+        if(where) condition = where;
+        pup.template.renderTemplateByKey("customerBatch.dataList", condition);
+    }
+
+    function getBatchCount(where) {
+        var condition = {}
+        if(where) condition = where;
+        pup.template.renderTemplateByKey("customerBatch.count", condition);
+    }
+
+    $('#queryQuick').click(function() {
+        queryBatchData();
+    });
+
+    function queryBatchData() {
+        batchSelectedIds = [];
+        $('#batchListData').html('');
+        var condition = {};
+        var assignRule = $("#queryBatch #rule > .btn.active").val();
+        if($('#queryBatch #batchNo').val() != '' || assignRule == '1') {
+            if($('#queryBatch #batchNo').val() != '') {
+                condition.name = $('#queryBatch #batchNo').val();
+            }
+            condition.status = $("#queryBatch #status > .btn.active").val();
+            if($("#queryBatch #area > .btn.active").val() != ''){
+                condition['belongArea.areaCode'] = $("#queryBatch #area > .btn.active").val();
+            }
+            if($("#queryBatch #type > .btn.active").val() != '') {
+                condition.dataLevel = $("#queryBatch #type > .btn.active").val();
+            }
+            if($("#queryBatch #callType > .btn.active").val() != '') {
+                condition.callType = $("#queryBatch #callType > .btn.active").val();
+            }
+            getBatchList(condition);
+        } else {
+            if($("#queryBatch #area > .btn.active").val() != ''){
+                condition['belongArea.areaCode'] = $("#queryBatch #area > .btn.active").val();
+            }
+            if($("#queryBatch #type > .btn.active").val() != '') {
+                condition.dataLevel = $("#queryBatch #type > .btn.active").val();
+            }
+            if($("#queryBatch #callType > .btn.active").val() != '') {
+                condition.callType = $("#queryBatch #callType > .btn.active").val();
+            }
+            condition.status = $("#queryBatch #status > .btn.active").val();
+            getBatchCount(condition);
+        }
+    }
+
+    $('#queryBatch #area').find('button').click(function() {
+        var condition = {};
+        if($(this).val() != ''){
+            condition['belongArea.areaCode'] = $(this).val();
+        }
+        if($("#queryBatch #type > .btn.active").val() != '') {
+            condition.dataLevel = $("#queryBatch #type > .btn.active").val();
+        }
+        if($("#queryBatch #callType > .btn.active").val() != '') {
+            condition.callType = $("#queryBatch #callType > .btn.active").val();
+        }
+        condition.status = $("#queryBatch #status > .btn.active").val();
+        getBatchCount(condition);
+    });
+
+    $('#queryBatch #type').find('button').click(function() {
+        var condition = {};
+        if($(this).val() != ''){
+            condition.dataLevel = $(this).val();
+        }
+        if($("#queryBatch #area > .btn.active").val() != '') {
+            condition['belongArea.areaCode'] = $("#queryBatch #area > .btn.active").val();
+        }
+        if($("#queryBatch #callType > .btn.active").val() != '') {
+            condition.callType = $("#queryBatch #callType > .btn.active").val();
+        }
+        condition.status = $("#queryBatch #status > .btn.active").val();
+        getBatchCount(condition);
+    });
+
+    $('#queryBatch #callType').find('button').click(function() {
+        var condition = {};
+        if($(this).val() != ''){
+            condition.callType = $(this).val();
+        }
+        if($("#queryBatch #type > .btn.active").val() != '') {
+            condition.dataLevel = $("#queryBatch #type > .btn.active").val();
+        }
+        if($("#queryBatch #area > .btn.active").val() != '') {
+            condition['belongArea.areaCode'] = $("#queryBatch #area > .btn.active").val();
+        }
+        condition.status = $("#queryBatch #status > .btn.active").val();
+        getBatchCount(condition);
+    });
+
+    $('#clearPotential').click(function() {
+        if($(this).is(':checked')) {
+
+        }
+    });
+
+    $("#queryBatch").find('input[name=bcRuleType]').click(function() {
+        var flag = $(this).is(':checked');
+        $("#queryBatch input:checkbox[name='bcRuleType']").attr('checked', false);
+        if(flag) {
+            $(this).prop('checked', true);
+        } else {
+            $(this).prop('checked', false);
+        }
+    });
+
+    $('#queryBatch #status').find('button').click(function() {
+        var condition = {};
+        if($(this).val() == '1') {
+            $('#clearPotential').prop('disabled', true);
+            $('#clearPotential').prop('checked', false);
+            $('#bcRule').show();
+            $('#callTypeTr').hide();
+        } else {
+            $('#clearPotential').prop('disabled', false);
+            $('#bcRule').hide();
+            $('#callTypeTr').show();
+        }
+        if($("#queryBatch #type > .btn.active").val() != ''){
+            condition.dataLevel = $("#queryBatch #type > .btn.active").val();
+        }
+        if($("#queryBatch #area > .btn.active").val() != '') {
+            condition['belongArea.areaCode'] = $("#queryBatch #area > .btn.active").val();
+        }
+        if($("#queryBatch #callType > .btn.active").val() != '') {
+            condition.callType = $("#queryBatch #callType > .btn.active").val();
+        }
+        condition.status = $(this).val();
+        getBatchCount(condition);
+    });
+
+    $('#assignType').find('button').click(function() {
+        assign($(this).val());
+    });
+
+    function getAssignType() {
+        return $("#assignType > .btn.active").val();
+    }
+
+    $('#queryUser').click(function() {
+        queryGroupUser($('#workGroup').val());
+    });
+
+    function batchLoadComplete() {
+        //do something
+        batchSelectedIds = [];
+    }
+
+
+    if($('#requestId').val() != '') {
+        assignDataForRequest($('#requestId').val());
+    }
+
+    function assignDataForRequest(requestId) {
+        //clear workGroup list
+        $('#workGroup option').remove();
+        $('#orgCode').attr('disabled', 'disabled');
+        $('#workGroup').attr('disabled', 'disabled');
+        $('#queryUser').attr('disabled', 'disabled');
+        $('.selectpicker').selectpicker('refresh');
+        var url = '/crm/callListRequest/' + requestId;
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType: 'json',
+            data: {},
+            success: function (data) {
+                if(data.msg.type == 'success') {
+                    $('#requestListData').hide();
+                    $('#toAssign').show();
+                    $('#assignFooter').show();
+                    $("#orgCode option").each(function() {
+                        if(data.msg.body.orgCode == $(this).val()) {
+                            $(this).attr('selected', 'selected');
+                        }
+                    });
+                    assignCount = data.msg.body.count;
+                    $('#workGroup').append('<option value='+data.msg.body.workGroup._id+'>'+data.msg.body.workGroup.name+'</option>');
+                    $('.selectpicker').selectpicker('refresh');
+                    queryByUser(data.msg.body.cuserid);
+                } else {
+                    toast(data.msg.body);
+                }
+            }
+        });
+    }
+
+    getWorkGroup($('#orgCode').val());
+
+    $('#orgCode').change(function() {
+        getWorkGroup($(this).val());
+    });
+
+    function getWorkGroup(orgCode) {
+        var url = '/crm/workGroup/list';
+        $.ajax({
+        type: "GET",
+        url: url,
+        dataType: 'json',
+        data: {'orgCode' : orgCode},
+        success: function (data) {
+        $('#workGroup option').remove();
+            if(data.data.length == 0) {
+                $('#userListData').html('');
+            }
+            $.each(data.data, function(key, value) {
+            //if(key == 0) {
+            //    queryGroupUser(value._id);
+            //}
+            $('#workGroup').append('<option value='+value._id+'>'+value.name+'</option>');
+            })
+            $('.selectpicker').selectpicker('refresh');
+            }
+        });
+    }
+
+    function queryByUser(userId) {
+        $('#userListData').html('');
+        pup.template.renderTemplateByKey("user.dataList", {'userId' : userId});
+    }
+
+    function queryGroupUser(workGroupId) {
+        $('#userListData').html('');
+        pup.template.renderTemplateByKey("user.dataList", {'workGroupId' : workGroupId});
+    }
+
+    $('#assignDataBtn').click(function() {
+        return startAssign();
+    });
+
+    $('#clearPotentialConfirm #ok').click(function() {
+        $('#clearPotentialConfirm').modal('hide');
+        confirmedAssign();
+    });
+
+    function startAssign() {
+        if($('#clearPotential').is(':checked')) {
+            $('#clearPotentialConfirm').modal('show');
+        } else {
+            confirmedAssign();
+        }
+    }
+
+    function confirmedAssign() {
+        if ($.isFunction(window.beforeAssignData))
+            beforeAssignData();
+
+        var params = {};
+        if($('#clearPotential').is(':checked')) {
+            params.clearPotential = '1';
+        } else {
+            params.clearPotential = '0';
+        }
+
+        params.status = $("#queryBatch #status > .btn.active").val();
+
+        if(params.status == '1') {
+            $("#queryBatch").find("input:checkbox[name=bcRuleType]:checked").each(function(key, value) {
+                params.bcRuleType = $(this).val();
+            });
+        }
+
+        if($("#queryBatch #area > .btn.active").val() != '') {
+            params['belongArea.areaCode'] = $("#queryBatch #area > .btn.active").val();
+        }
+
+        if($("#queryBatch #callType > .btn.active").val() != '') {
+            params.callType = $("#queryBatch #callType > .btn.active").val();
+        }
+
+        if($("#userListData input:checkbox[name='userBox']:checked").length == 0) {
+            showErrorMsg('请先勾选用户');
+            return false;
+        }
+        if(leftCount < 0) {
+            showErrorMsg('分配数已经超过总数量');
+            return false;
+        }
+        params.batchIds = batchSelectedIds;
+        var assignData = [];
+        var totalNum = 0;
+        var flag = true;
+        $("#userListData input:checkbox[name='userBox']:checked").each(function(key, value) {
+            var inputId = 'count'+$(this).val();
+            var countVal = $('#' + inputId).val();
+            if(countVal != '') {
+                if(!posNum(countVal)){
+                    showErrorMsg('请输入整数');
+                    flag = false;
+                    return false;
+                } else {
+                    totalNum += parseInt(countVal);
+                    var userData = {userId : $(this).val(), count : parseInt(countVal)};
+                    assignData.push(userData);
+                }
+            } else {
+                showErrorMsg('请给勾选用户分配数据');
+                flag = false;
+                return false;
+            }
+        });
+        if(totalNum > validCount) {
+            showErrorMsg('分配数已经超过分配总数量');
+            flag = false;
+        }
+        if(!flag) return false;
+        params.totalCount = totalNum;
+
+        params.assignData = assignData;
+        if($('#requestId').val() != '') {
+            params.requestId = $('#requestId').val();
+        }
+
+        var url = '/crm/customerBatch/assign';
+        $.ajax({
+            type: "POST",
+            url: url,
+            dataType: 'json',
+            data: params,
+            success: function (data) {
+                $('#requestId').val('');
+                $('#batchName').val('');
+                assignDataSuccessCallback(data);
+            }
+        });
+    }
+
+    function recoverAssign() {
+        $('#userListData').html('');
+        $('#orgCode').removeAttr('disabled');
+        $('#workGroup').removeAttr('disabled');
+        $('#queryUser').removeAttr('disabled');
+        $('.selectpicker').selectpicker('refresh');
+        requestId = null;
+        if(batchName != null) {
+            $('#batchNo').val('');
+            queryBatchData();
+        }
+        getWorkGroup($('#orgCode').val());
+    }
+
+    function assignDataCount(field) {
+        if(field.value.length == 1) {
+            if(posNum(field.value)) {
+                validCount = parseInt(field.value);
+            } else {
+                field.value = '';
+            }
+        } else if(field.value.length == 0) {
+            validCount = 0;
+        }else {
+            var lastStr = field.value.substring(field.value.length - 1, field.value.length);
+            if(lastStr >= 0 && lastStr <= 9 && field.value <= dataCount) {
+                validCount = parseInt(field.value);
+            } else {
+                field.value = field.value.substring(0, field.value.length - 1);
+            }
+        }
+        assign(getAssignType());
+    }
+
+

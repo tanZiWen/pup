@@ -1,0 +1,66 @@
+//
+   Created by wangnan on 14-6-11.
+
+each record, i in customerServiceRecordList
+    .row.m-t-10
+        span.col-md-2.text-right.text-muted.small 服务类型
+        span.col-md-2.text-left.text-primary #{record.typeName}
+        span.col-md-2.text-right.text-muted.small 顾问姓名
+        span.col-md-2.text-left #{record.crealName}
+        span.col-md-2.text-right.text-muted.small 客户状态
+        span.col-md-2.text-left #{record.customerStatusName}
+    .row.m-t-10
+        span.col-md-2.text-right.text-muted.small 拨打状态
+        span.col-md-2.text-left #{record.customerCallStatusName}
+        span.col-md-2.text-right.text-muted.small 质检状态
+        span.col-md-2.text-left #{record.customerAuditStatusName}
+        span.col-md-2.text-right.text-muted.small 时间
+        span.col-md-2.text-left #{record.ctimeStr}
+    .row.m-t-10
+        if record.type == 'pureCall'
+            span.col-md-2.text-right.text-muted.small 录音
+            span.col-md-2.text-left
+                if record.recording && record.recording.length > 0 && callCenter.valid
+                    #recordingPlayBtn.label.label-info.pointer-cursor(data-toggle="modal", data-target="#" + record._id)
+                        |录音
+                        i.glyphicon.glyphicon-play
+                    .modal(id=record._id, tabindex='-1', data-width='400', style='display: none;')
+                        .modal-header
+                            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+                            .row
+                                .col-md-3
+                                    h4.modal-title 录音
+                        .modal-body.text-center
+                            if record.recording && record.recording.length > 0 && callCenter.valid
+                                each recordId in record.recording
+                                    div
+                                        audio(controls)
+                                            source(src='http://' + callCenter.recordingAddress + '/%7B' + recordId + '%7D.mp4', type='audio/mp4')
+                                            | Your browser does not support the audio element.
+                        .modal-footer
+                            .text-center
+                                button#cacel.btn.btn-lg.btn-default(style='margin-right: 40px;', data-dismiss='modal', type='button') 关闭
+                else
+                    .label.label-default.pointer-cursor
+                        |录音
+                        i.glyphicon.glyphicon-play
+            span.col-md-2.text-right.text-muted.small 体量
+            span.col-md-2.text-left #{record.bodyMassName}
+            span.col-md-2.text-right.text-muted.small 偏好
+            span.col-md-2.text-left #{record.investmentPreferenceName}
+    if record.type == 'pureCall'
+        .row.m-t-10
+            span.col-md-2.text-right.text-muted.small 沟通产品
+            span.col-md-10.text-left #{record.product}
+    else if record.type == 'order'
+        .row.m-t-10
+            span.col-md-2.text-right.text-muted.small 订单编号
+            if record.orderCode
+                span.col-md-2.text-left #{record.orderCode}
+    .row.m-t-10
+        span.col-md-2.text-right.text-muted.small 客户情况
+        if record.comment
+            span.col-md-10.text-left #{record.comment}
+    .row.m-t-10
+        .divider.divider-default
+script.

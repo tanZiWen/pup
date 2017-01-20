@@ -1,0 +1,113 @@
+
+.modal-header.row
+    h4.pan-title.modal-title(style='display: inline-block;') 数据分配
+    .pull-right
+        .btn-group
+            #listBtn.button.btn.btn-default
+                span.icon.icon-list-bullet
+            #assignBtn.button.btn.btn-default
+                span.icon.icon-chart-pie-3
+.row
+    .divider.divider-danger
+
+#requestListData.row.m-t
+
+#toAssign.row.m-t.m-b-20(style='display: none;')
+
+#assignFooter(style='display: none;')
+    .row
+        .divider(style='background: #999;height: 1px;margin:20px auto;')
+    .row.text-center(style='height: 80px;')
+        button.cancel.btn.btn-lg.btn-default(style='margin-right: 40px;') 取消
+        button#assignDataBtn.btn.btn-lg.btn-success 确定
+#assignMask.box-mask.mask-full(style='opacity: .9;')
+    .row(style='margin-top: 60px')
+        .col-sm-6.col-sm-offset-3.text-center
+            h3#assignProgress(style='color: #FFFFFF;') 正在处理
+    .row#assign-next-actions(style='margin-top: 20px; display: none;')
+        .col-sm-6.col-sm-offset-3.text-center
+            button#assignConBtn.btn.btn-primary 继续分配
+            button#assignCloseBtn.btn.btn-success.m-l-15 关闭
+
+script.
+    $('.selectpicker').selectpicker({noneSelectedText:'请选择'});
+
+    if(assignItem > 1) {
+        $('#requestListData').hide();
+        if(batchName != null && batchName != '') {
+            toAssign({batchName : batchName});
+        } else {
+            toAssign();
+        }
+        $('#toAssign').show();
+    } else {
+        $('#requestListData').show();
+        $('#toAssign').hide();
+    }
+
+    var callListRequestUnassignedPagination = new pup.Pagination({
+        templateKey : "customer.data.requestList",
+        });
+        //跳转到第一页
+    callListRequestUnassignedPagination.first();
+
+    $('#assignConBtn').click(function() {
+        $('#assignProgress').text('正在处理');
+        $('#assign-next-actions').hide();
+        $('#requests').find('#assignMask').hide();
+    });
+
+    $('#assignCloseBtn').click(function() {
+        $('#assignProgress').text('正在处理');
+        $('#assign-next-actions').hide();
+        $('#requests').find('#assignMask').hide();
+
+        $('#requestListData').show();
+        $('#toAssign').hide();
+        $('#assignFooter').hide();
+    });
+
+    $('#listBtn').click(function() {
+        $('#requestListData').show();
+        $('#toAssign').hide();
+        $('#assignFooter').hide();
+    });
+
+    $('#assignBtn').click(function() {
+        $('#requestListData').hide();
+        $('#toAssign').show();
+        batchName = null;
+        toAssign();
+    });
+
+    function toAssign(condition) {
+        $('#toAssign').html('');
+        if(!condition) condition = {};
+        pup.template.renderTemplateByKey("customer.assignData", condition);
+        $('#assignFooter').show();
+    }
+
+    $('#assignFooter .cancel').click(function() {
+        $('#requestListData').show();
+        $('#toAssign').hide();
+        $('#assignFooter').hide();
+        recoverAssign();
+    });
+
+    function beforeAssignData() {
+        $('#requests').find('#assignMask').slideDown(150);
+    }
+
+    function assignDataSuccessCallback(data) {
+        queryBatchData();
+        callListRequestUnassignedPagination.first();
+        $('#userListData').html('');
+        $('#assignProgress').text(data.msg.body);
+        $('#assign-next-actions').show();
+        refreshUnAssignCount();
+    }
+
+    function showErrorMsg(msg) {
+        $('#requests').find('#assignMask').hide();
+        toast({type : 'error', body : msg});
+    }

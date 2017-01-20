@@ -1,0 +1,22 @@
+.navbar.navbar-default.navbar-fixed-top
+    .container
+        .navbar-header
+            button.navbar-toggle(type='button', data-toggle='collapse', data-target='.navbar-collapse')
+                span.icon-bar
+                span.icon-bar
+                span.icon-bar
+            a.navbar-brand(href='/') PUP
+        .collapse.navbar-collapse
+            ul.nav.navbar-nav.navbar-left
+                li(class= (locals.chn && chn=='notebook') ? 'active': '')
+                    a(href='/customer/main') 客户管理
+
+            if locals.user
+                ul.nav.navbar-nav.navbar-right
+                    li.dropdown
+                        a.dropdown-toggle(href='#', data-toggle='dropdown') #{user.nm}
+                        ul.dropdown-menu(role="menu", aria-labelledby="dropdownMenuUser")
+                            li(role="presentation")
+                                a(role='menuitem', tabindex="-1", href='/user/setting') 设置
+                            li(role="presentation")
+                                a(role='menuitem', tabindex="-1", href='/logout') 注销

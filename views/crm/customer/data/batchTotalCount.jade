@@ -1,0 +1,25 @@
+//
+   Created by michael on 6/4/14.
+
+.row.text-center
+    input(type='hidden', name='batchTotalCount', id='batchTotalCount', value='#{count}')
+    label.control-label #{count}条/
+    label#leftCount.control-label #{count}
+    label.control-label 条
+    input(style='width: 60px; margin-left:20px;', name='validCount', id ="validCount", value='#{count}', onkeyup="assignDataCount(this)")
+
+    each batch in data
+        input(type='hidden', name='selectedBatchId', value='#{batch._id}')
+    input(type='hidden', name='selectedBatchId', value='0')
+
+
+script.
+
+    batchLoadComplete();
+    dataCount = parseInt($('#batchTotalCount').val());
+    validCount = dataCount;
+    leftCount = dataCount;
+
+    $("#batchListData input[name='selectedBatchId']").each(function(key, value) {
+        batchSelectedIds.push(parseInt($(this).val()));
+    });

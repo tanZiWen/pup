@@ -1,0 +1,165 @@
+//
+   Created by wangnan on 14-6-11.
+
+.row.m-t-25
+    .col-sm-8.col-sm-offset-2.mm-box.form-horizontal
+        #customerListForm
+            .row.m-t-20
+                .form-group
+                    label.control-label.col-md-3 手机/客户姓名/编码
+                    .col-md-9
+                        input.holo(name='telOrNameOrCode', type='text', style='display: inline-block;margin-right:10px;width:300px;')
+                        button.btn.btn-info.m-l-15(onclick='customerListSearch()')
+                            i.icon-search-8(style='margin-right: 5px;')
+                            span 快速查找
+                .form-group
+                    label.control-label.col-md-3 客户状态
+                    .col-md-9
+                        #selectCustomerStatus.labelRadio
+                            each status in statusList
+                                input(name='status', type='radio', value='#{status.key}', data-name="#{status.name}")
+                .form-group
+                    label.control-label.col-md-3 拨打状态
+                    .col-md-9
+                        #selectCustomerCallStatus.labelRadio
+                            each callStatus in callStatusList
+                                if callStatus.key != 'noCall' && callStatus.key != 'vacant' && callStatus.key != 'noResponse' && callStatus.key!= 'closed' && callStatus.key!= 'busySignal' && callStatus.key!= 'refused'  && callStatus.key!= 'fax' && callStatus.key!= 'reAssign'
+                                    input(name='callStatus', type='radio', value='#{callStatus.key}', data-name="#{callStatus.name}")
+                .form-group
+                    label.control-label.col-md-3 质检状态
+                    .col-md-9
+                        #selectCustomerAuditStatus.labelRadio
+                            each auditStatus in auditStatusList
+                                input(name='auditStatus', type='radio', value='#{auditStatus.key}', data-name="#{auditStatus.name}")
+
+                .form-group
+                    label.control-label.col-md-3 审核状态
+                    .col-md-9
+                        #selectCustomerReviewStatus.labelRadio
+                            each reviewStatus in reviewStatusList
+                                input(name='reviewStatus', type='radio', value='#{reviewStatus.key}', data-name="#{reviewStatus.name}")
+
+                .form-group
+                    label.control-label.col-md-3 标签
+                    .col-md-9
+                        input.holo(name='customerTagSearch', type='text', data-role='tagsinput', value='', placeholder='请输入标签，回车确认')
+                        //#selectCustomerTag.labelRadio
+                        //    each tag in tagList
+                        //        input(name='tag', type='radio', value='#{tag.name}', data-name="#{tag.name}")
+
+                .form-group
+                    label.control-label.col-md-3 范围
+                    .col-md-9
+                        #selectCustomerRange.labelRadio
+                            each userPosition in userPositionList
+                                input(name='range', type='radio', value='#{userPosition.key}', data-name='#{userPosition.name}')
+                            if(userPosition == 'gm')
+                                input(name='range', type='radio', value='groupMembers', data-name="组员")
+                                input(name='range', type='radio', value='groupAll', data-name="全部")
+                            else
+                                input(name='range', type='radio', value='groupMembers', data-name="组员")
+                #selectCustomerRangeGroupUser-formGroup.form-group(style='display:none;')
+                    label.control-label.col-md-3 组员
+                    .col-md-9
+                        #selectCustomerRangeGroupUser.labelRadio
+                            each user in groupUsers
+                                input(name='groupUser', type='radio', value='#{user._id}', data-name="#{user.realName}")
+.row.m-t-25
+    .col-sm-8.col-sm-offset-1
+        #customerListTable.row
+
+script.
+    var statuslableRadio = new pup.widgets.labelRadio('#selectCustomerStatus').radio(function() {
+        customerListSearch();
+    });
+    var callStatuslabelRadio = new pup.widgets.labelRadio('#selectCustomerCallStatus').radio(function() {
+        customerListSearch();
+    });
+
+    var auditStatuslabelRadio = new pup.widgets.labelRadio('#selectCustomerAuditStatus').radio(function() {
+        customerListSearch();
+    });
+
+    var reviewStatuslabelRadio = new pup.widgets.labelRadio('#selectCustomerReviewStatus').radio(function() {
+        customerListSearch();
+    });
+    //var taglableRadio = new pup.widgets.labelRadio('#selectCustomerTag').radio(function() {
+    //    customerListSearch();
+    //});
+
+    $('#customerListForm').find('[name=customerTagSearch]').tagsinput({
+        trimValue: true,
+        maxTags: 5,
+        maxChars: 20
+    });
+
+    var rangeRadio = new pup.widgets.labelRadio('#selectCustomerRange').radio(function() {
+        customerListSearch();
+        if(rangeRadio.val() == 'groupMembers') {
+            $('#selectCustomerRangeGroupUser-formGroup').show();
+        } else {
+            $('#selectCustomerRangeGroupUser-formGroup').hide();
+        }
+    });
+
+    var groupUserRadio = new pup.widgets.labelRadio('#selectCustomerRangeGroupUser').radio(function() {
+        customerListSearch();
+    });
+
+
+    var customerListPagination = new pup.Pagination({templateKey : "customer.list.table"});
+    customerListPagination.first();
+
+    //$('#customerListForm').keypress(function(e) {
+    //    if(e.keyCode == 13) {
+    //        customerListSearch();
+    //        e.preventDefault();
+    //        return false;
+    //    }
+    //});
+
+    function customerListSearch() {
+        var telOrNameOrCode = $('#customerListForm').find('[name=telOrNameOrCode]').val();
+        var status = statuslableRadio.val();
+        var callStatus = callStatuslabelRadio.val();
+        var auditStatus = auditStatuslabelRadio.val();
+        var reviewStatus = reviewStatuslabelRadio.val();
+        var tags = $('#customerListForm').find('[name=customerTagSearch]').tagsinput('items');
+        var range = rangeRadio.val();
+        var groupUser = groupUserRadio.val();
+
+        if(telOrNameOrCode) {
+            telOrNameOrCode = telOrNameOrCode.trim();
+        }
+
+        customerListPagination.clear();
+
+        if(telOrNameOrCode) {
+            customerListPagination.condition('telOrNameOrCode', telOrNameOrCode);
+        }
+        if(status) {
+            customerListPagination.condition('status', status);
+        }
+        if(callStatus) {
+            customerListPagination.condition('callStatus', callStatus);
+        }
+        if(auditStatus) {
+            customerListPagination.condition('auditStatus', auditStatus);
+        }
+        if(reviewStatus) {
+            customerListPagination.condition('reviewStatus', reviewStatus);
+        }
+        if(tags) {
+            customerListPagination.condition('tags', {$in : tags});
+        }
+        if(range) {
+            customerListPagination.condition('range', range);
+            if(groupUser) {
+                customerListPagination.condition('belongUser', parseInt(groupUser));
+                console.log('group page:');
+                console.log(customerListPagination.conditions);
+            }
+        }
+
+        customerListPagination.first();
+    }

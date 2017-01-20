@@ -1,0 +1,205 @@
+
+//
+   Created by tanyuan on 11/14/14.
+
+table.table.mm-box
+    tr.th-inverse
+        th.text-center(style='width:15%')  客户姓名
+        th.text-center(style='width:10%')  客户编号
+        th.text-center(style='width:10%')  是否在公共池
+        th.text-center(style='width:10%')  客户状态
+        th.text-center(style='width:15%')  顾问
+        th.text-center(style='width:15%')  RM
+        th.text-center(style='width:5%')  状态修改
+        th.text-center(style='width:5%')  顾问修改
+        th.text-center(style='width:5%')  RM 修改
+    tbody
+        each customer in customers
+            tr.cust-record.text-center
+                td.f-customerInfo.text-info(data-id='#{customer._id}') #{customer.name}
+                td.f-customerInfo.text-info(data-id='#{customer._id}') #{customer.code}
+                td.f-customerInfo.text-info(data-id='#{customer._id}')
+                    if customer.free == true
+                        | 是
+                    else
+                        | 否
+                td.f-customerInfo.text-info(data-id='#{customer._id}') #{customer.statusName}
+                td.f-customerInfo.text-info(data-id='#{customer._id}')
+                    if customer.belongUserInfo
+                        | #{customer.belongUserInfo.username}(#{customer.belongUserInfo.realName})
+                    else
+                        | 空
+                td.f-customerInfo.text-info(data-id='#{customer._id}')
+                    if customer.managerInfo
+                        | #{customer.managerInfo.username}(#{customer.managerInfo.realName})
+                    else
+                        | 空
+                td
+                    if customer.status
+                        span.icon-btn.f-status(id='#{customer._id},#{customer.status}', data-toggle="tooltip", title='状态修改')
+                            i.icon.icon-edit-3
+                    else
+                        span.icon-btn.f-status(id='#{customer._id},""', data-toggle="tooltip", title='状态修改')
+                            i.icon.icon-edit-3
+                td
+                    if customer.belongUserInfo
+                        span.icon-btn.f-consultant(id='#{customer._id},#{customer.belongUserInfo._id}', data-toggle="tooltip", title='顾问修改')
+                            i.icon.icon-edit-3
+                    else
+                        span.icon-btn.f-consultant(id='#{customer._id},""', data-toggle="tooltip", title='顾问修改')
+                            i.icon.icon-edit-3
+                td
+                    if customer.managerInfo
+                        span.icon-btn.f-rm(id='#{customer._id},#{customer.managerInfo._id}', data-toggle="tooltip", title='RM修改')
+                            i.icon.icon-edit-3
+                    else
+                        span.icon-btn.f-rm(id='#{customer._id},""', data-toggle="tooltip", title='RM修改')
+                            i.icon.icon-edit-3
+.row#jqxgrid
+    .col-md-12.text-center
+        button.btn.btn-small.btn-success#exportCustomerList 导出当前列表
+
+#exportCustomer.modal(tabindex='-1', data-width='760', style='display: none;')
+    .modal-header
+        button.close.f-cancel(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row
+            .col-md-3
+                h4.modal-title 导出客户列表
+    .modal-body
+        .row
+            if flag == 0
+                .col-md-3
+                    input(value='0', name='array', type='checkbox', checked)
+                    label.m-l-5 导出所有数据
+            else
+                each array, i in arrays
+                    if i == 0
+                        .col-md-3
+                            input(value='#{array.key}', name='array', id='array#{array.key}', type='checkbox', checked)
+                            label.m-l-5 #{array.val}
+                    else
+                        .col-md-3
+                            input(value='#{array.key}', name='array', id='array#{array.key}', type='checkbox')
+                            label.m-l-5 #{array.val}
+    .modal-footer
+        .text-center
+            button.btn.btn-lg.btn-default.f-cancel(data-dismiss='modal', type='button') 取消
+            button.btn.btn-lg.btn-success#ok(type='button') 确定
+#customerAdvancedBar
+
+
+script.
+    customerAdvancedPagination.bar('#customerAdvancedBar');
+    $('[data-toggle="tooltip"]').tooltip();
+    $('.f-status').click(function(ev) {
+        ev.preventDefault();
+        var id = $(this).attr('id');
+        pup.template.renderTemplateByKey('customer.custAdvanced.status', {id: id}, {
+            afterRender : function() {
+                $('#editStatus').modal('show');
+            }
+        });
+    })
+    $('.f-consultant').click(function(ev) {
+        ev.preventDefault();
+        var id = $(this).attr('id');
+        pup.template.renderTemplateByKey('customer.custAdvanced.consultant', {id: id}, {
+            afterRender : function() {
+                $('#editConsultant').modal('show');
+            }
+        });
+    })
+    $('.f-rm').click(function(ev) {
+        ev.preventDefault();
+        var id = $(this).attr('id');
+        pup.template.renderTemplateByKey('customer.custAdvanced.rm', {id: id}, {
+            afterRender : function() {
+               $('#editRM').modal('show');
+            }
+        });
+    })
+    $('.f-customerInfo').click(function(ev) {
+        ev.preventDefault();
+        var id = $(this).data('id');
+        pup.template.renderTemplateByKey('customer.custAdvanced.customerBasicInfo', {id: id}, {
+            afterRender : function() {
+               $('#customerBasicInfo').modal('show');
+            }
+        });
+    });
+    $(':checkbox').on('change',function(){
+        var th = $(this);
+        if(th.is(':checked')){
+           $(':checkbox').prop('checked',false);
+           th.prop('checked',true);
+        }
+    });
+    var pagination = customerAdvancedPagination.getParameter();
+    $('#exportCustomerList').click(function(ev) {
+        ev.preventDefault();
+
+        var pageTotal = pagination['page[total]'];
+
+        if(pageTotal > 100000) {
+            toast({type: 'info', body: '导出数据总量不能大于100000条,操作失败.'});
+        }else {
+            $('#exportCustomer').modal('show');
+        }
+    });
+    $('#ok').click(function() {
+        $('#exportCustomer').modal('hide');
+        $('body').oLoader({
+            wholeWindow: true,
+            effect:'slide'
+        });
+        var flag = #{flag};
+        var condition = pagination['page[condition]'];
+        var count = parseInt(pagination['page[total]']/10000);
+        var index = $("input[type='checkbox']:checked").val();
+        condition.index = index;
+        var url = '/crm/customer/custAdvanced/exportCustomerList';
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            data: {condition: condition},
+            url: url,
+            success: function(data) {
+                var time = moment(new Date()).format('YYYY-MM-DD HH:mm:ss');
+                saveAs(new Blob([s2ab(data.wbout)],{type:"application/octet-stream"}), time+"导出数据.xlsx");
+                $('body').oLoader('hide');
+                console.log(count, index);
+                if (flag == 1 && count != index) {
+                    $('#exportCustomer').modal('show');
+                }
+                $(':checkbox').prop('checked', false);
+                $('#array' + (parseInt(index) + 1)).prop('checked', true);
+            }
+        });
+    });
+    function s2ab(s) {
+        var buf = new ArrayBuffer(s.length);
+        var view = new Uint8Array(buf);
+        for (var i = 0; i != s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
+        return buf;
+    }
+//            var condition = pagination['page[condition]'];
+//            var url = '/crm/customer/custAdvanced/exportCustomerList';
+//            $.ajax({
+//                type: 'POST',
+//                dataType: 'json',
+//                data: {condition: condition},
+//                url: url,
+//                success: function (data) {
+//                    saveAs(new Blob([s2ab(data.wbout)], {type: "application/octet-stream"}), "导出数据.xlsx")
+//                    $('body').oLoader('hide');
+//                }
+//            });
+
+
+
+
+
+
+
+
+

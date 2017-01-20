@@ -1,0 +1,178 @@
+.row(style='margin-top: 20px;')
+    .col-sm-8.col-sm-offset-2.mm-box.form-horizontal
+        form#query(onsubmit='return false;')
+            .form-group
+                label.control-label.col-md-2 客户
+                .col-md-10
+                    input.holo(type='text', id='name', style='display: inline-block;margin-right:10px;width:300px;')
+            .form-group
+                label.control-label.col-md-2 手机号码
+                .col-md-10
+                    input.holo(type='text', id='telNo', style='display: inline-block;margin-right:10px;width:300px;')
+                    button.btn.btn-primary(type='submit', id='queryQuick')
+                        i.icon-search-8(style='margin-right: 5px;')
+                        span 快速查找
+            .form-group
+                label.control-label.col-md-2 状态
+                .col-md-10(style='margin-top:5px;')
+                    #status.btn-group(data-toggle='buttons-radio')
+                        button.btn-sm.btn.btn-light-info.active(type='button', value='') 全部
+                        each status in statusList
+                            button.btn-sm.btn.btn-light-info(type='button', value='#{status.key}') #{status.name}
+            .form-group
+                label.control-label.col-md-2 产品类型
+                .col-md-10(style='margin-top:5px;')
+                    #type.btn-group(data-toggle='buttons-radio')
+                        button.btn-sm.btn.btn-light-info.active(type='button', value='') 全部
+                        each type in typeList
+                            button.btn-sm.btn.btn-light-info(type='button', value='#{type.key}') #{type.name}
+
+//#detail.modal.fade(tabindex='-1', data-width='760', style='display: none;')
+//    .modal-header
+//        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+//        .row
+//            .col-md-3
+//                h4.modal-title 详细信息
+//    .modal-body
+//        .row.m-t-10
+//            span.col-md-2.text-right.text-muted.small 客户
+//            span.col-md-2.text-left.small 张xx
+//            span.col-md-2.text-right.text-muted.small 产品名称
+//            span.col-md-4.text-left.small 长城母基金
+//        .row.m-t-10
+//            span.col-md-2.text-right.text-muted.small 产品类别
+//            span.col-md-2.text-left.small 固定收益
+//            span.col-md-2.text-right.text-muted.small 文件名
+//            span.col-md-2.text-left.small 出资证明
+//            .col-md-2.text-right
+//                input.large(type='checkbox')
+//                span.text-left.text-muted.small 签收
+//        .row
+//
+//        .row.m-t-10(style='margin-top:5px;')
+//            span.col-md-2.text-right.text-muted.small 备注
+//            .col-md-8
+//                input.holo(type='text', style='width: 100%;', placeholder='备注')
+//    .modal-footer
+//        .text-center
+//            button#cancel.btn.btn-lg.btn-default(style='margin-right: 40px;',type='button') 取消
+//            button#submit.btn.btn-lg.btn-success(type='submit') 确定
+.row.m-t-25
+    .col-sm-8.col-sm-offset-2
+        #signListData.row
+
+#opAcceptConfirm.modal(tabindex='-1', style='display: none;')
+    .modal-body
+        p#confirmMsg 确定签收？
+        p#opStatus(style='font-size: 20px; font-face: bold; display: none;')
+            i.icon.icon-spin5.animate-spin.text-success
+    .modal-footer
+        .text-center
+            button.cancel.btn.btn-default(style='margin-right: 40px;', data-dismiss='modal') 取消
+            button#ok.btn.btn-success 确定
+script.
+
+    var signPagination = new pup.Pagination({
+        templateKey : "order.signDataList"
+    });
+    //跳转到第一页
+    signPagination.first();
+
+    $('.selectpicker').selectpicker({noneSelectedText:'请选择'});
+
+    $('#query #queryQuick').click(function() {
+        var condition = {};
+        if($('#telNo').val() == '' && $('#name').val() == '') {
+            var status = $("#query #status > .btn.active").val();
+            var type = $("#query #type > .btn.active").val();
+            if(status != '') {
+                condition.status = status;
+            }
+            if(type != '') {
+                condition['product.type'] = type;
+            }
+        } else {
+            if($('#telNo').val() != '') {
+                condition['customer.telNo'] = $('#telNo').val();
+            }
+            if($('#name').val() != '') {
+                condition['customer.name'] = $('#name').val();
+            }
+        }
+        signPagination.setCondition(condition).first();
+    });
+
+    $('#query #status').find('button').click(function() {
+        var condition = {};
+        if($(this).val() != ''){
+            condition.status = $(this).val();
+        }
+        if($("#query #type > .btn.active").val() != '') {
+            condition['product.type'] = $("#query #type > .btn.active").val();
+        }
+        signPagination.setCondition(condition).first();
+    });
+
+    $('#query #type').find('button').click(function() {
+        var condition = {};
+        if($(this).val() != ''){
+            condition['product.type'] = $(this).val();
+        }
+        if($("#query #status > .btn.active").val() != '') {
+            condition.stauts = $("#query #status > .btn.active").val();
+        }
+        signPagination.setCondition(condition).first();
+    });
+
+    $('#mu-apps').click(function() {
+        $('#apps').show();
+        $('#message').hide();
+    });
+    $('#mu-msg').click(function() {
+        $('#message').show();
+        $('#apps').hide();
+    });
+    $('.app-box').click(function() {
+        var path = $(this).data('href');
+        window.open(path);
+    });
+    //$('.cust-record').click(function() {
+        //$('#detail').modal('show');
+    //});
+    $('#cancel').click(function() {
+        $('#detail').modal('hide');
+    });
+
+    var btnField = null;
+    var signId = 0;
+
+    function sign(field) {
+        btnField = field;
+        signId = $(field).attr('id');
+        $('#opAcceptConfirm').modal('show');
+    }
+
+    $('#opAcceptConfirm #ok').click(function() {
+        $('#opAcceptConfirm').modal('hide');
+        var url = '/crm/order/sign';
+        $.ajax({
+            type: 'GET',
+            url: url,
+            dataType: 'json',
+            data: {id : signId},
+            success: function (data) {
+                var formData = data.msg.body;
+                if(data.msg.type == 'success'){
+                    var parent = $(btnField).parent();
+                    $(btnField).remove();
+                    parent.html("<span class='m-l-15'>已签</span>");
+                    $('#opAcceptConfirm').modal('hide');
+                    signPagination.reload();
+                }
+                toast(data.msg);
+            }
+        });
+    });
+
+
+

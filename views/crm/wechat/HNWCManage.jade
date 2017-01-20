@@ -1,0 +1,49 @@
+//
+   Created by tanyuan on 7/8/15.
+
+.row.m-t-20#HNWCManageSearch
+    .col-sm-8.col-sm-offset-2.mm-box.form-horizontal.filter-pan
+        .form-group.m-t-5
+            label.col-md-2.text-right 微信工作号
+            .col-md-4.text-left
+                select(class='selectpicker', name='accountId', id='accountId', data-live-search='true')
+                    option(value='') 请选择
+                    each account in wechatAccounts
+                        option(value='#{account._id}') #{account.code}
+        .form-group.m-t-20
+            label.col-md-2.text-right 沟通人员
+            .col-md-4.text-left
+                select(class='selectpicker', name='cuserid', id='cuserid', data-live-search='true')
+                    option(value='') 请选择
+                    each commuUser in commuUsers
+                        option(value='#{commuUser._id}') #{commuUser.username}-#{commuUser.realName}
+        .row.form-group.m-t-20
+            .divider.divider-default
+        .row.form-group.m-t-20
+            .col-md-12.text-center
+                button.btn.btn-primary(onclick='searchHNWC()')
+                    i.icon.icon-filter-1
+                    | 过滤
+.row.m-t-25
+    .col-sm-8.col-sm-offset-2
+        #HNWCManageListData.row
+
+script.
+    $('.selectpicker').selectpicker({noneSelectedText: '请选择'});
+    function searchHNWC() {
+        var accountId = $('#HNWCManageSearch #accountId').val();
+        var cuserid = $('#HNWCManageSearch #cuserid').val();
+        HNWCManageListPagination.clear();
+        if (accountId) {
+            HNWCManageListPagination.condition('accountId', accountId);
+        }
+        if (cuserid) {
+            HNWCManageListPagination.condition('cuserid', cuserid);
+        }
+        HNWCManageListPagination.first();
+    };
+
+    var HNWCManageListPagination = new pup.Pagination({templateKey: "momentsMsg.HNWCManageList"});
+    HNWCManageListPagination.first();
+
+

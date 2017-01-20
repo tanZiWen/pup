@@ -1,0 +1,923 @@
+style.
+    .callcenter-content {
+        min-height: 100%;
+        height: auto !important;
+        height: 100%;
+        margin: 0 auto -100px;
+    }
+    .callcenter-action {
+        height: 70px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+        box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+    }
+
+script.
+    var __callCenter = eval('#{callCenterName}');
+    console.log(__callCenter);
+    if(!__callCenter) {
+        console.log('call center name [#{callCenterName}] not exist!!!');
+    }
+
+
+
+
+
+.row(style='margin-top: 60px;')
+    .mm-box.col-md-8.col-md-offset-2(style='padding-bottom: 15px')
+        form#formCall
+            input(id='_id', name='_id', type='text', hidden=true, value='#{customer._id}')
+            .row.m-t-20.text-center
+                h4 服务记录
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 呼叫次数
+                span.col-md-2.text-left #{customer.callTimes}
+                span.col-md-2.text-right.text-muted.small 微信认证
+                span.col-md-2
+                    span.text-left
+                        if customer.wechatAuth == true
+                            | 已认证
+                        else
+                            | 未认证
+                span.col-md-2.text-right.text-muted.small 手机号
+                span.col-md-2.text-left.text-primary #{customer.telNoAbbr}
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 客户状态
+                span.col-md-2.text-left #{customer.statusName}
+                span.col-md-2.text-right.text-muted.small 拨打状态
+                span.col-md-2.text-left #{customer.callStatusName}
+                span.col-md-2.text-right.text-muted.small 质检状态
+                span.col-md-2.text-left #{customer.auditStatusName}
+
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 最近呼叫信息
+                if customer && customer.lastCall && customer.lastCall.lastCallUName
+                    span.col-md-2.text-left #{customer.lastCall.dateStr} by #{customer.lastCall.lastCallUName}
+                    span.col-md-2.text-right.text-muted.small 产品信息
+                    if customer && customer.lastCall && customer.lastCall.product
+                        span.col-md-2.text-left.small #{customer.lastCall.product}
+                    else
+                        span.col-md-2.text-left 没留下产品信息
+                else
+                    span.col-md-2.text-left.text-muted.small  无呼叫记录
+
+            .row.m-t-20
+                span.col-md-2.text-right.text-muted.small 备注信息
+                if customer && customer.lastCall && customer.lastCall.comment
+                    span.col-md-10.text-left #{customer.lastCall.comment}
+                else
+                    span.col-md-10.text-left 没留下备注信息
+            .row
+                span.col-md-8.col-md-offset-1.text-right.text-muted.small
+                    if customer && customer.lastCall && customer.lastCall.lastContactUName
+                        | #{customer.lastCall.lastContactUName} #{customer.lastCall.lastContactDate}
+
+            .row.m-t-20.text-center
+                h4 基本信息
+            .row.m-t-20
+                span.col-md-2.text-right.text-muted.small 编号
+                .col-md-3.text-left
+                    input.holo(type='text', id='code', name='code', value='#{customer.code}', readonly)
+                span.col-md-2.text-right.text-muted.small 姓名
+                .col-md-3.text-left
+                    if(customer.name)
+                        input.holo(type='text', id='name', name='name', value='#{customer.name}', placeholder='姓名')
+                    else
+                        input.holo(type='text', id='name', name='name', value='', placeholder='姓名')
+            .row.m-t-20
+                span.col-md-2.text-right.text-muted.small 性别
+                .col-md-3.text-left
+                    .btn-group(data-toggle='buttons-radio', id='sex', name='sex')
+                        each sex, i in sexList
+                            if(customer.sex)
+                                if(sex.key == customer.sex)
+                                    button.btn-sm.btn.btn-light-info.active(type='button', value='#{sex.key}') #{sex.name}
+                                else
+                                    button.btn-sm.btn.btn-light-info(type='button', value='#{sex.key}') #{sex.name}
+                            else
+                                if(i==0)
+                                    button.btn-sm.btn.btn-light-info.active(type='button', value='#{sex.key}') #{sex.name}
+                                else
+                                    button.btn-sm.btn.btn-light-info(type='button', value='#{sex.key}') #{sex.name}
+
+                span.col-md-2.text-right.text-muted.small 生日
+                .col-md-3.text-left
+                    if(customer.birthday)
+                        input(type='text', id='birthday',  name='birthday', value='#{format(customer.birthday)}', class='birthday form-control', placeholder='生日')
+                    else
+                        input(type='text', id='birthday', name='birthday', value='', class='birthday form-control', placeholder='生日')
+            .row.m-t-20
+                span.col-md-2.text-right.text-muted.small Email
+                .col-md-3.text-left
+                    if(customer.email)
+                        input.holo(type='text', id='email', name='email', value='#{customer.email}', class='email', placeholder='Email')
+                    else
+                        input.holo(type='text', id='email', name='email', value='', class='email', placeholder='Email')
+                span.col-md-2.text-right.text-muted.small 微信号
+                .col-md-3.text-left
+                    if(customer.wechatNo)
+                        input.holo(type='text', id='wechatNo', name='wechatNo', value='#{customer.wechatNo}', placeholder='微信号')
+                    else
+                        input.holo(type='text', id='wechatNo', name='wechatNo', value='', placeholder='微信号')
+            .row.m-t-20
+                span.col-md-2.text-right.text-muted.small 住房信息
+                .col-md-6.text-left
+                    .btn-group(data-toggle='buttons-radio', id='houseInfo', name='houseInfo')
+                        each houseInfo, i in houseInfos
+                            if(customer.houseInfo)
+                                if(customer.houseInfo == houseInfo.key)
+                                    button.btn-sm.btn.btn-light-info.active(type='button', value='#{houseInfo.key}') #{houseInfo.name}
+                                else
+                                    button.btn-sm.btn.btn-light-info(type='button', value='#{houseInfo.key}') #{houseInfo.name}
+                            else
+                                if(i==0)
+                                    button.btn-sm.btn.btn-light-info.active(type='button', value='#{houseInfo.key}') #{houseInfo.name}
+                                else
+                                    button.btn-sm.btn.btn-light-info(type='button', value='#{houseInfo.key}') #{houseInfo.name}
+
+            .row.m-t-20
+                span.col-md-2.text-right.text-muted.small 职业
+                .col-md-4.text-left
+                    .btn-group(data-toggle='buttons-radio', id='professionType', name='professionType')
+                        each professionType, i in professionTypes
+                            if(customer.profession)
+                                if(customer.profession.type)
+                                    if (professionType.key == customer.profession.type)
+                                        button.btn-sm.btn.btn-light-info.active(onclick='selectProfessionType("#{professionType.key}")', type='button', value='#{professionType.key}') #{professionType.name}
+                                    else
+                                        button.btn-sm.btn.btn-light-info(onclick='selectProfessionType("#{professionType.key}")', type='button', value='#{professionType.key}') #{professionType.name}
+                                else
+                                    if(i==0)
+                                        button.btn-sm.btn.btn-light-info.active(onclick='selectProfessionType("#{professionType.key}")', type='button', value='#{professionType.key}') #{professionType.name}
+                                    else
+                                        button.btn-sm.btn.btn-light-info(onclick='selectProfessionType("#{professionType.key}")', type='button', value='#{professionType.key}') #{professionType.name}
+                            else
+                                if(i==0)
+                                    button.btn-sm.btn.btn-light-info.active(onclick='selectProfessionType("#{professionType.key}")', type='button', value='#{professionType.key}') #{professionType.name}
+                                else
+                                    button.btn-sm.btn.btn-light-info(onclick='selectProfessionType("#{professionType.key}")', type='button', value='#{professionType.key}') #{professionType.name}
+
+                        if(customer.profession)
+                            if(customer.profession.describe)
+                                input.holo(type='text', id='professionDescribe', name='professionDescribe', placeholder='描述信息', value='#{customer.profession.describe}', style='display: none;')
+                            else
+                                input.holo(type='text', id='professionDescribe', name='professionDescribe', placeholder='描述信息', value='', style='display: none;')
+                        else
+                            input.holo(type='text', id='professionDescribe', name='professionDescribe', placeholder='描述信息', value='', style='display: none;')
+
+
+
+            .row.m-t-20
+                span.col-md-2.text-right.text-muted.small 标签
+                .col-md-10.text-left
+                    input.holo(name='callTags', type='text', data-role='tagsinput', value='#{customer.tags}', placeholder='请输入标签')
+                    .text-warning 最多输入5个标签，每个标签不得超过20个字符
+
+            .row.m-t-20
+                span.col-md-2.text-right.text-muted.small 工作地点
+                .col-md-3.text-left
+                    if customer.workAddress
+                        input.holo(type='text', id='workAddress', name='workAddress', value='#{customer.workAddress}', placeholder='工作地点')
+                    else
+                        input.holo(type='text', id='workAddress', name='workAddress', value='', placeholder='工作地点')
+
+                span.col-md-2.text-right.text-muted.small 车型
+                .col-md-3.text-left
+                    if customer.carType
+                        input.holo(type='text', id='carType', name='carType',value='#{customer.carType}', placeholder='车型')
+                    else
+                        input.holo(type='text', id='carType', name='carType',value='', placeholder='车型')
+
+            .row.m-t-20.text-center.cust-record(onclick='customerInvestInfo()')
+                a(href='javascript:void(0);', onclick='', title='加载更多')
+                    i.icon.icon-angle-double-down
+
+
+            .row.m-t-20.text-center#title(style='display:none')
+                h4 投资信息
+            .row.m-t-20(style='display:none;')
+                span.col-md-2.text-right.text-muted.small 投资期限偏好
+                .col-md-3.text-left
+                    .btn-group(data-toggle='buttons-radio', id='investmentTimePreference', name='investmentTimePreference')
+                        each investmentTimePreference, i in investmentTimePreferences
+                            if(customer.investmentTimePreference)
+                                if(investmentTimePreference.key == customer.investmentTimePreference)
+                                    button.btn-sm.btn.btn-light-info.active(type='button', value='#{investmentTimePreference.key}') #{investmentTimePreference.name}
+                                else
+                                    button.btn-sm.btn.btn-light-info(type='button', value='#{investmentTimePreference.key}') #{investmentTimePreference.name}
+                            else
+                                if(i==0)
+                                    button.btn-sm.btn.btn-light-info.active(type='button', value='#{investmentTimePreference.key}') #{investmentTimePreference.name}
+                                else
+                                    button.btn-sm.btn.btn-light-info(type='button', value='#{investmentTimePreference.key}') #{investmentTimePreference.name}
+
+                span.col-md-2.text-right.text-muted.small 风险偏好
+                .col-md-3.text-left
+                    .btn-group(data-toggle='buttons-radio', id='venturePreference',  name='venturePreference')
+                        each venturePreference, i in venturePreferences
+                            if(customer.venturePreference)
+                                if(venturePreference.key == customer.venturePreference)
+                                    button.btn-sm.btn.btn-light-info.active(type='button', value='#{venturePreference.key}') #{venturePreference.name}
+                                else
+                                    button.btn-sm.btn.btn-light-info(type='button', value='#{venturePreference.key}') #{venturePreference.name}
+                            else
+                                if(i==0)
+                                    button.btn-sm.btn.btn-light-info.active(type='button', value='#{venturePreference.key}') #{venturePreference.name}
+                                else
+                                    button.btn-sm.btn.btn-light-info(type='button', value='#{venturePreference.key}') #{venturePreference.name}
+
+            .row.m-t-20(style='display:none')
+                span.col-md-2.text-right.text-muted.small 是否愿意参加活动
+                .col-md-3.text-left
+                    .switch.switch-mini(data-on="info")
+                        if(customer.isLikeAction == 'true')
+                            input(type='checkbox', id='isLikeAction', name='isLikeAction', checked)
+                        else
+                            input(type='checkbox', id='isLikeAction', name='isLikeAction')
+
+                span.col-md-2.text-right.text-muted.small 半年内有资金回笼
+                .col-md-3.text-left
+                    if(customer.fundBackTime)
+                        input(type='text', id='fundBackTime', class="form-control", name='fundBackTime', placeholder='半年内有资金回笼', value='#{format(customer.fundBackTime)}')
+                    else
+                        input(type='text', id='fundBackTime', class="form-control", name='fundBackTime', placeholder='半年内有资金回笼', value='')
+
+            .row.m-t-20(style='display:none;')
+                span.col-md-2.text-right.text-muted.small 资金体量
+                .col-md-8.text-left
+                    .btn-group(data-toggle='buttons-radio', id='bodyMass', name='bodyMass')
+                        each bodyMass, i in bodyMassList
+                            if(customer.bodyMass)
+                                if(bodyMass.key == customer.bodyMass)
+                                    button.btn-sm.btn.btn-light-info.active(type='button', value='#{bodyMass.key}') #{bodyMass.name}
+                                else
+                                    button.btn-sm.btn.btn-light-info(type='button', value='#{bodyMass.key}') #{bodyMass.name}
+                            else
+                                if(i==0)
+                                    button.btn-sm.btn.btn-light-info.active(type='button', value='#{bodyMass.key}') #{bodyMass.name}
+                                else
+                                    button.btn-sm.btn.btn-light-info(type='button', value='#{bodyMass.key}') #{bodyMass.name}
+
+            .row.m-t-20(style='display:none;')
+                span.col-md-2.text-right.text-muted.small 投资经验
+                .col-md-8.text-left
+                    .btn-group(data-toggle='buttons-radio', id='investmentPreferenceType', name='investmentPreferenceType')
+                        each investmentPreference, i in investmentPreferences
+                            if(customer.investmentPreference)
+                                if(customer.investmentPreference.type)
+                                    if(investmentPreference.key == customer.investmentPreference.type)
+                                        button.btn-sm.btn.btn-light-info.active(onclick='selectInvestmentPreference("#{investmentPreference.key}")', type='button', value='#{investmentPreference.key}') #{investmentPreference.name}
+                                    else
+                                        button.btn-sm.btn.btn-light-info(onclick='selectInvestmentPreference("#{investmentPreference.key}")', type='button', value='#{investmentPreference.key}') #{investmentPreference.name}
+                                else
+                                    if(i==0)
+                                        button.btn-sm.btn.btn-light-info.active(onclick='selectInvestmentPreference("#{investmentPreference.key}")', type='button', value='#{investmentPreference.key}') #{investmentPreference.name}
+                                    else
+                                        button.btn-sm.btn.btn-light-info(onclick='selectInvestmentPreference("#{investmentPreference.key}")', type='button', value='#{investmentPreference.key}') #{investmentPreference.name}
+                            else
+                                if(i==0)
+                                    button.btn-sm.btn.btn-light-info.active(onclick='selectInvestmentPreference("#{investmentPreference.key}")', type='button', value='#{investmentPreference.key}') #{investmentPreference.name}
+                                else
+                                    button.btn-sm.btn.btn-light-info(onclick='selectInvestmentPreference("#{investmentPreference.key}")', type='button', value='#{investmentPreference.key}') #{investmentPreference.name}
+                    if(customer.investmentPreference)
+                        if(customer.investmentPreference.describe)
+                            input.holo(type='text', id='investDescribe', name='investmentPreferenceDescribe', placeholder='描述信息', value='#{customer.investmentPreference.describe}', style='display: none;')
+                        else
+                            input.holo(type='text', id='investDescribe', name='investmentPreferenceDescribe', placeholder='描述信息', value='', style='display: none;')
+                    else
+                        input.holo(type='text', id='investDescribe', name='investmentPreferenceDescribe', placeholder='描述信息', value='', style='display: none;')
+
+            .row.m-t-20(style='display:none;')
+                .form-group.form-inline
+                    span.col-md-2.text-right.text-muted.small 跟进
+                    .col-md-10.text-left
+                        .btn-group(data-toggle='buttons-radio', id='selectDay', name='selectDay')
+                            button.btn-sm.btn.btn-light-info(onclick='setCallNextDays(1);', value='1', type='button') 1
+                            button.btn-sm.btn.btn-light-info(onclick='setCallNextDays(2);', value='2', type='button') 2
+                            button.btn-sm.btn.btn-light-info(onclick='setCallNextDays(3);', value='3', type='button') 3
+                            button.btn-sm.btn.btn-light-info(onclick='setCallNextDays(4);', value='4', type='button') 4
+                            button.btn-sm.btn.btn-light-info(onclick='setCallNextDays(5);', value='5', type='button') 5
+                            button.btn-sm.btn.btn-light-info(onclick='setCallNextDays(6);', value='6', type='button') 6
+                            button.btn-sm.btn.btn-light-info(onclick='setCallNextDays(7);', value='7', type='button') 7
+                            button.btn-sm.btn.btn-light-info(onclick='setCallNextDays(10);', value='10', type='button') 10
+                            button.btn-sm.btn.btn-light-info(onclick='setCallNextDays(14);', value='14', type='button') 14
+                            input.m-l-10(id='callNextDays', name='callNextDays', class='span1 number form-control', type='text', style='width:15%')
+                            span.m-l-5 天后
+                            input.m-l-10(class="form-control", type='text', id='selectDate', name='selectDate', placeholder='选择日期', style='width:30%')
+
+
+            .row.m-t-20(style='display:none;')
+                span.col-md-2.text-right.text-muted.small 暂无投资意向原因
+                .col-md-8
+                    if(customer.noInvestmentReason)
+                        input.holo(type='text', style='width: 100%;', placeholder='暂无投资意向原因', id='noInvestmentReason', name='noInvestmentReason', value='#{customer.noInvestmentReason}')
+                    else
+                        input.holo(type='text', style='width: 100%;', placeholder='暂无投资意向原因', id='noInvestmentReason', name='noInvestmentReason', value='')
+
+
+            .row.m-t-20(style='display:none;')
+                span.col-md-2.text-right.text-muted.small 沟通产品
+                .col-md-8.text-left
+                    if(customer.lastCall)
+                        if(customer.lastCall.product)
+                            input.holo(id='callProduct', name='callProduct', type='text', value='#{customer.lastCall.product}', placeholder='沟通产品')
+                        else
+                            input.holo(id='callProduct', name='callProduct', type='text', value='', placeholder='沟通产品')
+                    else
+                        input.holo(id='callProduct', name='callProduct', type='text', value='', placeholder='沟通产品')
+
+            .row.m-t-20
+                .col-md-10.col-md-offset-1
+                    if(customer.lastCall)
+                        if(customer.lastCall.comment)
+                            textarea.holo(id='callComment', name='callComment', type='text', style='width: 100%;', placeholder='备注') #{customer.lastCall.comment}
+                        else
+                            textarea.holo(id='callComment', name='callComment', type='text', style='width: 100%;', placeholder='备注')
+                    else
+                        textarea.holo(id='callComment', name='callComment', type='text', style='width: 100%;', placeholder='备注')
+div(style='height:65px;')
+
+.function-bar
+    .row.m-t-10.text-center
+        .col-xs-12.text-center
+            if(customer.status)
+                if(customer.status == 'potential')
+                    button.btn.btn-success(type='button', onclick='confirmInfo("bc20")') 20商机
+                    button.btn.btn-success.m-l-5(type='button', onclick='confirmInfo("bc40")') 40商机
+                if(customer.status == 'bc20')
+                    if(customer.auditStatus == 'auditing')
+                        button.btn.btn-success.m-l-5(type='button', class='disabled') 40商机
+                    else
+                        button.btn.btn-success.m-l-5(type='button', onclick='confirmInfo("bc40")') 40商机
+            else
+                if(customer.auditStatus == 'auditing')
+                    button.btn.btn-success(type='button', class='disabled') 可跟进
+                    button.btn.btn-success.m-l-5(type='button', class='disabled') 20商机
+                    button.btn.btn-success.btn-primary.m-l-5(type='button', class='disabled') 40商机
+                else
+                    button.btn.btn-success(type='button', onclick='confirmInfo("potential")') 可跟进
+                    button.btn.btn-success.m-l-5(type='button', onclick='confirmInfo("bc20")') 20商机
+                    button.btn.btn-success.btn-primary.m-l-5(type='button', onclick='confirmInfo("bc40")') 40商机
+
+            button.btn.btn-primary.m-l-5(type='button', onclick='confirmInfo("connected")') 接通
+            button.btn.btn-primary.m-l-5(type='button', onclick='confirmInfo("proxyConnected")') 代接
+            button.btn.btn-warning.m-l-5(type='button', onclick='confirmInfo("noResponse")') 无应答
+            button.btn.btn-warning.m-l-5(type='button', onclick='confirmInfo("closed")') 关机
+            button.btn.btn-warning.m-l-5(type='button', onclick='confirmInfo("busySignal")') 忙音
+            button.btn.btn-danger.m-l-5(type='button', onclick='confirmInfo("refused")') 拒绝
+            button.btn.btn-danger.m-l-5(type='button', onclick='confirmInfo("vacant")') 空号
+            button.btn.btn-danger.m-l-5(type='button', onclick='confirmInfo("fax")') 传真
+            button.btn.btn-danger.m-l-5(type='button', onclick='confirmInfo("reAssign")') 无意向
+            button.btn.btn-info.m-l-5#next(type='button', onclick='confirmInfo("next")') 保存下一个
+            button.btn.btn-info.m-l-5#save(style='position:relative;left:100px;', type='button') 保存
+    i#call-dial.icon.icon-phone-3.text-success(style='font-size: 36px;position:fixed;left:10px;bottom:5px;z-index:15;')
+    i#call-hangup.icon.icon-phone-3.text-danger(style='font-size: 36px;position:fixed;left:10px;bottom:5px;z-index:15;display:none;')
+    i#call-dialing.icon-spinner.text-success.animate-spin(style='font-size: 36px;position:fixed;left:50px;bottom:5px;z-index:15;display:none;')
+    i#call-hangingup.icon-spinner.text-danger.animate-spin(style='font-size: 36px;position:fixed;left:50px;bottom:5px;z-index:15;display:none;')
+
+#customerCallListDetailCloseConfirm.modal(tabindex='-1', data-width='760', style='display: none;')
+    .modal-header
+        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row
+            .col-md-3
+                h5.modal-title 确认提示
+    .modal-body
+        .row.m-t-10
+            span.col-md-12.text-center.text-danger
+                h4 确认未保存而关闭该窗口吗?
+    .modal-footer
+        .text-center
+            button.btn.btn-lg.btn-default(style='margin-right: 40px;', data-dismiss='modal') 取消
+            button.btn.btn-lg.btn-success(onclick='closeConfirm()') 确定
+
+//#customerCallListConfirm.modal(tabindex='-1', data-width='760', style='display: none;')
+//    .modal-header
+//        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+//        .row
+//            .col-md-3
+//                h5.modal-title 确认提示
+//    .modal-body
+//        .row.m-t-10
+//            span.col-md-12.text-center.text-danger
+//                h4#msg
+//    .modal-footer
+//        .text-center
+//            button.btn.btn-lg.btn-default(style='margin-right: 40px;', data-dismiss='modal') 取消
+//            button.btn.btn-lg.btn-success(onclick='sufConfirmInfo()') 确定
+
+script.
+
+    $('#formCall').find('[name=callTags]').tagsinput({
+        trimValue: true,
+        maxTags: 5,
+        maxChars: 20
+    });
+
+    console.log('callcenter opened');
+    var click = "";
+    var now = new Date();
+    var except = new Date(now.getTime() - 1000*60*60*24*365*40);
+    if(!$('#formCall #birthday').val()) {
+        $('#formCall #birthday').val(format(except))
+    }
+    function setCallNextDays(day) {
+        $('input[name=callNextDays]').val(day);
+        $('[name=selectDate]').val(format(new Date(now.getTime()+day*1000*60*60*24)))
+    }
+    $('[name=fundBackTime]').datetimepicker({format : 'yyyy-mm-dd', autoclose: true, weekStart: 1, todayBtn: true, minView : 'month'});
+    $('[name=birthday]').datetimepicker({format : 'yyyy-mm-dd', autoclose: true, weekStart: 1, minView : 'month'});
+    $('[name=selectDate]').datetimepicker({format : 'yyyy-mm-dd', autoclose: true, weekStart: 1, todayBtn: true, minView : 'month'})
+                            .on('changeDate', function(ev) {
+                                ev.preventDefault();
+                                var date = new Date(ev.date);
+                                var nowDate = new Date(date.getTime()- new Date(format(now)).getTime());
+                                var day = parseInt(nowDate/86400000);
+                                $('#formCall #callNextDays').val(day);
+                                $('#formCall #selectDay').find('button').removeClass('active');
+                                $('#formCall #selectDay').find('button').each(function() {
+                                   if(day == $(this).val()) {
+                                       $(this).button('toggle');
+                                   }
+                                });
+                            });
+
+    $('#formCall #callNextDays').on('input', function() {
+        var day = $(this).val();
+        $('#formCall #selectDay').find('button').removeClass('active');
+        $('#formCall #selectDay').find('button').each(function() {
+           if(day == $(this).val()) {
+               $(this).button('toggle');
+           }
+        });
+        $('[name=selectDate]').val(format(new Date(now.getTime()+day*1000*60*60*24)));
+    })
+
+    $('#formCall #code').css({background: "#F0F0F0"});
+
+    $('#formCall #isLikeAction').bootstrapSwitch();
+
+    var professionType = $('#formCall #professionType > .btn.active').val();
+    selectProfessionType(professionType);
+    var investmentPreferenceType = $('#formCall #investmentPreferenceType > .btn.active').val();
+    selectInvestmentPreference(investmentPreferenceType);
+
+    function customerInvestInfo() {
+        $("html, body").animate({ scrollTop: $(document).height() }, 1000);
+        $('#formCall #showInvestInfo').hide();
+        $('#formCall #title').show();
+        $('#formCall #investInfo').closest('.row').show();
+        $('#formCall #investmentPreferenceType').closest('.row').show();
+        $('#formCall #investmentTimePreference').closest('.row').show();
+        $('#formCall #venturePreference').closest('.row').show();
+        $('#formCall #isLikeAction').closest('.row').show();
+        $('#formCall #bodyMass').closest('.row').show();
+        $('#formCall #status').closest('.row').show();
+        $('#formCall #fundBackTime').closest('.row').show();
+        $('#formCall #callNextDays').closest('.row').show();
+        $('#formCall #callProduct').closest('.row').show();
+        $('#formCall #noInvestmentReason').closest('.row').show();
+    }
+
+    function selectInvestmentPreference(type) {
+        if(type == 'other'){
+            $('#formCall #investDescribe').show();
+        }else {
+            $('#formCall #investDescribe').hide();
+        }
+    }
+
+    function selectProfessionType(type) {
+        if(type == 'other'){
+            $('#formCall #professionDescribe').show();
+        }else {
+            $('#formCall #professionDescribe').hide();
+        }
+    }
+
+    function closeConfirm() {
+        __callCenter.callListDetailConfirm = true;
+        $('#customerCallListDetailCloseConfirm').modal('hide');
+        pup.widgets.layerManager.close();
+        if(__callCenter.close)
+            __callCenter.close();
+        
+    }
+    $('#save').click(function(ev) {
+        ev.preventDefault();
+        click = "save";
+        confirmInfo("save")
+    });
+
+    //var callStatus = '';
+    //function preConfirmInfo(value) {
+    //    if(value == 'reAssign') {
+    //        $('#customerCallListConfirm #msg').text('您确定该客户为无意向客户吗?');
+    //        callStatus = 'reAssign';
+    //    }else if(value == 'fax') {
+    //        $('#customerCallListConfirm #msg').text('您确定该客户为传真客户吗?');
+    //        callStatus = 'fax';
+    //    }else if(value == 'vacant') {
+    //        $('#customerCallListConfirm #msg').text('您确定该客户为空号客户吗?');
+    //        callStatus = 'vacant';
+    //    }else if(value == 'refused') {
+    //        $('#customerCallListConfirm #msg').text('您确定该客户为拒绝客户吗?');
+    //        callStatus = 'refused';
+    //    }else if(value == 'busySignal') {
+    //        callStatus = 'busySignal';
+    //        $('#customerCallListConfirm #msg').text('您确定该客户为忙音客户吗?');
+    //    }else if(value == 'closed') {
+    //        callStatus = 'closed';
+    //        $('#customerCallListConfirm #msg').text('您确定该客户为关机客户吗?');
+    //    }else {
+    //        callStatus = "noResponse";
+    //        $('#customerCallListConfirm #msg').text('您确定该客户为无应答客户吗?');
+    //    }
+    //    $('#customerCallListConfirm').modal('show');
+    //}
+
+    //function sufConfirmInfo() {
+    //    confirmInfo(callStatus);
+    //}
+
+    function confirmInfo(callType) {
+        $('body').oLoader({
+            wholeWindow: true,
+            effect:'slide'
+        });
+
+        setTimeout(function(){ $('body').oLoader('hide'); }, 3000);
+        console.log('callType : ' + callType);
+        var sex = $('#formCall #sex > .btn.active').val();
+        var houseInfo = $('#formCall #houseInfo > .btn.active').val();
+        var professionType = $('#formCall #professionType > .btn.active').val();
+        var investmentPreferenceType = $('#formCall #investmentPreferenceType > .btn.active').val();
+        var investmentTimePreference = $('#formCall #investmentTimePreference > .btn.active').val();
+        var venturePreference = $('#formCall #venturePreference > .btn.active').val();
+        var bodyMass = $('#formCall #bodyMass > .btn.active').val();
+        var _id = $('#formCall #_id').val();
+        var isLikeAction = $('#formCall #isLikeAction').is(":checked");
+        var callTags = $('#formCall').find('[name=callTags]').tagsinput('items');
+        var formData = $('#formCall').serializeObject();
+        formData.sex = sex;
+        formData.houseInfo = houseInfo;
+        formData.professionType = professionType;
+        formData.investmentPreferenceType = investmentPreferenceType;
+        formData.investmentTimePreference = investmentTimePreference;
+        formData.venturePreference = venturePreference;
+        formData.bodyMass = bodyMass;
+        formData._id = _id;
+        formData.isLikeAction = isLikeAction;
+        formData.type = callType;
+        formData.callTags = callTags;
+        if(callCenterRecordingList) {
+            formData.recording = callCenterRecordingList;
+        }
+        var url = '/crm/customer/callList/save';
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: url,
+            data: formData,
+            success: function(data){
+                $('body').oLoader('hide');
+                if(click == "save") {
+                    toast(data.msg);
+                }else {
+                    __callCenter.callListDetailConfirm = true;
+                    $('#customerCallListConfirm').modal('hide');
+                    pup.widgets.layerManager.close();
+                    toast(data.msg);
+                    __callCenter.save(data);
+                }
+                click = "";
+            }
+        });
+        return false;
+    }
+
+
+    /*********************************
+     *   Call Center
+     *********************************/
+
+    var callCenterValid = "#{callCenter.valid}";
+    var callCenterAddress = "#{callCenter.address}";
+    var callCenterRecordingList = [];
+
+    if(callCenterValid == 'true') {
+
+        //$.getScript('http://' + callCenterAddress + '/MyCallProxy/MyPhoner.js', function() {
+        //
+        //    MyPhoner.host = callCenterAddress;
+            CallCenterController.callCenterEventCallback = callCenterEventCallback;
+
+            var callCenterStatus = {
+                //拨打中
+                dial : 'Dial',
+                //已呼出
+                dialed : 'Dialed',
+                //拨打失败
+                dialFailed : 'DialFailed',
+                //接通
+                connected : 'Connected',
+                //挂断
+                hangup : 'Hangup',
+                //已断开
+                disconnect : 'Disconnect',
+                //登入
+                login : 'login',
+                //登出
+                logout : 'logout',
+                //开始录音
+                recording : 'recording'
+            };
+
+            var callCenterViewType = {
+                //拨打中
+                dial : 'dial',
+                //接通
+                connected : 'connected',
+                //已断开
+                disconnect : 'disconnect',
+                //主动挂机
+                hangup : 'hangup'
+            }
+
+            var callCenterCurrentStatus = '';
+
+            var callCenterAgent = '#{user.username}';
+            var callCenterExtension = '#{user.extNo}';
+            var callCenterGroup = '#{user.org.callCenterGroup}';
+            var callCenterTelNo = '#{customer.telNo}';
+            //console.log('encrypt TelNo : ' + callCenterTelNo);
+
+            //登录过程移到主界面加载时
+            //console.log('callCenterLogin: agent=' + callCenterAgent + ', extension=' + callCenterExtension + ', group=' + callCenterGroup);
+            //var callCenterLoginResult = callCenterLogin({agent : callCenterAgent, extension : callCenterExtension, group : callCenterGroup});
+            //if(!callCenterLoginResult.success) {
+            //    callCenterChangeViewTo(callCenterViewType.disconnect);
+            //    toast({type : 'error', body : '登录呼叫中心失败'}, true);
+            //    console.log('登录呼叫中心失败:' + callCenterLoginResult.msg);
+            //} else {
+            //    toast({type : 'success', body : "已成功登录呼叫中心"}, true);
+            //    //callCenterPageInit();
+            //}
+
+            $('#call-dial').click(function(event) {
+
+                console.log('dial to : agent=' + callCenterAgent + ', extension=' + callCenterExtension + ', telNo=' + callCenterTelNo);
+                //if(!callCenterLoginResult || !callCenterLoginResult.success) {
+                //    toast({type : 'error', body : '拨打失败:未登录呼叫中心'}, true);
+                //} else {
+                    async.series([
+                        function(callback){
+                            toast({type : 'info', body : '开始拨打...'}, true);
+                            console.log('开始拨打...');
+                            callCenterChangeViewTo(callCenterViewType.dial, function() {
+                                callback(null, 'one');
+                            });
+
+                        },
+                        function(callback){
+                            callCenterDail({telNo: callCenterTelNo});
+                            callback(null, 'two');
+                        }
+                    ],
+                    function(err, results){
+                        if(err) {
+                            console.log(err);
+                        }
+                    });
+                //}
+
+            });
+
+            $('#call-hangup').click(function() {
+                callCenterCurrentStatus = callCenterStatus.hangup;
+                toast({type : 'info', body : '开始挂机...'}, true);
+                callCenterHangup();
+            });
+
+            //登录过程移到主界面加载时
+            //function callCenterLogin(optional) {
+            //    var agent = optional.agent;
+            //    var ext = optional.extension;
+            //    var group = optional.group;
+            //    if(!$.isNumeric(ext)) {
+            //        return {success : false, msg : '分机号不正确:[' + ext + ']'};
+            //    }
+            //    var o = MyPhoner.Login(agent,group,ext,null,null);
+            //    console.log("Login:" + o +"(" + MyPhoner.Reason + ")");
+            //    if(o >= 0){
+            //        var obj = MyPhoner.GetLoginInfo();
+            //        if(obj >= 0){
+            //            console.log("Agent:"+MyPhoner.Agent+", Extension:"+MyPhoner.Extension);
+            //        }
+            //        var events = MyPhoner.GetEvents(callCenterEventCallback);
+            //        console.log("GetEvents:" + events +"(" + MyPhoner.Reason + ")");
+            //        return {success : true};
+            //    } else {
+            //        return {success : false, msg : '呼叫中心登录认证失败'};
+            //    }
+            //}
+
+            function callCenterHangup() {
+                callCenterChangeViewTo(callCenterViewType.hangup);
+                console.log("Hangup:" + MyPhoner.Hangup() +"(" + MyPhoner.Reason + ")");
+            }
+
+            function callCenterDail(optional) {
+                //console.log('dialing...  telNo:' + optional.telNo);
+                var stel = optional.telNo;
+                var sdata = "";
+                var result = MyPhoner.Dial(stel, sdata);
+                if(result < 0) {
+                    console.log("Dial failed:" + result +"(" + MyPhoner.Reason + ")");
+                    callCenterChangeViewTo(callCenterViewType.disconnect);
+                    toast({type : 'error', body : '拨打失败'}, true);
+                } else {
+                    console.log("Dial:" + result +"(" + MyPhoner.Reason + ")");
+                }
+            }
+
+            function callCenterLogout(optional) {
+                console.log("Logout:" + MyPhoner.Logout() +"(" + MyPhoner.Reason + ")");
+            }
+
+            function callCenterEventCallback(message) {
+                var status = callCenterGetStatusFromMessage(message);
+                console.log('status : ' + status);
+                if(!status) {
+                    return;
+                }
+                if(status == callCenterStatus.dialed) {
+                    callCenterCurrentStatus = callCenterStatus.dialed;
+                    toast({type : 'info', body : '已呼出,等待接听...'}, true);
+                } else if(status == callCenterStatus.connected) {
+                    callCenterCurrentStatus = callCenterStatus.connected;
+                    callCenterChangeViewTo(callCenterViewType.connected);
+                    toast({type : 'info', body : '已接听,通话中...'}, true);
+                } else if(status == callCenterStatus.hangup) {
+                    callCenterCurrentStatus = callCenterStatus.hangup;
+                    callCenterChangeViewTo(callCenterViewType.hangup);
+                    //toast({type : 'info', body : '已挂机'}, true);
+                } else if(status == callCenterStatus.disconnect) {
+                    callCenterCurrentStatus = callCenterStatus.disconnect;
+                    callCenterChangeViewTo(callCenterViewType.hangup);
+                    //toast({type : 'info', body : '已断开'}, true);
+                    //callCenterLogout();
+                } else if(status == callCenterStatus.logout) {
+                    toast({type : 'info', body : '已退出登录'}, true);
+                } else if(status == callCenterStatus.recording) {
+                    callCenterAddRecording();
+                } else {
+                    console.log("undeal status : " + status);
+                }
+            }
+
+            function callCenterPageInit() {
+                var totalCount = MyPhoner.GetCallInfo();
+                if(MyPhoner.callback == "") {
+                    if(totalCount >= 0) {
+                        console.log("callCenterPageInit GetCallInfo:" + JSON.stringify(MyPhoner.Calls));
+                    }
+                } else {
+                    console.log("callCenterPageInit GetCallInfo:" + totalCount +"(" + MyPhoner.Reason + ")");
+                }
+            }
+
+            function callCenterAddRecording() {
+                var totalCount = MyPhoner.GetCallInfo();
+                if(MyPhoner.callback == ""){
+                    if(totalCount >= 0) {
+                        console.log("GetCallInfo:" + JSON.stringify(MyPhoner.Calls));
+                        callCenterRecordingList.push(MyPhoner.Calls.recordId);
+                        var recording = {};
+                        recording.customerId = '#{customer._id}';
+                        recording.recordId = MyPhoner.Calls.recordId;
+                        $.ajax({
+                            type: 'POST',
+                            dataType: 'json',
+                            url: '/crm/recording/add',
+                            data: recording,
+                            success: function(data){
+                                console.log(data.toast.body);
+                            }
+                        });
+                    } else {
+                        console.log("GetCallInfo:" + totalCount +"(" + MyPhoner.Reason + ")");
+                    }
+                }
+            }
+
+            function callCenterChangeViewTo(type, callback) {
+                if(type == callCenterViewType.disconnect) {
+                    console.log('callCenterChangeViewTo : ' + type);
+                    $('#call-dial').show();
+                    $('#call-hangup').hide();
+                    $('#call-dialing').hide();
+                    $('#call-hangingup').hide();
+                } else if(type == callCenterViewType.dial) {
+                    console.log('callCenterChangeViewTo : ' + type);
+                    $('#call-dial').hide();
+                    $('#call-hangup').show();
+                    $('#call-dialing').show({complete : function() {
+                        if(callback) {
+                            callback();
+                        }
+                    }});
+                    $('#call-hangingup').hide();
+                } else if(type == callCenterViewType.connected) {
+                    console.log('callCenterChangeViewTo : ' + type);
+                    $('#call-dial').hide();
+                    $('#call-hangup').show();
+                    $('#call-dialing').hide();
+                    $('#call-hangingup').hide();
+                } else if(type == callCenterViewType.hangup) {
+                    console.log('callCenterChangeViewTo : ' + type);
+                    $('#call-dial').show();
+                    $('#call-hangup').hide();
+                    $('#call-dialing').hide();
+                    $('#call-hangingup').hide();
+                }
+            }
+
+            function callCenterGetStatusFromMessage(message) {
+                if(!message) {
+                    return null;
+                }
+                //拨打中但未呼出
+                var pdial = /Dial.0.Succeed.*/;
+                //拨打中已呼出
+                var pdialed = /Dial.[0-9]{11}/;
+                //拨打失败
+                var pdialFailed = /Dial:-1.*/;
+                //已接通
+                var pconnected = /Connected/;
+                //主动挂断
+                var phangup = /Hangup.*Succeed.*/;
+                //已挂断
+                var pdisconnect = /Disconnect/;
+                //登入
+                var plogin = /Login:0.Succeed.*/;
+                //登出
+                var plogout = /Close/;
+                //开始录音
+                var precording = /Recording/;
+
+                if(pdial.test(message)) {
+                    return callCenterStatus.dial;
+                } else if(pdialed.test(message)) {
+                    return callCenterStatus.dialed;
+                } else if(pconnected.test(message)) {
+                    return callCenterStatus.connected;
+                } else if(phangup.test(message)) {
+                    return callCenterStatus.hangup;
+                } else if(pdisconnect.test(message)) {
+                    return callCenterStatus.disconnect;
+                } else if(plogin.test(message)) {
+                    return callCenterStatus.login;
+                } else if(plogout.test(message)) {
+                    return callCenterStatus.logout;
+                } else if(pdialFailed.test(message)) {
+                    return callCenterStatus.dialFailed;
+                } else if(precording.test(message)) {
+                    console.log('recording message---------');
+                    return callCenterStatus.recording;
+                } else {
+                    return message;
+                }
+            }
+
+        //});
+    }
+
+    $('#formCall').validate_popover({onsubmit: true, popoverPosition: 'top'});
+
+    $(window).resize(function() {
+       $.validator.reposition();
+    });
+
+    $('input[name=callNextDays]').keydown(function () {
+        var e = $(this).event || window.event;
+        var code = parseInt(e.keyCode);
+        if (code >= 96 && code <= 105 || code >= 48 && code <= 57 || code == 8) {
+            return true;
+        } else {
+            return false;
+        }
+    });
+
+    $('[name="callRemind"]').bootstrapSwitch();
+
+    $('[name=callRemind]').on('switchChange.bootstrapSwitch', function (e, state) {
+        //console.log(this);
+        //console.log(e);
+        //console.log(state);
+    });
+
+    //$('#callTags').tagsinput('input').on('blur', function() {
+    //    $(this).val('');
+    //    console.log('tag : ' + $('[name=calltags]').val());
+    //});

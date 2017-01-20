@@ -1,0 +1,67 @@
+//
+   Created by tanyuan on 11/19/15.
+
+.row(style="margin-left: 40px; margin-top: 40px")
+    h4.hd 您正在设置账号#{username}的密码
+.row(style="margin-top: 40px")
+    .col-md-4.col-md-offset-4
+        .input-group.input-group-lg
+            span.input-group-addon
+                .glyphicon.glyphicon-lock
+            input.form-control(style="width:300px", id='pwd', name='pwd', type="password", placeholder="设置新密码")
+.row(style="margin-top: 40px")
+    .col-md-4.col-md-offset-4
+        .input-group.input-group-lg
+            span.input-group-addon
+                .glyphicon.glyphicon-lock
+            input.form-control(style="width:300px", id='cpwd', name='cpwd', type="password", placeholder="确认新密码")
+.row(style="margin-top: 40px")
+    .col-md-4.col-md-offset-4
+        button#next.btn.btn-lg.btn-primary(style="width:350px") 设置
+
+
+script.
+    $('#next').click(function(ev) {
+        ev.preventDefault();
+        var url = '/changePwd';
+        var pwd = $('#pwd').val();
+        var cpwd = $('#cpwd').val();
+
+        if(pwd == '') {
+            toastr.clear();
+            toastr.info('新密码不能为空!');
+            return;
+        }
+
+        if (cpwd == '') {
+            toastr.clear();
+            toastr.info('确认密码不能为空!');
+            return;
+        }
+
+        if (cpwd !== pwd) {
+            toastr.clear();
+            toastr.info('输入密码不一致!');
+            return;
+        }
+        var data = {};
+        data.pwd = pwd;
+        $.ajax({
+            type: 'PUT',
+            url: url,
+            dataType: 'json',
+            data: data,
+            success: function (data) {
+                if (data.msg.type == 'success') {
+                    $('#pwd').val('');
+                    $('#cpwd').val('');
+                    setTimeout("javascript:location.href='/login'", 1000);
+                }
+                toast(data.msg);
+                toast({type: 'success', body: '系统将在1s后调到登陆界面!'});
+            }
+        });
+        return false;
+    })
+
+

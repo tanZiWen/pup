@@ -1,0 +1,18 @@
+//
+   Created by wangnan on 14-6-11.
+
+each attachment in attachmentList
+    .row.m-t-10
+        span.col-md-10.text-left #{attachment.name}
+            span.col-md-2.text-left
+                span.m-l-15.icon-btn
+                    i.icon-attach-1(id='', onclick='doCustomerAttachmentDownload(#{attachment._id})')
+    .row.m-t-10
+        .divider.divider-default
+
+script.
+
+    function doCustomerAttachmentDownload(id) {
+        console.log('customerAttachmentDownload : ' + id)
+        location.href = '/crm/customerAttachment/download?id=' + id;
+    }

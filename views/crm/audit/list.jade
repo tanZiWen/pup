@@ -1,0 +1,124 @@
+.row.m-t-20
+    .col-sm-8.col-sm-offset-2.mm-box.form-horizontal
+        .form-group.m-t-20
+            .col-md-2.text-right.text-muted 通话时间
+            .col-md-3.text-left.f-datetimepicker
+                input(class='form-control', type='text', name='startTime', placeholder='起始日期')
+                i.glyphicon.glyphicon-remove.pointer-cursor
+            .col-md-3.text-left.f-datetimepicker
+                input(class='form-control', type='text', name='endTime', placeholder='截止日期')
+                i.glyphicon.glyphicon-remove.pointer-cursor
+        .form-group
+            .col-md-2.text-right.text-muted 拨打人
+            .col-md-3.text-left
+                select(class='selectpicker show-tick form-control', name='user', data-size='5', data-live-search="true")
+                    option(value='') 请选择
+                    each user in users
+                        option(value='#{user._id}') #{user.username}(#{user.realName})
+        .form-group
+            .col-md-2.text-right.text-muted 质检类型
+            .col-md-10.text-left
+                #selectAuditType.labelRadio
+                    each auditType in auditTypes
+                        input(type='radio', value='#{auditType.key}', data-name='#{auditType.name}')
+
+        .form-group
+            .col-md-2.text-right.text-muted.small 认领状态
+            .col-md-10.text-left
+                #selectClaimStatus.labelRadio
+                    each claim, i in claimStatus
+                        input(type='radio', value='#{claim.key}', data-name='#{claim.name}')
+
+        .form-group
+            .col-md-2.text-right.text-muted.small 质检状态
+            .col-md-10.text-left
+                #selectAuditStatus.labelRadio
+                    each audit, i in auditStatus
+                        if(i == 0)
+                            input(type='radio', value='#{audit.key}', data-name='#{audit.name}', checked)
+                        else
+                            input(type='radio', value='#{audit.key}', data-name='#{audit.name}')
+
+
+        .form-group
+            .divider.divider-default
+        .form-group
+            .col-md-12.text-center
+                button.btn.btn-primary#view
+                    i.icon.icon-filter-1.m-r-5
+                    | 过滤
+
+.row.m-t-25
+    .col-sm-8.col-sm-offset-1
+        #auditListTable.row
+
+script.
+
+    var now = new Date();
+    var ago = new Date(now.getTime() - 1000*60*60*24*7);
+    $('[name=startTime]').val(format(ago));
+    $('[name=endTime]').val(format(now));
+    $('.glyphicon-remove').click(function() {
+          $(this).prev().val('');
+    });
+    $('[name=startTime]').datetimepicker({format : 'yyyy-mm-dd', autoclose: true, weekStart: 1, todayBtn: true, minView : 'month'});
+    $('[name=endTime]').datetimepicker({format : 'yyyy-mm-dd', autoclose: true, weekStart: 1, todayBtn: true, minView : 'month'});
+
+    $('[name=user]').selectpicker();
+
+    var customerAuditPagination = new pup.Pagination({templateKey : "customer.audit.table"});
+    customerAuditPagination.condition('auditStatus', 'auditing');
+    customerAuditPagination.first();
+
+    var auditTypeRadio = new pup.widgets.labelRadio('#selectAuditType').radio(function() {
+        searchResult();
+    });
+
+    var auditStatusRadio = new pup.widgets.labelRadio('#selectAuditStatus').radio(function() {
+        searchResult();
+    });
+
+    var claimStatusRadio = new pup.widgets.labelRadio('#selectClaimStatus').radio(function() {
+        searchResult();
+    });
+
+    $('#view').click(function() {
+        searchResult()
+    });
+
+    function searchResult() {
+        var startTime = $('[name=startTime]').val();
+        var endTime = $('[name=endTime]').val();
+        var user = $('[name=user]').val();
+        var auditType = auditTypeRadio.val();
+        var auditStatus = auditStatusRadio.val();
+        var claimStatus = claimStatusRadio.val();
+
+        customerAuditPagination.clear();
+
+        if(startTime) {
+            customerAuditPagination.condition('startTime', startTime+ ' 00:00');
+        }
+
+        if(endTime) {
+            customerAuditPagination.condition('endTime', endTime+ ' 23:59');
+        }
+
+        if(user) {
+            customerAuditPagination.condition('user', user);
+        }
+
+        if(auditType) {
+            customerAuditPagination.condition('auditType', auditType);
+        }
+
+        if(auditStatus) {
+            customerAuditPagination.condition('auditStatus', auditStatus);
+        }
+
+        if(claimStatus) {
+            customerAuditPagination.condition('claimStatus', claimStatus);
+        }
+
+        customerAuditPagination.first();
+    };

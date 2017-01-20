@@ -1,0 +1,20 @@
+//
+   Created by michael on 5/29/14.
+
+.list-group
+    a.list-group-item(href='#', id="") 全部
+    each account in data
+        a.list-group-item(href='#', id="#{account._id}") #{account.code}
+
+script.
+
+    $('#accountListTable .list-group-item').click(function() {
+        curMonitorAccountId = $(this).attr('id');
+        if(curMonitorAccountId == "") {
+            $('#massMsgBtn').hide();
+        } else {
+            $('#massMsgBtn').show();
+        }
+        refreshContactsByTags();
+        $('#wechatTabs a[href="#contacts"]').tab('show');
+    });

@@ -1,0 +1,435 @@
+.sidebar.sidebar-left.mm-box
+    #muAdd.sidemenu
+        i.icon.icon-plus-6
+        | 创建
+.row.m-t-20
+    form#formSearch
+        .col-sm-8.col-sm-offset-2.mm-box.form-horizontal.filter-pan
+            .form-group(id='requireName', name='requireName')
+                label.control-label.col-md-2.text-right 组名
+                .col-md-8
+                    input.holo(type='text', class='required', id='name', name='name', style='display: inline-block;margin-right:10px;width: 300px;')
+                    button.btn.btn-primary.text-left#queryBtn(style='width:120px',pxdata-toggle="modal", data-target="#detail", type='button')
+                        i.icon-search-8(style='margin-right: 10px;')
+                        span 快速查找
+            .form-group.m-t-5
+                label.col-md-2.text-right 分公司
+                .col-md-8.text-left
+                    #selectOrg.labelRadio
+                        each area in areas
+                            input(type='radio', name='area', id='area', value='#{area.code}', data-name='#{area.name}')
+
+.row.m-t-25
+    .col-sm-8.col-sm-offset-2
+        #groupData.row
+
+#modConfirmDlg.modal(tabindex='-1', style='display: none;')
+    .modal-body
+        p#confirmMsg 确定修改？
+        p#opStatus(style='font-size: 20px; font-face: bold; display: none;')
+            i.icon.icon-spin5.animate-spin.text-success
+    .modal-footer
+        .text-center
+            button.cancel.btn.btn-default(style='margin-right: 40px;', data-dismiss='modal') 取消
+            button#doMod.btn.btn-danger 确定
+
+#delConfirmDlg.modal(tabindex='-1', style='display: none;')
+    .modal-body
+        p#confirmMsg 确定删除？
+        p#opStatus(style='font-size: 20px; font-face: bold; display: none;')
+            i.icon.icon-spin5.animate-spin.text-success
+    .modal-footer
+        .text-center
+            button.cancel.btn.btn-default(style='margin-right: 40px;', data-dismiss='modal') 取消
+            button#doDel.btn.btn-danger 确定
+
+#addDlg.modal(tabindex='-1', data-width='760', style='display: none;')
+    form#addForm(action='/crm/group/create')
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            .row
+                .col-md-3
+                    h4.modal-title  创建工作组
+        .modal-body
+            .row
+                .alert.alert-success(style='display: none;')
+            .row
+                .col-md-2.text-right.text-muted.small 组名：
+                .col-md-10
+                    input.holo(type='text', style='margin-top:-20px;width:250px', id='name', name='name', class='required')
+
+            .row.m-t-20
+                .col-md-2.text-right.text-muted.small 分公司：
+                .col-md-10.text-left
+                    .btn-group(data-toggle='buttons-radio', id='area', name='area')
+                        each area, i in areas
+                            if i == 0
+                                button.btn.btn-sm.btn-light-info.active#orgCode(value='#{area.code}', type='button')  #{area.name}
+                            else
+                                button.btn.btn-sm.btn-light-info#orgCode(value='#{area.code}', type='button')  #{area.name}
+
+            .row.m-t-20
+                .col-md-2.text-right.text-muted.small 用户：
+                .col-md-4.text-left
+                    select(class='selectpicker', id='user', name='user', data-size='5', data-live-search="true")
+                .col-md-4.text-left
+                        button.btn.btn-sm.btn-primary.f-leader(type='button') 组长选定
+                        button.m-l-10.btn.btn-sm.btn-primary.f-member(type='button') 组员选定
+
+            .row.m-t-20
+                .col-sm-8.col-sm-offset-2.mm-box(style='min-height: 300px;')
+                    .row(style='background-color:#666; color: #FFF; height:30px; line-height: 30px;')
+                        .col-sm-2.text-left 角色
+                        .col-sm-2.text-left 姓名
+                        .col-sm-4.text-left 用户名
+                        .col-sm-3.text-left 职位
+                    .row
+                        #users.col-sm-12(style='height:270px; overflow: scroll;padding-bottom: 5px;')
+
+        .modal-footer
+            .text-center
+                button#cancel.cancel.btn.btn-lg.btn-default(style='margin-right: 40px;', type='button', data-dismiss="modal") 取消
+                button#submit.btn.btn-lg.btn-success(type='submit') 确定
+
+#editDlg.modal(tabindex='-1', data-width='760', style='display: none;')
+    form#editForm(action='/crm/group/edit')
+        input.holo(id='id', name='id', hidden=true)
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            .row
+                .col-md-3
+                    h4.modal-title  修改工作组
+        .modal-body
+            .row
+                .alert.alert-success(style='display: none;')
+            .row
+                .col-md-2.text-right.text-muted.small 组名：
+                .col-md-10
+                    input.holo(type='text', style='margin-top:-20px;width:250px', id='name', name='name', class='required')
+
+            .row.m-t-20
+                .col-md-2.text-right.text-muted.small 分公司：
+                .col-md-10.text-left
+                    .btn-group(data-toggle='buttons-radio', id='area', name='area')
+                        each area, i in areas
+                            if i == 0
+                                button.btn.btn-sm.btn-light-info.active#orgCode(value='#{area.code}', type='button')  #{area.name}
+                            else
+                                button.btn.btn-sm.btn-light-info#orgCode(value='#{area.code}', type='button')  #{area.name}
+
+            .row.m-t-20
+                .col-md-2.text-right.text-muted.small 用户：
+                .col-md-4.text-left
+                    select(class='selectpicker', id='user', name='user', data-size='5', data-live-search="true")
+                .col-md-4.text-left
+                    button.btn.btn-sm.btn-primary.f-leader(type='button') 组长选定
+                    button.m-l-10.btn.btn-sm.btn-primary.f-member(type='button') 组员选定
+
+
+            .row.m-t-20
+                .col-sm-8.col-sm-offset-2.mm-box(style='min-height: 300px;')
+                    .row(style='background-color:#666; color: #FFF; height:30px; line-height: 30px;')
+                        .col-sm-2.text-left 角色
+                        .col-sm-2.text-left 用户名
+                        .col-sm-4.text-left 姓名
+                        .col-sm-3.text-left 职位
+                    .row
+                        #users.col-sm-12(style='height:270px; overflow: scroll;padding-bottom: 5px;')
+
+        .modal-footer
+            .text-center
+                button#cancel.cancel.btn.btn-lg.btn-default(style='margin-right: 40px;', type='button', data-dismiss="modal") 取消
+                button#submit.btn.btn-lg.btn-success(type='submit') 确定
+script.
+    var group = null,
+        users = null,
+        flag = 0,
+        groupMemer = [],
+        leaderId = null;
+    var groupPagination = new pup.Pagination({templateKey: 'workGroup.listData'});
+    groupPagination.setPageCount(1000);
+    groupPagination.first();
+    $('#queryBtn').click(function() {
+        var name = $('#name').val();
+        groupPagination.clear();
+        if(name) {
+            groupPagination.condition('name', name);
+        }
+        groupPagination.first();
+    });
+
+    function resetAndShowEditForm(data) {
+        group = data.group;
+        users = data.users
+        groupMemer = [];
+
+        $('#editForm #orgCode').removeClass('active');
+        $('#editForm #users').html('');
+        $('#id').val(group._id);
+        $('.f-leader').attr('disabled', true);
+
+        var html = '<div class="row tb-row"><div class="col-sm-2">组长</div><div class="col-sm-2">' +group.leader.username+ '</div><div class="col-sm-4">'
+                   +group.leader.realName+ '</div><div class="col-sm-3">' +group.leader.positionName+ '</div><div class="col-sm-1"><i class="glyphicon glyphicon-remove pointer-cursor", id="'+group.leader._id+','+group.leader.username+','+group.leader.realName+','+group.leader.positionName+'"></i></div>'
+        leaderId = group.leader._id;
+        $(html).prependTo('#editForm #users');
+        if(group.orgCode) {
+            $('#editForm #orgCode[value="' + group.orgCode + '"]').addClass('active');
+            $('option').remove();
+        }
+        if(users != null) {
+            _.each(users, function(value) {
+                var html = '<div class="row tb-row"><div class="col-sm-2">组员</div><div class="col-sm-2">' +value.username+ '</div><div class="col-sm-4">'
+                             +value.realName+ '</div><div class="col-sm-3">' +value.positionName+ '</div><div class="col-sm-1"><i class="glyphicon glyphicon-remove pointer-cursor", id="'+value._id+','+value.username+','+value.realName+','+value.positionName+'"></i></div>'
+                groupMemer.push(value._id);
+                $(html).appendTo('#editForm #users');
+            })
+        }
+        if(group.users != null) {
+            _.each(group.users, function(user) {
+                var user = '<option value='+user._id+','+user.username+','+user.realName+','+user.positionName+'>'+user.username+'('+user.realName+')'+'</option>';
+                $('#editForm #user').append(user);
+            })
+            $('.selectpicker').selectpicker('refresh');
+        }
+    }
+    $('.selectpicker').selectpicker({noneSelectedText:'请选择'});
+
+    $('.f-leader').click(function() {
+        var messages = [];
+
+        if(flag == 1) {
+            messages = $('#addForm #user').val();
+            $('#addForm #user option[value="'+messages+'"]').remove();
+        }
+        if(flag == 2) {
+            messages = $('#editForm #user').val();
+            $('#editForm #user option[value="'+messages+'"]').remove();
+        }
+        var message = messages.split(',');
+        var userId = message[0];
+        var username = message[1];
+        var realName = message[2];
+        var positionName = message[3];
+        var html = '<div class="row tb-row"><div class="col-sm-2">组长</div><div class="col-sm-2">' +username+ '</div><div class="col-sm-4">'
+                   +realName+ '</div><div class="col-sm-3">' +positionName+ '</div><div class="col-sm-1"><i class="glyphicon glyphicon-remove pointer-cursor", id="'+messages+'"></i></div>'
+        if(flag == 1) {
+            $(html).prependTo('#addForm #users');
+        }
+        if(flag == 2) {
+            $(html).prependTo('#editForm #users');
+        }
+        $(this).attr('disabled', true);
+
+        leaderId = userId;
+        $('.selectpicker').selectpicker('refresh');
+
+    })
+    $('.f-member').click(function(ev) {
+        var messages = [];
+        if(flag == 1) {
+            messages = $('#addForm #user').val();
+            $('#addForm #user option[value="'+messages+'"]').remove();
+        }
+        if(flag == 2) {
+            messages = $('#editForm #user').val();
+            $('#editForm #user option[value="'+messages+'"]').remove();
+        }
+        var message = messages.split(',');
+        var userId = message[0];
+        var username = message[1];
+        var realName = message[2];
+        var positionName = message[3];
+        var html = '<div class="row tb-row"><div class="col-sm-2">组员</div><div class="col-sm-2">' +username+ '</div><div class="col-sm-4">'
+                  +realName+ '</div><div class="col-sm-3">' +positionName+ '</div><div class="col-sm-1"><i class="glyphicon glyphicon-remove pointer-cursor", id="'+messages+'"></i></div>'
+        if(flag == 1) {
+            $(html).appendTo('#addForm #users');
+        }
+        if(flag == 2) {
+            $(html).appendTo('#editForm #users');
+        }
+        groupMemer.push(userId);
+        $('.selectpicker').selectpicker('refresh');
+    })
+
+    $('div').on('click', '.glyphicon-remove',  function() {
+        var messages = $(this).attr('id');
+        var message = messages.split(',');
+        var userId = message[0];
+        var username = message[1];
+        var realName = message[2];
+        var positionName = message[3];
+        $(this).parent().parent().remove();
+        var user = '<option value="'+messages+'">'+username+'('+realName+')'+'</option>';
+        if(userId == leaderId) {
+            leaderId = null;
+            if(flag == 2) {
+                $('#editForm #user').append(user);
+                $('.f-leader').attr('disabled', false);
+            }
+            if(flag == 1) {
+                $('.f-leader').attr('disabled', false);
+                $('#addForm #user').append(user);
+            }
+        }else {
+            if(flag == 1) {
+                $('#addForm #user').append(user);
+            }
+            if(flag == 2){
+                $('#editForm #user').append(user);
+            }
+            var idx = groupMemer.indexOf(parseInt(userId));
+            if(idx != -1) {
+                groupMemer.splice(idx, 1);
+            }
+        }
+        $('.selectpicker').selectpicker('refresh');
+    })
+    function loadUsersByOrg(formId, orgCode) {
+        $.getJSON( "/org/" + orgCode + "/users", function( data ) {
+            $('#'+formId+' #user option').remove();
+            $.each(data.users, function( key, user ) {
+                var userHtml = '<option value='+user._id+','+user.username+','+user.realName+','+user.positionName+'>'+user.username+'('+user.realName+')'+'</option>';
+                $('#'+formId+' #user').append(userHtml);
+            });
+            $('.selectpicker').selectpicker('refresh');
+        });
+    }
+
+    $('#muAdd').click(function() {
+        flag = 1;
+        $('#addDlg').modal('show');
+        $('.f-leader').attr('disabled', false);
+        leaderId = null;
+        groupMemer = [];
+        $('#addForm #orgCode').removeClass('active');
+        $('#addForm #orgCode[value="SH001"]').addClass('active');
+        $('#addForm #users').html('');
+        loadUsersByOrg('addForm', 'SH001');
+    });
+
+    $('#addForm #orgCode').click(function(ev) {
+        ev.preventDefault();
+        var selectedOrg = $(this).val();
+        groupMemer = [];
+        $('#addForm #users').html('');
+        $('.f-leader').attr('disabled', false);
+        leaderId = null;
+        groupMemer = [];
+        loadUsersByOrg('addForm', selectedOrg);
+    });
+
+    $('#editForm #orgCode').click(function(ev) {
+        ev.preventDefault();
+        var selectedOrg = $(this).val();
+        groupMemer = [];
+        $('#editForm #users').html('');
+        $('.f-leader').attr('disabled', false);
+        leaderId = null;
+        groupMemer = [];
+        loadUsersByOrg('editForm', selectedOrg);
+    });
+
+    var orgRadio = new pup.widgets.labelRadio('#selectOrg').radio(function() {
+        searchGroup();
+    })
+
+    function searchGroup() {
+        var name = $('#formSearch #name').val();
+        var area = orgRadio.val();
+        groupPagination.clear();
+        if(name) {
+            groupPagination.condition('name' , name);
+        }
+        if(area) {
+            groupPagination.condition('orgCode' , area);
+        }
+        groupPagination.first();
+    }
+    $('#formSearch #ok').click(function() {
+        searchGroup();
+    })
+
+    //TODO: finish this to submit group info
+    function formSubmit(formId){
+        var url = $('#'+formId).attr('action');
+        var orgCode = $('#'+formId+' #area > .btn.active').val();
+        var serializeForm = $('#'+formId).serialize();
+        var allForm = 'orgCode='+orgCode+'&'+'members='+groupMemer+'&'+'leaderId='+leaderId+'&'+serializeForm;
+        if($('#'+formId).validate().form() && validateOrg(orgCode) && validateLeader(leaderId)) {
+            $.ajax({
+                type: 'POST',
+                url: url,
+                dataType: 'json',
+                data: allForm,
+                success: function (data) {
+                    if(data.msg.type == 'success') {
+                        $('#'+formId)[0].reset();
+                        $('option').remove();
+                        $('.selectpicker').selectpicker('refresh');
+                        $('#'+formId+' #users').html('');
+                        $('.f-leader').attr('disabled', false);
+                        leaderId = null;
+                        groupMemer = [];
+                        if(flag == 1) {
+                            $('#addDlg').modal('hide');
+                        }
+                        if(flag == 2) {
+                            $('#editDlg').modal('hide');
+                            $('#modConfirmDlg').modal('hide');
+                        }
+                        groupPagination.first();
+                    }
+                    toast(data.msg);
+                }
+            });
+        }
+        return false;
+    }
+    $('#addForm').validate_popover({onsubmit: false, popoverPosition: 'top'});
+    $('#editForm').validate_popover({onsubmit: false, popoverPosition: 'top'});
+
+    $('#addForm').submit(function(ev) {
+        ev.preventDefault();
+        formSubmit('addForm');
+    })
+    $('#editForm').submit(function(ev) {
+        ev.preventDefault();
+        $('#modConfirmDlg').modal('show');
+    })
+    $('#doMod').click(function() {
+        formSubmit('editForm');
+    })
+    $('#delConfirmDlg #doDel').click(function() {
+        var url = '/crm/group/' + toDelGroupId;
+        $.ajax({
+            type: 'DELETE',
+            url: url,
+            dataType: 'json',
+            data: {},
+            success: function (data) {
+                groupPagination.first();
+                $('#delConfirmDlg').modal('hide');
+                toast(data.msg);
+            }
+        });
+    });
+
+    function validateOrg(orgCode) {
+        if(orgCode == null) {
+            toast({type: 'info', body: '分公司必须选择'})
+            return false;
+        }else {
+            return true;
+        }
+
+    }
+    function validateLeader(leader) {
+        if(leaderId == null) {
+            toast({type: 'info', body: '组长为必选项'})
+            return false;
+        }else {
+            return true;
+        }
+
+    }
+

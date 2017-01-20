@@ -1,0 +1,49 @@
+each trend, i in trends
+    .row.m-t-10
+        span.col-md-2.text-right.text-muted.small 标题
+        span.col-md-2.text-left #{trend.title}
+        span.col-md-2.text-right.text-muted.small 摘要
+        span.col-md-2.text-left #{trend.summary}
+        span.col-md-2.text-right.text-muted.small 创建日期
+        span.col-md-2.text-left #{format(trend.crt)}
+        .row.text-right
+            span.icon-btn.edit(data-id='#{trend.id}', data-code='#{trend.tagcode}', title='编辑')
+                i.icon.icon-edit-3
+            span.icon-btn.trash(title='删除', data-id='#{trend.id}', data-code='#{trend.tagcode}')
+                i.icon.icon-trash
+    .row.m-t-10
+        .divider.divider-default
+
+
+script.
+    productTrendPagination.bar('#productTrendPageBar');
+    $('.edit').click(function (ev) {
+        ev.preventDefault();
+        var id = $(this).data('id');
+        var tagcode = $(this).data('code');
+        var url = '/crm/product/trendData';
+        $('option').remove();
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType: 'json',
+            data: {id: id, tagcode: tagcode},
+            success: function (data) {
+                $('#modifyNews #title').val(data.trend.title);
+                $('#modifyNews #summary').val(data.trend.summary);
+                $('#modifyNews #formModifyNews').attr('data-id', data.trend.id)
+                ums.setContent(data.trend.content);
+                $('#modifyNews').modal('show');
+                _.each(data.dirs, function (dir) {
+                    var dirOption = '<option value=' + dir.name + '>' + dir.name + '</option>';
+                    $('#imageView #dir').append(dirOption);
+                })
+                $('.selectpicker').selectpicker('refresh');
+            }
+        });
+        return false;
+    });
+    $('.trash').click(function (ev) {
+        delId = $(this).data('id');
+        $('#newsDelConfirm').modal('show');
+    });

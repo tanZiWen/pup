@@ -1,0 +1,55 @@
+//
+   Created by tanyuan on 10/30/15.
+
+form#formAddTag(action='/crm/product/tag/add')
+    .modal-header
+        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row
+            .col-md-3
+                h4.modal-title 添加标签
+    .modal-body
+        .row.m-t-10
+            span.col-md-2.text-right.text-muted.small 标签编码
+            .col-md-4.text-left
+                input.holo(type='text', placeholder='不能为全数字', name='tagcode', id='tagcode')
+            span.col-md-2.text-right.text-muted.small 标签名
+            .col-md-4.text-left
+                input.holo(type='text', placeholder='不能为空', name='brief', id='brief')
+    .modal-footer
+        .text-center
+            button.cancel.btn.btn-lg.btn-default(style='margin-right: 40px;', type='button', data-dismiss='modal') 取消
+            button#ok.btn.btn-lg.btn-success(type='submit') 确定
+
+script.
+    $('#formAddTag').submit(function(ev) {
+        ev.preventDefault();
+        var url = $(this).attr('action');
+        var serializeForm = $(this).serializeObject();
+        console.log('serializeForm', serializeForm);
+        var regex = /^[0-9]+$/;
+        if(regex.test(serializeForm.tagcode)) {
+            toast({type: 'info', body: '标签编码不能全为数字!'});
+            return
+        }
+        if (serializeForm.tagcode == '') {
+            toast({type: 'info', body: '标签编码不能为空!'});
+            return
+        }
+        if(serializeForm.brief == '') {
+            toast({type: 'info', body: '标签名不能为空!'});
+            return
+        }
+        $.ajax({
+            type: "POST",
+            url: url,
+            dataType: 'json',
+            data: serializeForm,
+            success: function (data) {
+                if(data.msg.type == 'success') {
+                    $('#addTag').modal('hide');
+                }
+                toast(data.msg);
+            }
+        });
+        return false;
+    });

@@ -1,0 +1,136 @@
+//
+   Created by tanyuan on 2/3/16.
+
+table.table.mm-box
+    tr.th-inverse
+        th 办公室
+        th 发布时间
+        th 操作
+    tbody
+        each doc in docs
+            tr
+                td #{doc.officeName}
+                td #{format(doc.ctime)}
+                td
+                    span.icon-btn.f-edit(data-id='#{doc._id}', title='编辑')
+                        i.icon.icon-edit-3
+                    span.icon-btn.f-trash(title='删除', data-id='#{doc._id}')
+                        i.icon.icon-trash
+
+#modifyJoinUs.modal(tabindex='-1', data-width='960px', style='display: none;')
+    form#formModify(action='/crm/joinus/modify')
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            .row
+                .col-md-3
+                    h4.modal-title 编辑招聘信息
+        .modal-body
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 办公室
+                .col-md-4.text-left
+                    select(class='selectpicker show-tick form-control', name='officeCode', id='officeCode', data-size='5', data-live-search="true")
+            .row.m-t-20
+                span.col-md-2.text-right.text-muted.small 职位
+                .col-md-4.text-left
+                    input.holo(type='text', id='position', name='position', required='required', placeholder='职位名称')
+            .row.m-t-20
+                span.col-md-2.text-right.text-muted.small 优先级
+                .col-md-4.text-left
+                    input.holo(type='text', id='priority', name='priority', required='required', placeholder='显示职位时的排列顺序,1为最高优先级')
+            .row.m-t-20
+                span.col-md-2.text-right.text-muted.small 岗位职责
+                .col-md-8.text-left
+                    textarea.holo(type='text', id='responsibilities', name='responsibilities', style='width: 100%;', rows=8, cols=20)
+            .row.m-t-20
+                span.col-md-2.text-right.text-muted.small 任职资格
+                .col-md-8.text-left
+                    textarea.holo(type='text', id='qualification', name='qualification', style='width: 100%;', rows=8, cols=20)
+        .modal-footer
+            .text-center
+                button.cancel.btn.btn-lg.btn-default(data-dismiss='modal') 取消
+                button#ok.btn.btn-lg.btn-success(type='submit') 确定
+#joinusDelConfirm.modal(tabindex='-1', style='display: none;')
+    .modal-body
+        p 是否确认删除该条招聘信息？
+    .modal-footer
+        .text-center
+            button.cancel.btn.btn-default(style='margin-right: 40px;', data-dismiss='modal') 取消
+            button#joinusDelBtn.btn.btn-danger 确定
+script.
+    $('.f-edit').click(function(ev) {
+        ev.preventDefault();
+        var id = $(this).data('id');
+        var url = '/crm/joinus/modifyData/' + id;
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType: 'json',
+            success: function (data) {
+                var result = data.joinus;
+                _.each(data.officeTypes, function (office) {
+                    var option = '';
+                    if(office.key == result.officeCode) {
+                        option = '<option value=' + office.key + ' selected="selected">' + office.name + '</option>';
+                    }else {
+                        option = '<option value=' + office.key + '>' + office.name + '</option>';
+                    }
+
+                    $('#modifyJoinUs #officeCode').append(option);
+                })
+                $('#formModify #position').val(result.position);
+                $('#formModify #priority').val(result.priority);
+                $('#formModify #qualification').val(result.qualification);
+                $('#formModify #responsibilities').val(result.responsibilities);
+                $('.selectpicker').selectpicker('refresh');
+                $('#formModify').attr('data-id', result._id);
+                $('#modifyJoinUs').modal('show');
+            }
+        });
+    });
+    var delId = '';
+    $('.f-trash').click(function(ev) {
+        ev.preventDefault();
+        delId = $(this).data('id');
+        $('#joinusDelConfirm').modal('show');
+    });
+
+    $('#formModify').submit(function (ev) {
+        ev.preventDefault();
+        var id = $(this).data('id');
+        var url = $(this).attr('action') + '/'+id;
+        var serializeForm = $(this).serializeObject();
+        $.ajax({
+            type: "PUT",
+            url: url,
+            dataType: 'json',
+            data: serializeForm,
+            success: function (data) {
+                if (data.msg.type == 'success') {
+                    $('#addJoinUs').modal('hide');
+                    $('.selectpicker').selectpicker('refresh');
+                    $('#addJoinUs .content').html('');
+                    joinusPagination.reload();
+                    $('#modifyJoinUs').modal('hide');
+                }
+                toast(data.msg)
+            }
+        });
+        return false;
+    });
+    $('#joinusDelBtn').click(function(ev) {
+        ev.preventDefault();
+        var url = '/crm/joinus/delete/' + delId;
+        $.ajax({
+            type: "DELETE",
+            url: url,
+            dataType: 'json',
+            success: function (data) {
+                if (data.msg.type == 'success') {
+                    joinusPagination.reload();
+                    $('#joinusDelConfirm').modal('hide');
+                }
+                toast(data.msg)
+            }
+        });
+    });
+

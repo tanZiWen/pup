@@ -1,0 +1,26 @@
+.style
+    table.mm-box.table
+        tr.th-inverse
+            th.col-sm-3 日期
+            th.col-sm-3 条数
+            th.col-sm-3 等级
+            th.col-sm-3 状态
+        tbody
+            each callListRequest in data
+                tr
+                    td #{format(callListRequest.ctime)}
+                    td #{callListRequest.count}
+                    td #{callListRequest.levelName}
+                    td
+                        if (callListRequest.status == 'unassigned')
+                            | 未分配
+                        else if (callListRequest.status == 'assigned')
+                            | 已分配
+                        else
+                            | 已取消
+#callListRequestPageBar
+
+script.
+    callListRequestPagination.bar('#callListRequestPageBar');
+
+

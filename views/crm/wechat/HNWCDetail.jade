@@ -1,0 +1,167 @@
+//
+   Created by tanyuan on 7/7/15.
+
+.sidebar.sidebar-left.mm-box.f-muAppoint(style='display: none;')
+    #muAppoint.sidemenu
+        i.icon.icon-calendar-8
+        | 约见预约
+
+//右侧菜单
+.sidebar-mini.sidebar-right.mm-box
+    //关闭
+    #rMenuHNWCCancel.sidemenu.text-center
+        i.icon.icon-cancel-7.text-success(style='font-size: 24px;')
+
+.row(style='margin-top: 80px;')
+    .mm-box.col-md-8.col-md-offset-2(style='padding-bottom: 15px')
+        .modal-header.row
+            h4.pan-title.modal-title(style='display: inline-block;') 高净值客户基本信息
+            .pull-right(style='display: none')
+                span.m-l-15.icon-btn(onclick='openCustomerEditModal()')
+                    i.icon-edit-3
+        .modal-body
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 设备编号
+                span.col-md-2.text-left #{wechatHNWC.deviceName}
+                span.col-md-2.text-right.text-muted.small 客户评级
+                span.col-md-2.text-left #{wechatHNWC.rateName}
+                span.col-md-2.text-right.text-muted.small 商机客户
+                span.col-md-2.text-left #{wechatHNWC.name}
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 客户联系方式
+                span.col-md-2.text-left #{wechatHNWC.telNo}
+                span.col-md-2.text-right.text-muted.small 创建时间
+                span.col-md-2.text-left #{format(wechatHNWC.ctime)}
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 客户初步接触情况
+                span.col-md-10.text-left #{wechatHNWC.primaryComment}
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 备注
+                span.col-md-10.text-left #{wechatHNWC.comment}
+.row(style='margin-top: 20px;')
+    .mm-box.col-md-8.col-md-offset-2(style='padding-bottom: 15px')
+        .modal-header.row
+            h4.pan-title.modal-title(style='display: inline-block;') 约见预约
+            .pull-right#f-addAppoint(style='display: none;')
+                span.m-l-15.icon-btn(onclick='openAppointAddModal()')
+                    i.icon-plus-6
+        div
+            .row
+                .col-sm-12.t-action-in
+                    #appointManageList
+            #appointManagePageBar
+                .row.m-t-10.text-center.cust-record(onclick='appointManageListPage()')
+                    a(href='javascript:void(0);', onclick='', title='加载更多')
+                        i.icon.icon-angle-double-down
+
+#addAppointManage.modal(style='display: none;', data-width='760px')
+    form#addAppiontManageForm(action='/crm/wechat/addAppointManage')
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            .row
+                .col-md-3
+                    h4.modal-title 约见预约
+        .modal-body
+            .row
+                .col-md-2.text-right.text-muted 约见时间
+                .col-md-4.text-left
+                    input(name='appointTime', type='text', placeholder='约见时间', class='required form-control')
+            .row.m-t-20
+                .col-md-2.text-right.text-muted RM
+                .col-md-4.text-left
+                    select(name='rm', class='selectpicker')
+                        each rm in rms
+                            option(value='#{rm._id}') #{rm.username}-#{rm.realName}
+
+            .row.m-t-20
+                span.col-md-2.text-right.text-muted.small 地址类型
+                .col-md-5.text-left
+                    .btn-group(data-toggle='buttons-radio', name='addressType')
+                        button.btn.btn-sm.btn-light-info.active(value='company', type='button') 公司
+                        button.btn.btn-sm.btn-light-info(value='out', type='button') 外拜
+            .row.m-t-20
+                span.col-md-2.text-right.text-muted.small 约见类型
+                .col-md-5.text-left
+                    .btn-group(data-toggle='buttons-radio', name='meetType')
+                        button.btn.btn-sm.btn-light-info.active(value='day', type='button') 日约
+                        button.btn.btn-sm.btn-light-info(value='meeting', type='button') 会约
+
+            .row.m-t-20
+                span.col-md-2.text-right.text-muted.small 备注
+                .col-md-10.text-left
+                    input.holo(type='text', id='comment', name='comment')
+        .modal-footer
+            .row.text-center
+                button.btn.btn-lg.btn-default(data-dismiss='modal') 取消
+                button.btn.btn-lg.btn-success(type='submit') 确定
+
+
+script.
+    if('#{tag}' == 'manage') {
+        $('#f-addAppoint').hide();
+        $('.f-muAppoint').hide();
+    }else {
+        $('#f-addAppoint').show();
+        $('.f-muAppoint').show();
+    }
+    var hnwcId = '#{wechatHNWC._id}';
+    var appointManageListPagination = new pup.Pagination({templateKey: "momentsMsg.appointManageList"});
+    appointManageListPagination.setPageCount(3);
+    appointManageListPagination.condition('hnwcId', hnwcId);
+    appointManageListPagination.first();
+
+    function appointManageListPage() {
+        appointManageListPagination.setPageCount(5);
+        appointManageListPagination.first();
+        appointManageListPagination.bar('#appointManagePageBar');
+    }
+
+    //MENU关闭
+    $('#rMenuHNWCCancel').click(function () {
+        pup.widgets.layerManager.close();
+    });
+    $('[name=appointTime]').datetimepicker({
+        format: 'yyyy-mm-dd hh:ii',
+        autoclose: true,
+        weekStart: 1,
+        minuteStep: 5,
+        todayBtn: true
+    });
+
+    $('.selectpicker').selectpicker({noneSelectedText: '请选择'});
+
+    $('#muAppoint').click(function(ev) {
+        ev.preventDefault();
+        openAppointAddModal();
+    });
+
+    $('#addAppiontManageForm').submit(function(ev) {
+        ev.preventDefault();
+        var url = $(this).attr('action');
+        var data = $(this).serializeObject();
+        data.addressType = $('[name=addressType] > .btn.active').val();
+        data.meetType = $('[name=meetType] > .btn.active').val();
+        data.hnwcId = hnwcId;
+
+        if ($(this).validate().form()) {
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: data,
+                dataType: 'JSON',
+                success: function (data) {
+                    if (data.msg.type == 'success') {
+                        $('#addAppointManage').modal('hide');
+                        $('#addAppiontManageForm')[0].reset();
+                        appointManageListPagination.sort('ctime', -1).first();
+                    }
+                    toast(data.msg);
+                }
+            })
+        }
+        return false;
+    });
+
+    function openAppointAddModal() {
+        $('#addAppointManage').modal('show');
+    }

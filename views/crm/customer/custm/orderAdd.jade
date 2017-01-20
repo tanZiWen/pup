@@ -1,0 +1,61 @@
+//
+   Created by wangnan on 14-6-11.
+form#orderAdd(action='/crm/customer/custm/orderAdd', enctype='multipart/form-data')
+    .modal-header
+        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row
+            .col-md-3
+                h4.modal-title 创建订单
+        .modal-body
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 客户
+                span.col-md-4.text-left #{customer.name} 先生
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 产品
+                .col-md-4.text-left
+                    select(name='customerOrderProduct', class='selectpicker')
+                        each product in products
+                            option(value='#{product._id},#{product.name},#{product.type}') #{product.name}
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 下单金额
+                .col-md-4.text-left
+                    input.holo(type='text', name='amount', class='required')
+                h6.text-muted 万元
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 备注
+                .col-md-8.text-left
+                    input.holo(type='text', name='comment')
+                    input.holo(type='hidden', name='customerMsg', value='#{customer._id},#{customer.name},#{customer.telNo},#{customer.status}')
+                    input.holo(type='hidden', name='status', value='sign')
+                    input.holo(type='hidden', name='type', value='order')
+                    input.holo(type='hidden', name='investmentPreference', value='#{customer.investmentPreference}')
+                    input.holo(type='hidden', name='bodyMass', value='#{customer.bodyMass}')
+        .modal-footer
+            .text-center
+                button#cacel.btn.btn-lg.btn-default(style='margin-right: 40px;', data-dismiss='modal', type='button') 取消
+                button#ok.btn.btn-lg.btn-success(type='submit') 确定
+
+script.
+    $('[name=customerOrderProduct]').selectpicker({noneSelectedText:'请选择'});
+    $('#orderAdd').submit(function(){
+        $(this).validate_popover({popoverPosition : 'top'});
+        var formData = $(this).serialize();
+        if($(this).validate().form()){
+            var url = $(this).attr('action');
+            $.ajax({
+                type : 'POST',
+                dataType : 'json',
+                url : url,
+                data : formData,
+                success : function(data){
+                    if(data.msg.type == 'success'){
+                        $('#customerOrderAddModal').modal('hide');
+                        loadCustomerServiceRecord();
+                    }
+                    toast(data.msg);
+                    loadCustomerOrder();
+                }
+            });
+        }
+        return false;
+    });

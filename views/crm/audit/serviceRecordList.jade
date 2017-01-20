@@ -1,0 +1,38 @@
+//
+   Created by tanyuan on 12/15/14.
+
+each record, i in customerServiceRecordList
+    .row.m-t-10
+        span.col-md-2.text-right.text-muted.small 服务类型
+        span.col-md-2.text-left.text-primary #{record.typeName}
+        span.col-md-2.text-right.text-muted.small 顾问姓名
+        span.col-md-2.text-left #{record.crealName}
+        span.col-md-2.text-right.text-muted.small 客户状态
+        span.col-md-2.text-left #{record.customerStatusName}
+    .row.m-t-10
+        span.col-md-2.text-right.text-muted.small 拨打状态
+        span.col-md-2.text-left #{record.customerCallStatusName}
+        span.col-md-2.text-right.text-muted.small 质检状态
+        span.col-md-2.text-left #{record.customerAuditStatusName}
+        span.col-md-2.text-right.text-muted.small 时间
+        span.col-md-2.text-left #{record.ctimeStr}
+    .row.m-t-10
+        span.col-md-2.text-right.text-muted.small 体量
+        span.col-md-2.text-left #{record.bodyMassName}
+        span.col-md-2.text-right.text-muted.small 偏好
+        span.col-md-2.text-left #{record.investmentPreferenceName}
+    if record.type == 'pureCall'
+        .row.m-t-10
+            span.col-md-2.text-right.text-muted.small 沟通产品
+            span.col-md-10.text-left #{record.product}
+    else if record.type == 'order'
+        .row.m-t-10
+            span.col-md-2.text-right.text-muted.small 订单编号
+            if record.orderCode
+                span.col-md-2.text-left #{record.orderCode}
+    .row.m-t-10
+        span.col-md-2.text-right.text-muted.small 客户情况
+        if record.comment
+            span.col-md-10.text-left #{record.comment}
+    .row.m-t-10
+        .divider.divider-default

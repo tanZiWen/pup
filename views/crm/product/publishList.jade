@@ -1,0 +1,66 @@
+//
+   Created by tanyuan on 9/24/15.
+
+.sidebar.sidebar-left.mm-box
+    #muPublish.sidemenu
+        i.icon.icon-pencil-7
+        | 发布
+.mm-box.col-md-8.col-md-offset-2.form-horizontal.m-b-20
+    .row.m-t-10
+        label.col-md-2.text-right 状态
+        .col-md-8.text-left
+            #selectStatus.labelRadio
+                each status in productStatus
+                    input(type='radio', name='status', id='status', value='#{status.key}', data-name='#{status.name}')
+    .row.m-t-10
+
+.row.m-t-25
+    .col-sm-8.col-sm-offset-2
+        #publishListData.row
+
+
+
+script.
+    var publishPagination = new pup.Pagination({templateKey: "publish.dataList"});
+    publishPagination.first();
+
+    $('#muPublish').click(function(ev) {
+        ev.preventDefault()
+
+        var url = '/crm/product/publishAll';
+
+        toastr.clear();
+
+        $('.modal').oLoader({
+            wholeWindow: true,
+            effect: 'slide'
+        });
+        $.ajax({
+            type: 'POST',
+            url: url,
+            dataType: 'json',
+            success: function (data) {
+                $('.modal').oLoader('hide');
+                publishPagination.first();
+                toast(data.msg);
+            }
+        });
+    })
+
+    var statusRadio = new pup.widgets.labelRadio('#selectStatus').radio(function () {
+        searchProduct();
+    })
+
+    function searchProduct() {
+        var status = statusRadio.val();
+
+        publishPagination.clear()
+
+        if(status == 'unpublished') {
+            publishPagination.condition('publishStatus', {$ne: 'published'});
+        }else {
+            publishPagination.condition('publishStatus', status);
+        }
+
+        publishPagination.first();
+    }

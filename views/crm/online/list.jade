@@ -1,0 +1,275 @@
+.sidebar.sidebar-left.mm-box
+    #muTools.sidemenu
+        i.icon.icon-split
+        | 拆分工具
+    .divider.divider-default
+    #muListManage.sidemenu
+        i.icon.glyphicon-import
+        | 状态录入
+    .divider.divider-default
+    //#muStat.sidemenu
+    //    i.icon.icon-list-alt
+    //    | 统计
+    .divider.divider-default
+    #muAdd.sidemenu
+        i.icon.icon-plus-circled-2
+        | 数据录入
+    .divider.divider-default
+    #muReport.sidemenu
+        i.icon.icon-zoom-in-4
+        | 统计
+    .divider.divider-default
+    #muView.sidemenu
+        i.icon.icon-filter-1
+        | 账号查询
+#dataTools.m-t-20.m-b-20.f-func-box.mm-box.col-sm-8.col-sm-offset-2.form-horizontal
+    .modal-header.row
+        h4.pan-title.modal-title(style='display: inline-block;') 拆分工具
+    .row
+        .divider.divider-danger
+    .row.m-t-10
+        .col-sm-12.form-group
+            label.control-label.col-md-2 文件
+            .col-md-10(style='margin-top:5px;')
+                input#file(type='file')
+    .row
+        .divider(style='background: #999;height: 1px;margin:20px auto;')
+    .row.text-center(style='height: 80px;')
+        button#splitBtn.btn.btn-lg.btn-success(type='button') 导入
+    .box-mask.mask-full(style='opacity: .9;')
+        .row(style='margin-top: 60px')
+            .col-sm-6.col-sm-offset-3.text-center
+                h3#progress(style='color: #FFFFFF;') 正在处理
+        .row#next-actions(style='margin-top: 20px; display: none;')
+            .col-sm-6.col-sm-offset-3.text-center
+                button#cancel.btn.btn-primary 继续导入
+                button.btn.btn-success.m-l-15 下载数据
+#listImport.m-t-20.m-b-20.f-func-box.mm-box.col-sm-8.col-sm-offset-2.form-horizontal(style='display:none;')
+    .modal-header.row
+        h4.pan-title.modal-title(style='display: inline-block;') 名单状态录入
+    .row
+        .divider.divider-danger
+    .row.m-t-10
+        .col-sm-12.form-group
+            label.control-label.col-md-2 状态
+            .col-md-10(style='margin-top:5px;')
+                .btn-group(data-toggle='buttons-radio')
+                    button.btn-sm.btn.btn-light-info.active(type='button') 添加
+                    button.btn-sm.btn.btn-light-info(type='button') 认证
+                    button.btn-sm.btn.btn-light-info(type='button') 进群
+                    button.btn-sm.btn.btn-light-info(type='button') 退群
+                    button.btn-sm.btn.btn-light-info(type='button') 删除
+    .row.m-t-10
+        .col-sm-12.form-group
+            label.col-sm-2.control-label(for='cycle') 操作账号
+            .col-sm-10
+                select(class='selectpicker')
+                    option(value='1') Prosnav1
+                    option(value='2') Prosnav2
+                    option(value='3') Prosnav3
+                    option(value='4') Prosnav4
+    .row.m-t-10
+        .col-sm-12.form-group
+            label.control-label.col-md-2 名单
+            .col-md-10(style='margin-top:5px;')
+                textarea(type='text', cols='80', rows='10')
+    .row
+        .divider(style='background: #999;height: 1px;margin:20px auto;')
+    .row.text-center(style='height: 80px;')
+        button#splitBtn.btn.btn-lg.btn-success(type='button') 确定
+#stat.row.m-b-20.f-func-box(style='display:none;')
+    .row.m-t-20
+        .col-sm-8.col-sm-offset-2.mm-box.form-horizontal.filter-pan
+            .form-group
+                label.control-label.col-md-2 状态
+                .col-md-8
+                    .btn-group(data-toggle='buttons-radio')
+                        button.btn-sm.btn.btn-light-info.active(type='button') 添加
+                        button.btn-sm.btn.btn-light-info(type='button') 认证
+                        button.btn-sm.btn.btn-light-info(type='button') 进群
+                        button.btn-sm.btn.btn-light-info(type='button') 退群
+                        button.btn-sm.btn.btn-light-info(type='button') 删除
+            .form-group
+                label.control-label.col-md-2 日期
+                .col-md-4
+                    input.holo(type='text', placeholder='开始')
+                .col-md-4
+                    input.holo(type='text', placeholder='截止')
+            .row.m-t-10.m-b-10
+                .divider.divider-default
+            .row.text-center.m-b-10
+                button.btn.btn-primary
+                    i.icon.icon-filter-1.m-r-5
+                    | 过滤
+    .row.m-t-25
+        .col-sm-8.col-sm-offset-2.mm-box.form-horizontal.filter-pan
+            #stat-report(style='height: 400px;width: 768px;')
+    .row.m-t-25
+        .col-sm-8.col-sm-offset-2
+            .row
+                table.table.mm-box
+                    tr.th-inverse
+                        th  日期
+                        th  添加
+                        th  认证
+                        th  进群
+                        th  退群
+                        th  删除
+                        th  认证率
+                    - for (var x = 0; x < 10; x++)
+                        tr.cust-record
+                            td  2012-1-1
+                            td  400
+                            td  30
+                            td  20
+                            td  3
+                            td  2
+                            td  7.5%
+#add.row.m-b-20.f-func-box(style='display:none;')
+
+#report.row.m-b-20.f-func-box(style='display:none;')
+
+#accountList.row.m-b-20.f-func-box(style='display:none;')
+    .row.m-t-20
+        .col-sm-8.col-sm-offset-2.mm-box.form-horizontal.filter-pan
+            .row
+                label.control-label.col-md-2.text-right 手机号
+                .col-md-3
+                    input.holo(type='text', class='required', id='telNo', name='telNo', style='display: inline-block;margin-right:10px;width: 300px;', placeholder='联系人手机号')
+            .row.m-t-20
+                label.control-label.col-md-2.text-right 昵称
+                .col-md-3
+                    input.holo(type='text', class='required', id='nickname', name='nickname', style='display: inline-block;margin-right:10px;width: 300px;', placeholder='账号昵称')
+            .row.m-t-20
+                .divider.divider-default
+            .row.m-t-20
+                .col-md-12.text-center
+                    button.btn.btn-success.text-center.col-md-offset-0(style='width:100px',pxdata-toggle="modal", onclick='selectAccountList()')
+                        i.icon-filter-1
+                        span.m-l-5 查找
+    .row.m-t-20
+        .col-sm-8.col-sm-offset-2.form-horizontal
+            #accountListTable.row
+
+
+script.
+
+    //pup.template.renderTemplateByKey("online.list");
+    $(":file").filestyle({
+        'buttonText' : '选择文件',
+        'classButton' : 'btn btn-primary',
+        'classIcon' : 'icon-plus-6'
+    });
+    $('#muTools').click(function() {
+        $('.f-func-box').hide();
+        $('#dataTools').show();
+    });
+    $('#muListManage').click(function() {
+        $('.f-func-box').hide();
+        $('#listImport').show();
+    });
+    $('#muStat').click(function() {
+        $('.f-func-box').hide();
+        $('#stat').show();
+    });
+    $('#muView').click(function() {
+        $('.f-func-box').hide();
+        $('#accountList').show();
+    });
+    function selectAccountList() {
+        var telNo = $('[name=telNo]').val();
+        var nickname = $('[name=nickname]').val();
+        wechatAccountPagination.clear();
+        if(telNo) {
+            wechatAccountPagination.condition('telNo', telNo);
+        }
+        if(nickname) {
+            wechatAccountPagination.condition('nickname', nickname);
+        }
+        wechatAccountPagination.first();
+    }
+    var wechatAccountPagination = new pup.Pagination({templateKey : "wechatAccount.dataList"});
+    wechatAccountPagination.first();
+    function openOnlineWachatAdd() {
+        pup.template.renderTemplateByKey('online.wachatAdd', null, {
+        afterRender : function() {
+                $('#add').show();
+            }
+        });
+    }
+    $('#muAdd').click(function() {
+        $('.f-func-box').hide();
+        $('#stat').hide();
+        openOnlineWachatAdd();
+    });
+    function openOnlineWachatReport() {
+        pup.template.renderTemplateByKey('online.wachatGather', null, {
+        afterRender : function() {
+               $('#report').show();
+            }
+        });
+    }
+    $('#muReport').click(function() {
+        $('.f-func-box').hide();
+        openOnlineWachatReport();
+
+    });
+    $('#splitBtn').click(function () {
+        $('#dataTools').find('.box-mask').slideDown(150);
+        setTimeout(function() {
+            $('#progress').text('导入成功，读取数据1000000条')
+            $('#next-actions').show();
+        }, 2000);
+    });
+    $('#cancel').click(function() {
+        $('#dataTools').find('.box-mask').hide();
+    });
+    $('#stat-report').highcharts({
+        title: {
+            text: '微信数据按日统计',
+            x: 20 //center
+        },
+        xAxis: {
+            categories: ['2014-1-1', '2014-1-2', '2014-1-3', '2014-1-4', '2014-1-5']
+        },
+        yAxis: {
+            title: {
+                text: '数量'
+            },
+            plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#808080'
+            }],
+            min: 0
+        },
+        tooltip: {
+            valueSuffix: ''
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle',
+            borderWidth: 0
+        },
+        series: [{
+            name: '添加',
+            data: [400, 380, 370, 410, 400]
+        },
+        {
+            name: '认证',
+            data: [200, 100, 120, 130, 150]
+        },
+        {
+            name: '进群',
+            data: [100, 80, 44, 66, 88]
+        },
+        {
+            name: '退群',
+            data: [20, 3, 43, 5, 11]
+        },
+        {
+            name: '删除',
+            data: [10, 20, 2, 3, 4]
+        }]
+    });

@@ -1,0 +1,85 @@
+script(src='/socket.io/socket.io.js')
+script.
+    $(function() {
+        $('#msgCount').hide();
+        var socket = io.connect("http://localhost:3000");
+        socket.emit('message.list', {}, function(result) {
+            $('#msgCount').hide();
+            resetMessageMenu(result);
+        });
+        socket.on('notification', function(result) {
+            $('#msgCount').hide();
+            resetMessageMenu(result);
+        });
+    });
+
+    function resetMessageMenu(data) {
+        var totalNum = data.totalNum;
+        var msgArr = data.data;
+        $('#msgCount').html(totalNum);
+        if(totalNum && totalNum > 0) {
+            $('#msgCount').show();
+        }
+        $( "#msgMenu" ).remove();
+        var msgDropDownHtml = $('#msgDropDown').html();
+        var msgMenuBuffer = "";
+        if(msgArr && msgArr.length > 0) {
+            msgMenuBuffer += "<ul id='msgMenu' role='menu' aria-labelledby='dropdownMenuUser' class='dropdown-menu'>";
+            for(var i = 0; i < msgArr.length; i++) {
+                var msg = msgArr[i];
+                msgMenuBuffer += "<li role='presentation'>"
+                + "<a role='menuitem' tabindex='-1' href='/user/setting'>"
+                + "<i style='position: absolute;' class='text-left'>" + msg.key_name
+                + "</i><div style='margin-left: 100px;' class='label text-right label-danger'>" + msg.count
+                + "</div></a></li>";
+            }
+            msgMenuBuffer += "</ul>";
+            var ul = $(msgMenuBuffer);
+            ul.insertAfter("#mu-msg");
+        }
+    }
+
+input(type='hidden', id='userId', value='#{session.user._id}')
+.navbar.navbar-default.navbar-fixed-top
+    .container
+        .navbar-header
+            button.navbar-toggle(type='button', data-toggle='collapse', data-target='.navbar-collapse')
+                span.icon-bar
+                span.icon-bar
+                span.icon-bar
+            a.navbar-brand(href='/') PUP
+        .collapse.navbar-collapse
+            ul.nav.navbar-nav.navbar-left
+                li(class= (locals.chn && chn=='app') ? 'active': '')
+                    a#mu-apps(href='javascript:void(0);') 系统列表
+
+            if session.user
+                ul.nav.navbar-nav.navbar-right
+                    li#msgDropDown.dropdown(class= (locals.chn && chn=='message') ? 'active': '')
+                        a#mu-msg.dropdown-toggle(href='javascript:void(0);', data-toggle='dropdown')
+                            i.icon-list-bullet
+                            #msgCount.label.label-danger 6
+                        //ul#msgMenu.dropdown-menu(role="menu", aria-labelledby="dropdownMenuUser")
+                        //    li(role="presentation")
+                        //        a(role='menuitem', tabindex="-1", href='/user/setting')
+                        //            i.text-left(style="position: absolute;") 新分配名单
+                        //            .label.text-right.label-danger(style="margin-left: 100px;") 1
+                        //    li(role="presentation")
+                        //        a(role='menuitem', tabindex="-1", href='/user/setting')
+                        //            i.text-left(style="position: absolute;") 系统公告
+                        //            .label.text-right.label-danger(style="margin-left: 100px;") 3
+                        //    li(role="presentation")
+                        //        a(role='menuitem', tabindex="-1", href='/user/setting')
+                        //            i.text-left(style="position: absolute;") 行动计划
+                        //            .label.text-right.label-danger(style="margin-left: 100px;") 1
+                        //    li(role="presentation")
+                        //        a(role='menuitem', tabindex="-1", href='/user/setting')
+                        //            i.text-left(style="position: absolute;") 质检
+                        //            .label.text-right.label-danger(style="margin-left: 100px;") 1
+                    li.dropdown
+                        a.dropdown-toggle(href='#', data-toggle='dropdown') #{session.user.name}
+                        ul.dropdown-menu(role="menu", aria-labelledby="dropdownMenuUser")
+                            li(role="presentation")
+                                a(role='menuitem', tabindex="-1", href='/user/setting') 设置
+                            li(role="presentation")
+                                a(role='menuitem', tabindex="-1", href='/logout') 注销

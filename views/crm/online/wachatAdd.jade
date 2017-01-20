@@ -1,0 +1,247 @@
+//
+   Created by tanyuan on 6/27/14.
+.row.m-t-20
+    .col-sm-8.col-sm-offset-2.mm-box.form-horizontal.filter-pan
+        .modal-header.row
+            h4.pan-title.modal-title(style='display: inline-block;') 数据录入
+        .row
+            .divider.divider-danger
+        form#findOrSave(action='/crm/online/findOrSave', enctype="multipart/form-data")
+            .row.m-t-20
+                .form-group
+                    label.control-label.col-md-2 操作账号
+                    .col-md-3
+                        select(class='selectpicker show-tick form-control', name='accountCode', data-size='5', data-live-search="true")
+                            each accountCode in accountList
+                                option(value='#{accountCode.code}') #{accountCode.code}
+                    label.control-label.col-md-2 操作日期
+                    .col-md-3
+                        input.holo(type='text', readonly='true', name='operateDate', class='required')
+                    .col-md-2
+                        button.btn.btn-primary.text-center.col-md-offset-0(style='width:100px',pxdata-toggle="modal", type='submit')
+                            i.icon-search-8
+                            span 查找
+
+        .row.m-t-20(style='display:none;')
+            .divider.divider-default
+        form#addCount(action='/crm/online/addCount', enctype="multipart/form-data")
+            .row.m-t-20(style='display:none;')
+                .form-group
+                    label.control-label.col-md-2 陌拜数
+                    .col-md-3
+                        input.holo(type='text', name='tryCount', value='')
+                    label.control-label.col-md-2 邀请数
+                    .col-md-3
+                        input.holo(type='text', name='successCount', value='')
+                        input.holo(type='hidden', name='id', value='')
+                    .col-md-2#edit(style='display:none;')
+                        span.icon-btn.edit(title='编辑')
+                            i.icon.icon-edit-3
+                    .col-md-2#save(style='display:none;')
+                        span.icon-btn.f-plus(title='保存')
+                            i.icon.icon-floppy-1
+.row.m-t-20
+    .col-sm-8.col-sm-offset-2
+        .row.m-t-10(style='display:none;')
+            form#addInfo(action='/crm/online/addInfo', enctype="multipart/form-data")
+                table.table.mm-box
+                    tr.th-inverse
+                        th  电话号
+                        th  认证账号
+                        th  昵称
+                        th  操作
+                    tr.cust-record
+                        td
+                            input.holo(type='text', name='telNo', placeholder='电话号', class = 'required')
+                        td
+                            input.holo(type='text', name='authAccount', placeholder='认证账号')
+                        td
+                            input.holo(type='text', name='nickName', placeholder='昵称', class = 'required')
+                        td
+                            span.icon-btn.f-plus(title='保存')
+                                i.icon.icon-floppy-1
+#editInfo.modal(tabindex='-1', data-width='760', style='display: none;')
+    form#modifyInfo(action='/crm/online/modifyInfo', enctype="multipart/form-data")
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            .row
+                .col-md-3
+                    h4.modal-title 修改信息
+        .modal-body
+            .row
+                label.col-sm-1.text-right 电话号
+                .col-sm-3.text-left
+                    input.holo(type='text', name='mtelNo', placeholder='电话号', class = 'required')
+                label.col-sm-1.text-right 认证账号
+                .col-sm-3.text-left
+                    input.holo(type='text', name='mauthAccount', placeholder='认证账号')
+                label.col-sm-1.text-right 昵称
+                .col-sm-3.text-left
+                    input.holo(type='text', name='mnickName', placeholder='认证账号', class = 'required')
+                    input.holo(type='hidden', name='fid')
+        .modal-footer
+            .row.text-center
+                button.cancel.btn.btn-default(style='margin-right: 40px;', data-dismiss='modal') 取消
+                button#ok.btn.btn-danger 确定
+script.
+    $('[name=operateDate]').datetimepicker({format : 'yyyy-mm-dd', autoclose: true, weekStart: 1, todayBtn: true, minView : 'month'});
+    $('[name=operateDate]').val(format(new Date()));
+    $('.selectpicker').selectpicker({noneSelectedText:'请选择'});
+    $('#findOrSave').submit(function(ev) {
+        ev.preventDefault();
+        $(this).validate_popover({popoverPosition : 'top'});
+        var formData = $(this).serialize();
+        if($(this).validate().form()){
+            var url = $(this).attr('action');
+            $.ajax({
+                type : 'POST',
+                dataType : 'json',
+                url : url,
+                data : formData,
+                success : function(data){
+                    if(data.type == 'success'){
+                        $('[name=tryCount]').closest('.row').show();
+                        $('.divider').closest('.row').show();
+                        $('[name=telNo]').closest('.row').show();
+                        $('#edit').show();
+                        $('#save').hide();
+                        $('[name=tryCount]').attr("readonly","readonly")
+                        $('[name=tryCount]').css({ background: "#F0F0F0" });
+                        $('[name=successCount]').attr("readonly","readonly")
+                        $('[name=successCount]').css({ background: "#F0F0F0" });
+                        $('[name=authAccount]').val('');
+                        $('[name=telNo]').val('');
+                        $('[name=nickName]').val('');
+                        $('#addInfo table tbody tr').eq(1).nextAll().remove();
+                        if(data.wechat.flag != 0 ){
+                            var wechat = data.wechat;
+                            $('[name=tryCount]').val(wechat.tryCount);
+                            $('[name=id]').val(wechat._id);
+                            $('[name=successCount]').val(wechat.successCount);
+
+                            if(wechat.authCustomers){
+                                var authCustomers = wechat.authCustomers;
+                                for(var i=0;i<authCustomers.length;i++){
+                                    $('#addInfo table tbody tr').eq(1).after('<tr class="cust-record"><td>'+authCustomers[i].telNo+'</td><td>'+authCustomers[i].authAccount+'</rd><td>'+authCustomers[i].nickName+'</td><td><div class="text-center"><span id='+authCustomers[i].telNo+' title="编辑" class="icon-btn f1-edit"><i class="icon icon-edit-3"></i></span></div></td></tr>');
+                                }
+
+                            }
+                        }else{
+                            $('[name=id]').val(data.wechat.id);
+                            $('[name=tryCount]').val('0');
+                            $('[name=successCount]').val('0');
+                        }
+                    }
+                }
+            });
+        }
+        return false;
+    });
+    $('#edit').click(function(){
+        $('#edit').hide();
+        $('#save').show();
+        $('[name=tryCount]').attr("readonly",false);
+        $('[name=tryCount]').css({ background: "" });
+        $('[name=successCount]').attr("readonly",false)
+        $('[name=successCount]').css({ background: "" });
+    });
+    $('#save').click(function(ev) {
+        ev.preventDefault();
+        var formData = $('#addCount').serialize();
+        var url = '/crm/online/addCount';
+        $.ajax({
+            type : 'POST',
+            dataType : 'json',
+            url : url,
+            data : formData,
+            success : function(data) {
+                if(data.type == 'success'){
+                    $('[name=tryCount]').val(data.wechat.tryCount);
+                    $('[name=tryCount]').attr("readonly","readonly")
+                    $('[name=tryCount]').css({ background: "#F0F0F0" });
+                    $('[name=successCount]').val(data.wechat.successCount);
+                    $('[name=successCount]').attr("readonly","readonly")
+                    $('[name=successCount]').css({ background: "#F0F0F0" });
+                    $('#edit').show();
+                    $('#save').hide();
+                }
+            }
+        });
+    });
+
+    $('#addInfo .f-plus').click(function(ev) {
+        ev.preventDefault();
+        $('#addInfo').validate_popover({popoverPosition : 'top'});
+        var formData = $('#addInfo').serialize();
+        formData ='id='+$('[name=id]').val()+'&'+formData;
+        var url = '/crm/online/addInfo';
+        if($('#addInfo').validate().form()){
+            $.ajax({
+                type : 'POST',
+                dataType : 'json',
+                data : formData,
+                url : url,
+                success : function(data){
+                    if(data.msg.type == 'success'){
+                        $('#addInfo table tbody tr').eq(1).after('<tr class="cust-record"><td>'+data.wechat.telNo+'</td><td>'+data.wechat.authAccount+'</td><td>'+data.wechat.nickName+'</td></td><td><div class="text-center"><span id='+data.wechat.telNo+' title="编辑" class="icon-btn f1-edit"><i class="icon icon-edit-3"></i></span></div></td></tr>');
+                        $('[name=authAccount]').val('');
+                        $('[name=telNo]').val('');
+                        $('[name=nickName]').val('');
+                    }else {
+                        toast(data.msg);
+                    }
+                }
+            });
+        }
+    });
+
+    $('table').on('click','.f1-edit', function() {
+        var telNo = $(this).attr('id');
+        var row = $(this).closest('tr');
+        var columns = row.find('td');
+        var span = row.find('span');
+        var values = [];
+        $.each(columns, function(i, item) {
+            if(i<3) {
+                values.push(item.innerHTML);
+            }else {
+                values.push(span.attr('id'));
+            }
+        });
+        $('[name=mtelNo]').val(values[0]);
+        $('[name=mauthAccount]').val(values[1]);
+        $('[name=mnickName]').val(values[2]);
+        $('[name=fid]').val(values[3]);
+        $('#editInfo').modal('show');
+    });
+
+    $('#modifyInfo').submit(function(ev) {
+        ev.preventDefault();
+        $(this).validate_popover({popoverPosition : 'top'});
+        var formData = $(this).serialize();
+        formData ='id='+$('[name=id]').val()+'&'+formData;
+        var url = $(this).attr('action');
+        if($(this).validate().form()){
+            $.ajax({
+                type : 'POST',
+                dataType : 'json',
+                data : formData,
+                url : url,
+                success : function(data) {
+                    if(data.type == 'success') {
+                        var fid = data.wachat.fid;
+                        var row = $('#'+fid).closest('tr');
+                        var columns = row.find('td');
+                        columns.eq(0).html(data.wachat.mtelNo);
+                        columns.eq(1).html(data.wachat.mauthAccount);
+                        columns.eq(2).html(data.wachat.mnickName);
+                        var span = row.find('span');
+                        span.attr('id', data.wachat.mtelNo);
+                        $('#editInfo').modal('hide');
+                    }
+                    toast(data);
+                }
+            });
+        }
+        return false;
+    });

@@ -1,0 +1,52 @@
+//
+   Created by wangnan on 14-6-3.
+
+
+table.table.mm-box
+    tr.th-inverse
+        th(style="width: 30%")  客户
+        th(style="width: 15%")  电话
+        th(style="width: 10%")  拨打状态
+        th(style="width: 15%")  质检状态
+        th(style="width: 10%")  拨打次数
+        th(style="width: 10%")  最后拨打
+        th(style="width: 10%")  质检记录
+    tbody
+        each data, i in dataList
+            tr.cust-record
+                td(onclick='callCenter.currentIndexInPage=#{i}; callCenter.show(#{data._id});')
+                    if data.name
+                        | #{data.name}
+                    else
+                        | #{data._id}
+                td(onclick='callCenter.currentIndexInPage=#{i}; callCenter.show(#{data._id});') #{data.telNo}
+                td(onclick='callCenter.currentIndexInPage=#{i}; callCenter.show(#{data._id});') #{data.callStatusName}
+                td(onclick='callCenter.currentIndexInPage=#{i}; callCenter.show(#{data._id});') #{data.auditStatusName}
+                td(onclick='callCenter.currentIndexInPage=#{i}; callCenter.show(#{data._id});') #{data.callTimes}
+                td(onclick='callCenter.currentIndexInPage=#{i}; callCenter.show(#{data._id});')
+                    if data.lastCall
+                        if data.lastCall.lastCallDateStr
+                            | #{data.lastCall.lastCallDateStr}
+                    else
+                        | --:--:--
+                td.f-audit(onclick='showAuditInfo(#{data._id})')
+                    a(href='javascript:void(0);', title='质检记录')
+                        i.icon.icon-pencil
+
+
+
+#customerCallListPageBar
+
+script.
+    //设置分页条
+    callListPagination.bar('#customerCallListPageBar');
+    var customerAuditPagination = new pup.Pagination({templateKey : "customer.callList.auditTable"});
+    function showAuditInfo(id) {
+        customerAuditPagination.condition('customer.customerId', id);
+        customerAuditPagination.sort('call.callTime', -1);
+        customerAuditPagination.first({
+            afterRender: function() {
+                $('#customerAuditInfo').modal('show');
+            }
+        });
+    }

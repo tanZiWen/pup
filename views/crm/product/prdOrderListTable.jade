@@ -1,0 +1,22 @@
+//
+   Created by michael on 8/25/14.
+
+table.table.mm-box.col-md-10
+    tr.th-inverse
+        th.col-sm-2  客户名称
+        //th.col-sm-2  所属团队
+        th.col-sm-2  金额(万元)
+        th.col-sm-2  订单状态
+        th.col-sm-2  下单日期
+    each order in data
+        tr.cust-record
+            td  #{order.customer.name}
+            //td  Kevin团队
+            td  #{order.amount}
+            td  #{order.statusName}
+            td #{format(order.ctime)}
+
+#prdOrderPageBar
+
+script.
+    prdOrderPagination.bar('#prdOrderPageBar');

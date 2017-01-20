@@ -1,0 +1,63 @@
+//
+   Created by tanyuan on 11/18/15
+.row(style="margin-left: 40px; margin-top: 40px")
+    h4.hd 您正在找回账号#{user.username}的密码
+.row(style="margin-top: 40px")
+    .col-md-6.col-md-offset-4
+        span.hf 通过邮箱#{user.email}
+        button.btn.btn-large.btn-default#verifyCode(style='margin-left: 10px; height: 46px') 获取验证码
+.row(style="margin-top: 40px")
+    .col-md-4.col-md-offset-4
+        input.form-control(style="width:300px; height: 46px", type="text", id='code', name='code', placeholder="请输入验证码")
+.row(style="margin-top: 40px")
+    .col-md-4.col-md-offset-4
+        button#next.btn.btn-lg.btn-primary(style="width:350px") 下一步
+script.
+    $('#verifyCode').click(function(ev) {
+        ev.preventDefault();
+        var url = '/sendVerifyCode';
+        var data = {};
+        data.email = '#{user.email}';
+        data._id = '#{user._id}';
+        data.realName = '#{user.realName}'
+        $.ajax({
+            type: 'GET',
+            url: url,
+            dataType: 'json',
+            data: data,
+            success: function(data) {
+                toast(data.msg);
+            }
+        });
+        return false;
+    });
+
+    $('#next').click(function(ev) {
+        ev.preventDefault();
+        var verifyCode = $('#code').val();
+        if(verifyCode == '') {
+            toastr.clear();
+            toast({type: 'error', body: '验证码不能为空!'});
+        }
+        var data = {};
+        data.verifyCode = verifyCode;
+        var url = '/verifyCode';
+        data._id = '#{user._id}';
+        $.ajax({
+            type: 'GET',
+            url: url,
+            dataType: 'json',
+            data: data,
+            success: function(data) {
+                if(data.msg.type != 'success') {
+                    toast(data.msg);
+                }else {
+                    var executableTemplate = eval('/auth/user/changePwd'.replace('/', '').replace(/\//g, '_'));
+                    var user = {};
+                    user.username = '#{user.username}';
+                    $('#wrap').html(executableTemplate(user));
+                }
+            }
+        });
+        return false;
+    });

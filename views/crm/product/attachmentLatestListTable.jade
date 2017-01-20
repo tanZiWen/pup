@@ -1,0 +1,22 @@
+each attachment, i in data
+    each privilege in attachment.privilege
+        if(privilege.userPosition == user.position)
+            .row.m-t-10
+                span.col-md-10.text-left #{attachment.name}
+                if privilege.download
+                    span.col-md-2.text-left
+                        span.m-l-15.icon-btn
+                            i.icon-attach-1(id='#{attachment._id}')
+            .row.m-t-10
+                .divider.divider-default
+
+.row.m-t-10.text-center.text-center.cust-record(onclick='loadAttachmentByPage();')
+    a(href='javascript:void(0);', onclick='loadAttachmentByPage();', title='加载更多')
+        i.icon.icon-angle-double-down
+
+script.
+
+   $('.icon-attach-1').click(function() {
+       var url = "/crm/productAttachment/download";
+       location.href = url + "?id=" + $(this).attr('id');
+   });

@@ -1,0 +1,97 @@
+.sidebar.sidebar-left.mm-box
+    #muReq.sidemenu
+        i.icon.icon-mail-8
+        | 申领
+.row.m-t-20
+    .col-sm-8.col-sm-offset-2
+        #callListRequestListData.row
+
+#request.modal(tabindex='-1', data-width='760', style='display: none;')
+    form#formCreateRequest(action='/crm/customer/callListRequest/create', enctype="multipart/form-data")
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            .row
+                .col-md-3
+                    h4.modal-title 名单申领
+        .modal-body
+            .row.m-t-20
+                .col-sm-12.form-group
+                    label.col-sm-2.control-label.text-right(for='name') 数据级别
+                    .col-sm-4
+                        .row.text-left
+                            .btn-group(data-toggle='buttons-radio', id='level', name='level')
+                                each level, i in levelList
+                                    if i == 0
+                                        button.btn-sm.btn.btn-light-info.active(value='#{level.key}') #{level.name}
+                                    else
+                                        button.btn-sm.btn.btn-light-info(value='#{level.key}') #{level.name}
+                    label.col-sm-2.control-label.text-right(for='numbers') 份数
+                    .col-sm-2
+                        .row.text-left
+                            input.holo(type='text', id='count', name='count', class='required')
+            input.holo(type='text', style='width: 100%', placeholder='备注')
+        .modal-footer
+            .text-center
+                button.cancel.btn.btn-lg.btn-default(style='margin-right: 40px;', data-dismiss='modal') 取消
+                button#ok.btn.btn-lg.btn-success(type='submit') 确定
+
+script.
+    var callListRequestPagination = new pup.Pagination({
+        //pup template key, required
+        templateKey : "customer.callListRequest.dataList",
+        // name "pagination" is default, not required
+        paginationParamName : "pagination"
+    });
+    //跳转到第一页
+    callListRequestPagination.setSort({ctime : -1}).first();
+
+    $('#muReq').click(function() {
+        $('#request').modal('show');
+        $('#formCreateRequest').validate_popover({onsubmit: false, popoverPosition: 'top'});
+        $("#muReq").on("scroll", function() { $.validator.reposition(); });
+        $('#muReq').on('hide.bs.modal', function (e) {
+           $('.popover').each( function() {
+               $(this).hide();
+           });
+        });
+        $(window).resize(function() {
+           $.validator.reposition();
+        });
+    });
+    $('#formCreateRequest').submit(function(ev) {
+        ev.preventDefault();
+        var level = $("#formCreateRequest #level > .btn.active").val();
+        var serializeForm = $('#formCreateRequest').serialize();
+        var allForm = serializeForm+'&'+'level='+level;
+        if($('#formCreateRequest').validate().form()) {
+            var url = $(this).attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                dataType: 'json',
+                data: allForm,
+                success: function (data) {
+                    if(data.msg.type == 'success') {
+                        $('#request').modal('hide');
+                        $('#formCreateRequest')[0].reset();
+                        $('#formCreateRequest #level > .btn').first().button('toggle');
+                        callListRequestPagination.reload();
+                    }
+                    toast(data.msg);
+                }
+            });
+        }
+        return false;
+    });
+
+
+
+
+
+
+
+
+
+
+
+

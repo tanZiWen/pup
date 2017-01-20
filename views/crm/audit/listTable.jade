@@ -1,0 +1,145 @@
+//
+   Created by tanyuan on 6/30/14.
+.row.m-b-20
+    .list-container
+        each auditRecord in auditRecords
+            .mm-box.col-md-2.f-task(style='cursor:pointer;width: 236px; height: 200px;margin: 5px;position: relative;',data-id='#{auditRecord._id},#{auditRecord.resultName}')
+                h4 #{auditRecord.typeName}
+                .row
+                    .col-md-12
+                        span.text-muted 客户姓名:
+                        span.m-l-15 #{auditRecord.customer.name}
+                .row
+                    .col-md-12
+                        span.text-muted 质检状态:
+                        span.m-l-15 #{auditRecord.resultName}
+                .row.m-t-5
+                    .col-md-12
+                        span.text-muted 通话时间:
+                        span.m-l-15 #{auditRecord.callTime}
+
+                .row.m-t-5
+                    .col-md-12
+                        span.text-muted.text-danger 质检人姓名:
+                        span.m-l-15.text-danger #{auditRecord.auditorName}
+                .row
+                    .divider(style='background: #a52410;height: 1px;margin:10px auto;')
+                p.small.text-muted.m-l-5 #{auditRecord.call.content}
+#aduitDetailModal.modal(tabindex='-1', data-width='760', style='display: none;')
+    .modal-header
+        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row
+            .col-md-3
+                h4.modal-title 质检信息
+    .modal-body
+        .row.m-t-20.col-md-offset-1
+            span.col-md-2.text-right.text-muted.small 客户姓名
+            span#customerName.col-md-3.text-left
+            span.col-md-2.text-right.text-muted.small 顾问名
+            span#callUser.col-md-3.text-left
+        .row.m-t-20.col-md-offset-1
+            span.col-md-2.text-right.text-muted.small 质检人
+            span#auditUser.col-md-3.text-left
+            span.col-md-2.text-right.text-muted.small 质检类型
+            span#typeName.col-md-3.text-left
+
+        .row.m-t-20.col-md-offset-1
+            span.col-md-2.text-right.text-muted.small 质检结果
+            span#result.col-md-3.text-left
+            span.col-md-2.text-right.text-muted.small 质检客户状态
+            span#customerStatus.col-md-3.text-left
+
+        .row.m-t-20.col-md-offset-1
+            span.col-md-2.text-right.text-muted.small 质检时间
+            span#auditTime.col-md-3.text-left
+            span.col-md-2.text-right.text-muted.small 微信电话添加
+            span#wechatTelAdded.col-md-3.text-left
+
+        .row.m-t-20.col-md-offset-1
+            span.col-md-2.text-right.text-muted.small 微信号录入
+            span#wecharInput.col-md-3.text-left
+            span.col-md-2.text-right.text-muted.small 通话时间
+            span#callTime.col-md-3.text-left
+
+        .row.m-t-20.col-md-offset-1
+            span.col-md-2.text-right.text-muted.small 通话内容
+            span#content.col-md-10.text-left
+        .row.m-t-20.col-md-offset-1
+            span.col-md-2.text-right.text-muted.small 备注
+            span#comment.col-md-10.text-left
+    .modal-footer
+        .text-center
+            button.cancel.btn.btn-lg.btn-info(style='margin-right: 40px;', data-dismiss='modal') 关闭
+#customerAuditBar
+
+script.
+    $('.f-task').click(function(e) {
+        var data = $(this).data('id').split(',');
+        var id = data[0];
+        var resultName = data[1];
+
+        if(resultName == '待质检') {
+            pup.widgets.layerManager.open({
+                layerKey : null,
+                targetSelector : null,
+                html : '',
+                template : {
+                    key : 'customer.audit.detail',
+                    dataParam : {id : id},
+                    beforeRender : function() {},
+                    afterRender : function() {}
+                },
+                closeButton : {
+                    visible : false
+                },
+                beforeClose : function() {
+                   console.log('close customer detail layer...');
+                   customerAuditPagination.reload();
+                   toastr.clear();
+                   return true;
+                }
+            });
+        }else {
+            $.ajax({
+                type : 'GET',
+                dataType : 'json',
+                data : {id : id},
+                url : '/crm/audit/detail',
+                success : function(data) {
+                    if(data.auditRecord.customer.name) {
+                       $('#customerName').html(data.auditRecord.customer.name);
+                    }
+                    $('#typeName').html(data.auditRecord.typeName);
+                    $('#result').html(data.auditRecord.resultName);
+                    $('#callUser').html(data.auditRecord.call.callUser.username+'('+data.auditRecord.call.callUser.realName+')');
+                    $('#callTime').html(format(data.auditRecord.call.callTime));
+                    if(data.auditRecord.call.content) {
+                       $('#content').html(data.auditRecord.call.content);
+                    }
+                    $('#auditUser').html(data.auditRecord.audit.auditUser.username+'('+data.auditRecord.audit.auditUser.realName+')');
+                    $('#auditTime').html(format(data.auditRecord.audit.auditTime));
+                    if(data.auditRecord.audit.wechatTelAdded == 'true'){
+                       $('#wechatTelAdded').html('是');
+                    }else {
+                       $('#wechatTelAdded').html('否');
+                    }
+                    if(data.auditRecord.audit.wecharInput == 'true') {
+                       $('#wecharInput').html('是');
+                    }else {
+                       $('#wecharInput').html('否');
+                    }
+                    if(data.auditRecord.customerStatus.name) {
+                       $('#customerStatus').html(data.auditRecord.customerStatus.name);
+                    }else {
+                       $('#customerStatus').html('');
+                    }
+                    $('#comment').html(data.auditRecord.audit.comment);
+                    $('#aduitDetailModal').modal('show');
+                }
+           });
+        }
+
+        return false;
+    });
+    customerAuditPagination.bar('#customerAuditBar');
+

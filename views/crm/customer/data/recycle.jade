@@ -1,0 +1,99 @@
+
+.modal-header.row
+    h4.pan-title.modal-title(style='display: inline-block;') 回收
+    .pull-right
+        .btn-group
+.row
+    .divider.divider-danger
+input(type='hidden', id='role', value='#{role}')
+#recycleList.row.m-t
+
+
+#reallocate.row.m-t(style='display: none;')
+
+.row
+    .divider(style='background: #999;height: 1px;margin:20px auto;')
+.row.text-center(style='height: 80px;')
+    button#recycleBtn.btn.btn-lg.btn-warning
+        i.icon.icon-ccw-2
+        | 回收
+
+script.
+    if($('#role').val() == 'dm') {
+        pup.template.renderTemplateByKey("customer.data.recycleDM");
+        $('#recycleList').show();
+        $('#reallocate').hide();
+    } else if($('#role').val() == 'leader') {
+        pup.template.renderTemplateByKey("customer.data.reallocate");
+        $('#recycleList').hide();
+        $('#reallocate').show();
+    }
+
+    function recycleData() {
+        if($('#role').val() == 'dm') {
+            $('#recycleMask').slideDown(150);
+
+            var customerIds = [];
+            var userIds = [];
+            $("#recycleTable input:checkbox[name='customerBox']:checked").each(function(key, value) {
+                customerIds.push($(this).val());
+            });
+            $("#recycleNocallTable input:checkbox[name='customerBox']:checked").each(function(key, value) {
+                userIds.push($(this).val());
+            });
+            if(customerIds.length == 0 && userIds.length == 0) {
+                toast({type : 'error', body : '请勾选需要回收的客户'});
+                $('#recycleMask').hide();
+            } else {
+                var url = '/crm/customer/data/recycleData';
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    dataType: 'json',
+                    data: {customerIds : customerIds, userIds : userIds},
+                    success: function (data) {
+                        $('#recycleProgress').text(data.msg.body)
+                        $('#recycle-next-actions').show();
+                    }
+                });
+            }
+        } else if($('#role').val() == 'leader') {
+            $('#reallocateMask').slideDown(150);
+
+            var customerIds = [];
+            var userId = null;
+            $("#reallocateTable input:checkbox[name='customerBox']:checked").each(function(key, value) {
+                customerIds.push($(this).val());
+            });
+            $("#reallocateUserData input:radio[name='userRadio']:checked").each(function(key, value) {
+                userId = $(this).val();
+            });
+
+            if(customerIds .length == 0) {
+                toast({type : 'error', body : '请勾选需要回收的客户'});
+                $('#reallocateMask').hide();
+                return;
+            }
+            if (userId == null) {
+                toast({type : 'error', body : '请勾选需要分配的组员'});
+                $('#reallocateMask').hide();
+                return;
+            } else {
+                var url = '/crm/customer/data/reallocateData';
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    dataType: 'json',
+                    data: {customerIds : customerIds, userId : userId},
+                    success: function (data) {
+                        $('#reallocateProgress').text(data.msg.body)
+                        $('#reallocate-next-actions').show();
+                    }
+                });
+            }
+        }
+    }
+
+    $('#recycleBtn').click(function(ev) {
+        recycleData();
+    });

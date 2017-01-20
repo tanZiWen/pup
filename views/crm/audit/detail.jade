@@ -1,0 +1,472 @@
+.row.m-t-20
+    .mm-box.col-md-8.col-md-offset-2
+        .modal-header.row
+            h4.pan-title.modal-title(style='display: inline-block;') #{auditRecord.typeName}
+        .row.m-t-20
+            span.col-md-2.text-muted.text-right 客户姓名:
+            span.col-md-2.text-left #{auditRecord.customer.name}
+            span.col-md-2.text-muted.text-right 客户电话:
+            span.col-md-2.text-left #{auditRecord.telNoAbbr}
+            span.col-md-2.text-muted.text-right 顾问姓名:
+            span.col-md-2.text-left #{auditRecord.call.callUser.realName}
+        .row.m-t-10
+            span.col-md-2.text-muted.text-right 通话时间:
+            span.col-md-2.text-left #{auditRecord.callTime}
+            span.col-md-2.text-muted.text-right 微信号:
+            if auditRecord.customer.wechatNo
+                span.col-md-2.text-left #{auditRecord.customer.wechatNo}
+            else
+                span.col-md-2.text-left
+        .row.m-t-10
+            if auditRecord.type == 'bc60' || auditRecord.type == 'bc80' || auditRecord.type == 'deal' || auditRecord.type == 'vip' || auditRecord.type == 'diamondVip' || auditRecord.type == 'crownedVip'
+                span.col-md-2.text-muted.text-right 原状态:
+                span.col-md-2.text-left #{auditRecord.oldCustomerStatusName}
+                span.col-md-2.text-muted.text-right 现状态:
+                span.col-md-2.text-left #{auditRecord.newCustomerStatusName}
+        .row.m-t-10
+            span.col-md-2.text-muted.text-right 标签:
+            .col-md-10.text-left
+                if customer && customer.tags && customer.tags.length != 0
+                    each tag in customer.tags
+                        .label.label-default.m-l-5 #{tag}
+        .row.m-t-10.text-left
+            span.col-md-2.text-muted.text-right 备注信息:
+            span.col-md-10.text-left #{auditRecord.call.content}
+        .row.m-t-20
+            if auditRecord.recording && auditRecord.recording.length > 0 && callCenter.valid
+                each recordId, i in auditRecord.recording
+                    .row.m-t-10
+                        .col-md-8.text-right
+                            audio(controls)
+                                source(src='http://' + callCenter.recordingAddress + '/%7B' + recordId + '%7D.mp4', type='audio/mp4')
+                                | Your browser does not support the audio element.
+                        .col-md-4.text-left
+                            a.pointer-cursor(href='http://' + callCenter.recordingAddress + '/%7B' + recordId + '%7D.MP4')
+                                span.glyphicon.glyphicon-download-alt
+            else
+                span.col-md-2.text-muted.text-right 拨打录音:
+                .text-left.label.label-default.pointer-cursor(style='margin-left: 20px;')
+                    i.glyphicon.glyphicon-play
+        if auditRecord.type != 'bc60' && auditRecord.type != 'bc80' && auditRecord.type != 'deal' && auditRecord.type != 'vip' && auditRecord.type != 'diamondVip' && auditRecord.type != 'crownedVip'
+            .row.m-t-20
+                .col-sm-4.text-right.text-muted 商机判定
+                .col-sm-8.text-left
+                    .btn-group(data-toggle='buttons-radio', name='customerStatus', id='customerStatus')
+                        each customerStatus, i in auditRecord.customerStatusList
+                            if customerStatus.key != 'other'
+                                if(i == 0)
+                                    .btn.btn-light-info.btn-sm.active(value='#{customerStatus.key}') #{customerStatus.name}
+                                else
+                                    .btn.btn-light-info.btn-sm(value='#{customerStatus.key}') #{customerStatus.name}
+        .row.m-t-10
+            .col-sm-10.col-sm-offset-1
+                input.holo(type='text', style='width: 100%', placeholder='备注', name='comment')
+                input.holo(type='hidden', name='taskId', value='#{auditRecord.taskId}')
+                input.holo(type='hidden', name='customerId', value='#{auditRecord.customer.customerId}')
+        .row
+            .divider(style='background: #999;height: 1px;margin:20px auto;')
+        .row.text-center#isAuditorRow(style='height: 80px')
+            if  auditorId == '0'
+                button#isAuditor.btn.btn-lg.btn-info(style='margin-right: 40px;') 质检认领
+            else if auditRecord.type == 'bc60' || auditRecord.type == 'bc80' || auditRecord.type == 'deal' || auditRecord.type == 'vip' || auditRecord.type == 'diamondVip' || auditRecord.type == 'crownedVip'
+                button#finish.btn.btn-lg.btn-success(data-id='#{auditRecord._id}') 完成
+            else if auditorId == userId
+                button#rejectBtn.btn.btn-lg.btn-danger(style='margin-right: 40px;') 驳回
+                button#acceptBtn.btn.btn-lg.btn-success(data-id='#{auditRecord._id}') 通过
+
+        .row.text-center(style='height: 80px;display: none')
+            button#rejectBtn.btn.btn-lg.btn-danger(style='margin-right: 40px;') 驳回
+            button#acceptBtn.btn.btn-lg.btn-success(data-id='#{auditRecord._id}') 通过
+        .row.text-center(style='height: 80px;display: none')
+            button#finish.btn.btn-lg.btn-success(data-id='#{auditRecord._id}') 完成
+.row.m-t-20
+    .mm-box.col-md-8.col-md-offset-2
+        .modal-header.row
+            h4.pan-title.modal-title 行动计划
+        #actionPlanList
+        .row.f-actionPlan-bar(style='display:none')
+            #actionPlanBar
+        .row.m-t-10.text-center.f-actionPlan-down
+            a(href='javascript:void(0);', onclick='showActionPlanMoreInfo()', title='加载更多')
+                .icon.icon-angle-double-down
+
+.row.m-t-20
+    .mm-box.col-md-8.col-md-offset-2
+        .modal-header.row
+            h4.pan-title.modal-title 服务记录
+            .pull-right
+                #selectCustomerListServiceRecordType.labelRadio(style='display: none')
+                    input(name='customerServiceRecordType', type='radio', value='', data-name="全部", checked='checked')
+                    each type, i in customerServiceRecordTypeList
+                        input(name='customerServiceRecordType', type='radio', value='#{type.key}', data-name="#{type.name}")
+        #serviceRecordList
+        .row.f-serviceRecord-bar(style='display:none')
+            #serviceRecordBar
+        .row.m-t-10.text-center.f-serviceRecord-down
+            a(href='javascript:void(0);', onclick='showServiceRecordMoreInfo()', title='加载更多')
+                .icon.icon-angle-double-down
+
+.row.m-t-20#recordCondition
+    .col-sm-8.col-sm-offset-2.mm-box.form-horizontal
+        .modal-header.row
+            h4.pan-title.modal-title 录音列表
+        .row.m-t-10.text-center.col-md-offset-2
+            .col-md-2.text-right.text-muted 时长
+            .col-md-3.text-left
+                input.holo(type='text', id='start', name='start', placeholder='开始')
+            .col-md-3.text-left
+                input.holo(type='text', id='end', name='end', placeholder='结束')
+        .row.m-t-10.text-center.col-md-offset-2
+            .col-md-2.text-right.text-muted 日期区间
+            .col-md-3.text-left.f-datetimepicker
+                input(class='form-control', type='text', name='startTime', placeholder='起始日期')
+                i.glyphicon.glyphicon-remove.pointer-cursor
+            .col-md-3.text-left.f-datetimepicker
+                input(class='form-control', type='text', name='endTime', placeholder='截止日期')
+                i.glyphicon.glyphicon-remove.pointer-cursor
+        .row.m-t-20
+            .divider.divider-default
+        .row.m-t-10
+            .col-md-12.text-center
+                button.btn.btn-primary(onclick='recordList()')
+                    i.icon.icon-filter-1.m-r-5
+                    | 过滤
+        .row.m-t-10
+
+.row.m-t-25
+    .col-md-8.col-md-offset-2
+        #recordList.row
+            table.table.mm-box
+                tr.th-inverse
+                    th(style='width:20%')  分机号
+                    th(style='width:20%')  客户电话
+                    th(style='width:20%')  时长(分钟)
+                    th(style='width:20%')  拨打日期
+                    th(style='width:20%')  录音
+                tbody
+
+.row
+    .col-md-8.col-md-offset-2.text-center
+        button.btn.btn-primary(style='display: none; width:60px')#pre
+            i.glyphicon.glyphicon-circle-arrow-left
+        button.btn.btn-primary.m-l-10(style='display: none;width:60px')#next
+            i.glyphicon.glyphicon-circle-arrow-right
+.row.m-t-30
+
+.layer-close
+    #rMenuCustomerCancel.btn.btn-info.btn-circle
+        i.icon-cancel-7(style='font-size: 24px;')
+
+    #auditClaim.modal(tabindex='-1', style='display: none;')
+        .modal-body
+            p#confirmMsg 确定质检认领？
+            p#opStatus(style='font-size: 20px; font-face: bold; display: none;')
+                i.icon.icon-spin5.animate-spin.text-success
+        .modal-footer
+            .text-center
+                button.cancel.btn.btn-default(style='margin-right: 40px;', data-dismiss='modal') 取消
+                button#ok.btn.btn-success 确定
+
+    #auditAcceptConfirm.modal(tabindex='-1', style='display: none;')
+        .modal-body
+            p#confirmMsg 确定通过？
+            p#opStatus(style='font-size: 20px; font-face: bold; display: none;')
+                i.icon.icon-spin5.animate-spin.text-success
+        .modal-footer
+            .text-center
+                button.cancel.btn.btn-default(style='margin-right: 40px;', data-dismiss='modal') 取消
+                button#ok.btn.btn-success 确定
+
+    #auditRejectConfirm.modal(tabindex='-1', style='display: none;')
+        .modal-body
+            p#confirmMsg 确定驳回？
+            p#opStatus(style='font-size: 20px; font-face: bold; display: none;')
+                i.icon.icon-spin5.animate-spin.text-success
+        .modal-footer
+            .text-center
+                button.cancel.btn.btn-default(style='margin-right: 40px;', data-dismiss='modal') 取消
+                button#ok.btn.btn-success 确定
+
+#auditRecordingModal.modal(tabindex='-1', data-width='500', style='display: none;')
+    .modal-header
+        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row
+            .col-md-3
+                h4.modal-title 录音
+    .modal-body
+        if auditRecord.recording && auditRecord.recording.length > 0 && callCenter.valid
+            each recordId, i in auditRecord.recording
+                .row
+                    .col-md-9.text-right
+                        audio(controls)
+                            source(src='http://' + callCenter.recordingAddress + '/%7B' + recordId + '%7D.mp4', type='audio/mp4')
+                            | Your browser does not support the audio element.
+                    .col-md-3.text-left
+                        a.pointer-cursor(href='http://' + callCenter.recordingAddress + '/%7B' + recordId + '%7D.MP4')
+                            span.glyphicon.glyphicon-download-alt
+    .modal-footer
+        .text-center
+            button#cacel.btn.btn-lg.btn-default(style='margin-right: 40px;', data-dismiss='modal', type='button') 关闭
+
+#recordingModal.modal(tabindex='-1', data-width='500', style='display: none;')
+
+
+script.
+    var refId = #{auditRecord._id};
+    var userId = #{userId};
+    var auditorId = #{auditorId};
+    if('#{type}' == 'info') {
+        if(userId != auditorId) {
+            toast({type: '#{type}', body: '#{body}'});
+        }
+    }
+    if('#{type}' == 'error') {
+        toast({type: '#{type}', body: '#{body}'});
+    }
+
+    var customerActionPlanPagination = new pup.Pagination({templateKey: "customer.audit.actionPlanList"});
+    customerActionPlanPagination.condition('customerId', '#{auditRecord.customer.customerId}');
+    customerActionPlanPagination.sort('actionDate', -1);
+    customerActionPlanPagination.setPageCount(2);
+    customerActionPlanPagination.first();
+    customerActionPlanPagination.bar('#actionPlanBar');
+
+    var customerServiceRecordPagination = new pup.Pagination({templateKey: "customer.audit.serviceRecordList"});
+    customerServiceRecordPagination.condition('customerId', '#{auditRecord.customer.customerId}');
+    customerServiceRecordPagination.sort('ctime', -1);
+    customerServiceRecordPagination.setPageCount(2);
+    customerServiceRecordPagination.first();
+    customerServiceRecordPagination.bar('#serviceRecordBar');
+
+    function showActionPlanMoreInfo() {
+        customerActionPlanPagination.setPageCount(5);
+        customerActionPlanPagination.first();
+        $('.f-actionPlan-bar').show();
+        $('.f-actionPlan-down').hide();
+    }
+
+    function showServiceRecordMoreInfo() {
+        $('#selectCustomerListServiceRecordType').show();
+        customerServiceRecordPagination.setPageCount(5);
+        customerServiceRecordPagination.first();
+        $('.f-serviceRecord-bar').show();
+        $('.f-serviceRecord-down').hide();
+    }
+
+    var custmerServiceRecordTypelableRadio = new pup.widgets.labelRadio('#selectCustomerListServiceRecordType').radio(function() {
+        customerServiceRecordSearch();
+    });
+
+    function customerServiceRecordSearch() {
+        var customerServiceRecordType = custmerServiceRecordTypelableRadio.val();
+        customerServiceRecordPagination.clear();
+        if(customerServiceRecordType) {
+            customerServiceRecordPagination.condition('type', customerServiceRecordType);
+        }
+        customerServiceRecordPagination.condition('customerId', '#{auditRecord.customer.customerId}');
+        customerServiceRecordPagination.sort('ctime', -1);
+        customerServiceRecordPagination.first();
+    }
+
+    $('#isAuditor').click(function() {
+        $('#auditClaim').modal('show');
+    });
+
+    $('#auditClaim #ok').click(function() {
+        var data = {};
+        data.refId = refId;
+        data.type = '#{auditRecord.type}';
+        var url = '/crm/audit/auditClaim';
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: url,
+            data: data,
+            success: function(data) {
+                if(data.msg.type == 'success') {
+                $('#auditClaim').modal('hide');
+                $('#isAuditorRow').hide();
+                    if(data.flag == 0) {
+                        $('#rejectBtn').closest('.row').show();
+                    }else {
+                        $('#finish').closest('.row').show();
+                    }
+                }else if(data.msg.type == 'info'){
+                    $('#auditClaim').modal('hide');
+                    $('#rejectBtn').closest('.row').hide();
+                    $('#isAuditorRow').hide();
+                }
+                toast(data.msg);
+            }
+        })
+        return false;
+    })
+    $('.glyphicon-remove').click(function() {
+        $(this).prev().val('');
+    });
+    var called = '#{auditRecord.customer.telNo}';
+    var agent = '#{auditRecord.call.callUser.username}';
+    var now = new Date();
+    var ago = new Date(now.getTime() - 1000*60*60*24*7);
+
+    $('[name=startTime]').val(format(ago));
+    $('[name=endTime]').val(format(now));
+    $('[name=username]').selectpicker();
+
+    $('[name=startTime]').datetimepicker({format : 'yyyy-mm-dd', autoclose: true, weekStart: 1, todayBtn: true, minView : 'month'});
+    $('[name=endTime]').datetimepicker({format : 'yyyy-mm-dd', autoclose: true, weekStart: 1, todayBtn: true, minView : 'month'});
+
+    $('table').on('click', '#record', function() {
+        var ucid = $(this).data('id');
+        pup.template.renderTemplateByKey('audit.recordModal', {ucid: ucid}, {
+            afterRender : function() {
+                $('#recordingModal').modal('show');
+            }
+        });
+    });
+
+    var number = 0;
+    $('#pre').click(function() {
+       number = number - 10;
+       recordDataList()
+    });
+    $('#next').click(function() {
+       number = number + 10;
+       recordDataList()
+    });
+    function recordList() {
+       number = 0;
+       recordDataList();
+    }
+    function recordDataList() {
+        var start = $('[name=start]').val();
+        var end = $('[name=end]').val();
+        var startTime = $('#recordCondition').find('[name=startTime]').val();
+        var endTime = $('#recordCondition').find('[name=endTime]').val();
+        var fstart = 0;
+        var fend = 0;
+        var fstartTime = '';
+        var fendTime = '';
+        if(start) {
+            fstart = start;
+        }
+        if(end) {
+            fend = end;
+        }
+        if(startTime) {
+            fstartTime = startTime+' 00:00:00';
+        }
+        if(endTime) {
+            fendTime = endTime+' 23:59:59';
+        }
+
+        $('#recordList table tr').not(function(){if ($(this).has('th').length){return true}}).remove();
+        CallCenterUIController.client.searchRecords(number,10,"","",fstartTime,fendTime,"",called,"",agent,0,0,0,0,0,0, "", fstart,fend,"", "","",function(v) {
+            var data = v.recordItems;
+            console.log(v);
+            if(number == 0 ) {
+                if(v.totalCount >10 ) {
+                    $('#pre').hide();
+                    $('#next').show();
+                }else {
+                    $('#next').hide();
+                    $('#pre').hide();
+                }
+            }else {
+                if(data.length <10) {
+                    $('#next').hide();
+                    $('#pre').show();
+                }else {
+                    if(number+10 >= v.totalCount) {
+                        $('#pre').show();
+                        $('#next').hide();
+                    }else {
+                        $('#pre').show();
+                        $('#next').show();
+                    }
+                }
+            }
+            if(data.length) {
+                for(var i=0; i <data.length; i++) {
+                    $('#recordList table tbody').eq(0).append('<tr class="cust-record">'
+                                                            +'<td>'+data[i].extension+'</td>'
+                                                            +'<td>'+data[i].called+'</td>'
+                                                            +'<td>'+(data[i].seconds/60).toFixed(2)+'</td>'
+                                                            +'<td>'+data[i].systemTime+'</td>'
+                                                            +'<td><div id="record" data-id='+data[i].ucid+' style="margin-left: 20px;", class="label label-info pointer-cursor">录音<i class="glyphicon glyphicon-play"></i></div>'
+                                                            +'</tr>');
+                }
+            }
+        });
+    }
+    $(function() {
+        $('#acceptBtn').click(function() {
+            $('#auditAcceptConfirm').modal('show');
+        });
+        $('#rejectBtn').click(function() {
+            $('#auditRejectConfirm').modal('show');
+        });
+        $('#auditAcceptConfirm #ok').click(function() {
+            handle(0);
+        });
+        $('#auditRejectConfirm #ok').click(function() {
+            handle(1);
+        });
+        $('#finish').click(function() {
+            handle(2);
+        });
+        function handle(flag) {
+            var customerStatus = $('#customerStatus > .btn.active').attr('value');
+            var comment = $('[name=comment]').val();
+            var taskId = $('[name=taskId]').val();
+            var customerId = $('[name=customerId]').val();
+            if(flag == 0){
+                var data = 'customerStatus='+customerStatus+'&'
+                       +'comment='+comment+'&'+'taskId='+taskId+'&'+'flag='+flag+'&'
+                       +'customerId='+customerId;
+            }else if(flag == 1){
+                var data =
+                          'comment='+comment+'&'+'taskId='+taskId+'&'+'flag='+flag+'&'
+                          +'customerId='+customerId;
+            }else {
+            var data = 'taskId='+ taskId+'&'+'customerId='+customerId;
+            }
+            var url = '/crm/audit/add/'+$('#acceptBtn').data('id');
+            $.ajax({
+               type : 'POST',
+               dataTpye : 'json',
+               url : url,
+               data : data,
+               success : function(data) {
+                   if(data.msg.type == 'success'){
+                        if(data.flag == 0){
+                            $('#auditAcceptConfirm').modal('hide');
+                        }else if(flag == 1){
+                            $('#auditRejectConfirm').modal('hide');
+                        }
+                        pup.widgets.layerManager.close();
+                   }
+                   customerAuditPagination.first();
+                   toast(data.msg);
+               }
+            });
+        };
+
+        $('#call-wx-switch').bootstrapSwitch();
+        $('#add-wx-switch').bootstrapSwitch();
+
+        $('.app-box').click(function() {
+            var path = $(this).data('href');
+            window.open(path);
+        });
+        $('.f-task').click(function() {
+            window.open('/crm/audit/detail');
+        });
+        $('#rMenuCustomerCancel').click(function() {
+            pup.widgets.layerManager.close();
+        });
+
+        //$('#recordingPlayBtn').click(function() {
+        //    $('#auditRecordingModal').modal('show');
+        //});
+    });

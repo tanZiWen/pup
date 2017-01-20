@@ -1,0 +1,113 @@
+//
+   Created by tanyuan on 7/4/14.
+
+table.table.mm-box
+    tr.th-inverse
+        th(style='width:20%')  客户姓名
+        th(style='width:20%')  客户编号
+        th(style='width:20%')  责任人
+        th(style='width:10%')  行动类型
+        th(style='width:20%')  预计执行时间
+        th(style='width:10%')  是否完成
+    tbody
+        each customerActionPlan in customerActionPlans
+            tr.cust-record(data-id='#{customerActionPlan.id},#{customerActionPlan.customerName},#{customerActionPlan.userInfo},#{customerActionPlan.actionPlanType},#{customerActionPlan.done}')
+                td #{customerActionPlan.customerName}
+                td #{customerActionPlan.customerCode}
+                td #{customerActionPlan.userInfo}
+                td #{customerActionPlan.actionPlanType}
+                td #{format(customerActionPlan.actionDate,'yyyy-MM-dd hh:mm')}
+                td #{customerActionPlan.done}
+
+#actionPlanDetailModal.modal(tabindex='-1', data-width='760', style='display: none;')
+    .modal-header
+        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row
+            .col-md-3
+                h4.modal-title 行动计划
+    .modal-body
+        .row.m-t-20.col-md-offset-1
+            span.col-md-2.text-right.text-muted.small 客户姓名
+            span#customerName.col-md-3.text-left
+            span.col-md-2.text-right.text-muted.small 责任人
+            span#user.col-md-3.text-left
+        .row.m-t-20.col-md-offset-1
+            span.col-md-2.text-right.text-muted.small 约见类型
+            span#actionPlanType.col-md-3.text-left
+            span.col-md-2.text-right.text-muted.small 是否完成
+            span#doneName.col-md-3.text-left
+        .row.m-t-20.col-md-offset-1
+            span.col-md-2.text-right.text-muted.small 预计执行时间
+            span#actionDate.col-md-3.text-left
+            span.col-md-2.text-right.text-muted.small 预计结束时间
+            span#actionEndDate.col-md-3.text-left
+        .row.m-t-20.col-md-offset-1
+            span.col-md-2.text-right.text-muted.small 执行人
+            span#doUser.col-md-3.text-left
+            span.col-md-2.text-right.text-muted.small 执行日期
+            span#doTime.col-md-3.text-left
+        .row.m-t-20.col-md-offset-1(style='display: none;')
+            span.col-md-2.text-right.text-muted.small 客户经理
+            span#rmName.col-md-3.text-left
+            span.col-md-2.text-right.text-muted.small 约见类型
+            span#meetType.col-md-3.text-left
+        .row.m-t-20.col-md-offset-1(style='display: none;')
+            span.col-md-2.text-right.text-muted.small 见面地点类型
+            span#addressType.col-md-3.text-left
+            span.col-md-2.text-right.text-muted.small 约见地址
+            span#dateAddress.col-md-3.text-left
+        .row.m-t-20
+            span.col-md-2.text-right.text-muted.small 备注
+            span#comment.col-md-10.text-left
+    .modal-footer
+        .text-center
+            button.cancel.btn.btn-lg.btn-info(style='margin-right: 40px;', data-dismiss='modal') 关闭
+#customerPlanbar
+
+script.
+    customerPlanPagination.bar('#customerPlanbar');
+    $('.cust-record').click(function() {
+        var id = $(this).data('id');
+        var url = '/crm/customer/plan/detail';
+        var split = id.split(',');
+        var data = {};
+        data.id = split[0];
+        data.customerName = split[1];
+        data.userInfo = split[2];
+        data.actionPlanType = split[3];
+        data.doneName = split[4];
+        $.ajax({
+            type : 'POST',
+            dataType : 'json',
+            data : data,
+            url : url,
+            success : function(data) {
+                if(data.customerActionPlan.type == 'meet'){
+                    $('#rmName').closest('.row').show();
+                    $('#addressType').closest('.row').show();
+                    $('#rmName').html(data.customerActionPlan.rmName);
+                    $('#meetType').html(data.customerActionPlan.meetTypeName);
+                    $('#addressType').html(data.customerActionPlan.customerAddressTypeName);
+                    $('#dateAddress').html(data.customerActionPlan.dateAddress);
+                }else {
+                    $('#rmName').closest('.row').hide();
+                    $('#addressType').closest('.row').hide();
+                }
+                $('#customerName').html(data.customerActionPlan.customerName);
+                $('#user').html(data.customerActionPlan.userInfo);
+                $('#actionPlanType').html(data.customerActionPlan.actionPlanType);
+                $('#actionDate').html(format(data.customerActionPlan.actionDate,'yyyy-MM-dd hh:mm'));
+                $('#actionEndDate').html(format(data.customerActionPlan.actionEndDate, 'yyyy-MM-dd hh:mm'));
+                $('#doUser').html(data.customerActionPlan.doUsername+'('+data.customerActionPlan.doUserRealName+')');
+                if(data.customerActionPlan.doTime != '未知') {
+                    $('#doTime').html(format(data.customerActionPlan.doTime, 'yyyy-MM-dd hh:mm'));
+                }else {
+                    $('#doTime').html('未知');
+                }
+                $('#customerName').html(data.customerActionPlan.customerName);
+                $('#doneName').html(data.customerActionPlan.doneName);
+                $('#comment').html(data.customerActionPlan.comment);
+                $('#actionPlanDetailModal').modal('show');
+            }
+        });
+    });

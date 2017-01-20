@@ -1,0 +1,18 @@
+//
+   Created by tanyuan on 7/2/15.
+
+table.table.mm-box
+    tr.th-inverse
+        th 设备编号
+        th 操作人
+        th 时间
+    tbody
+        each device in devices
+            tr
+                td #{device.name}
+                td #{device.crealName}
+                td #{format(device.ctime)}
+#devicePageBar
+script.
+    devicePagination.bar('#devicePageBar');
+

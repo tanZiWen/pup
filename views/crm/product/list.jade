@@ -1,0 +1,253 @@
+.sidebar.sidebar-left.mm-box
+    #muCreate.sidemenu
+        i.icon.icon-plus-6
+        | 添加
+.mm-box.col-md-8.col-md-offset-2.form-horizontal.m-b-20
+    form#query(onsubmit='return false;')
+        .form-group.m-t-10
+            label.control-label.col-md-2 关键字
+            .col-md-10
+                input.holo(type='text', class='required', style='display: inline-block;width: 300px;margin-right:10px;', name='keyword', id='keyword', placeholder='产品或发行方名称关键字')
+                button#queryQuick.btn.btn-info(type='submit')
+                    i.icon-search-8(style='margin-right: 5px;')
+                    span 快速查找
+        .form-group
+            label.control-label.col-md-2 状态
+            .col-md-10(style='margin-top:5px;')
+                #status.btn-group(data-toggle='buttons-radio')
+                    button.btn.btn-sm.btn-light-info.active(value='') 全部
+                    each status in statusList
+                        button.btn.btn-sm.btn-light-info(value='#{status.key}')  #{status.name}
+        .form-group
+            label.control-label.col-md-2 类型
+            .col-md-10(style='margin-top:5px;')
+                #type.labelRadio
+                    input(name='type', type='radio', value='', data-name="全部", checked='checked')
+                    each type in typeList
+                        input(name='type', type='radio', value='#{type.key}', data-name="#{type.name}")
+
+//#dlg-add.modal.fade(tabindex='-1', data-width='760', style='display: none;')
+//    .modal-header
+//        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+//        .row
+//            .col-md-3
+//                h4.modal-title 添加产品
+//    .modal-body
+//        .form-horizontal
+//            .row.m-t-10
+//                label.col-sm-2.control-label(for='name') 产品名称
+//                .col-sm-4
+//                    input.holo(type='text',id='name')
+//                label.col-sm-2.control-label(for='amount') 募集金额
+//                .col-sm-3
+//                    input.holo(type='text',id='amount')
+//                .col-sm-1
+//                    span.text-muted.small 万元
+//
+//            .row.m-t-10
+//                label.col-sm-2.control-label(for='cycle') 周期
+//                .col-sm-3
+//                    input.holo(type='text',id='cycle')
+//                .col-sm-1
+//                    span.text-muted.small 月
+//                label.col-sm-2.control-label(for='minConsume') 起购额
+//                .col-sm-3
+//                    input.holo(type='text',id='minConsume')
+//                .col-sm-1
+//                    span.text-muted.small 万元
+//            .row.m-t-10
+//                label.col-sm-2.control-label(for='cycle') 类型
+//                .col-sm-4
+//                    .btn-group
+//                        button.btn.btn-sm.btn-default  固收
+//                        button.btn.btn-sm.btn-default  PE
+//                label.col-sm-2.control-label(for='cycle') 状态
+//                .col-sm-4
+//                    .btn-group
+//                        button.btn.btn-sm.btn-default  在售
+//                        button.btn.btn-sm.btn-default  活跃
+//                        button.btn.btn-sm.btn-default  已退出
+//        input.holo.m-t-20(type='text', style='width: 100%', placeholder='备注')
+//    .modal-footer
+//        .text-center
+//            button.btn.btn-default 取消
+//            button.btn.btn-primary.m-l-15 保存
+
+.row(style='margin-top: 20px;')
+    #prodListData.list-container
+
+#productPageBar.list-container
+
+#create.modal(tabindex='-1', data-width='760', style='display: none;')
+    form#formCreate(action='/crm/product/create')
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            .row
+                .col-md-3
+                    h4.modal-title 添加产品
+        .modal-body
+            .row
+                .alert.alert-success(style='display: none;')
+            .row.m-t-10(style='margin-top:20px')
+                span.col-md-2.text-right.text-muted.small 名称
+                .col-md-3.text-right
+                    input.holo(type='text', id='name', name='name', class='required', placeholder='名称')
+                span.col-md-2.text-right.text-muted.small 发行机构
+                .col-md-3.text-right
+                    input.holo(type='text', id='issueOrg', name='issueOrg', class='required', placeholder='发行机构')
+            .row.m-t-10(style='margin-top:20px')
+                span.col-md-2.text-right.text-muted.small 收益预期
+                .col-md-3.text-right
+                    input.holo(type='text', id='preExpectedEarning', name='preExpectedEarning', class='required', placeholder='收益预期')
+                span.col-md-2.text-right.text-muted.small 总金额
+                .col-md-3.text-left
+                    input.holo(type='text', id='totalAmount', name='totalAmount', class='required digits', placeholder='总金额')
+            .row.m-t-10(style='margin-top:20px')
+                span.col-md-2.text-right.text-muted.small 管理人
+                .col-md-3.text-left
+                    input.holo(type='text', id='manager', name='manager', class='required', placeholder='管理人')
+                span.col-md-2.text-right.text-muted.small 最低金额
+                .col-md-3.text-left
+                    input.holo(type='text', id='minAmount', name='minAmount', class='required', placeholder='最低金额')
+                .col-md-2.text-left
+                    h6.text-muted 万元
+            .row.m-t-10(style='margin-top:20px')
+                span.col-md-2.text-right.text-muted.small 投资周期
+                .col-md-2.text-left
+                    input.holo(type='text', id='minPeriod', name='minPeriod', class='required digits', placeholder='开始')
+                .col-md-1.text-left
+                    h6.text-muted 到
+                .col-md-2.text-left
+                    input.holo(type='text', id='maxPeriod', name='maxPeriod', class='required digits', placeholder='截止')
+                .col-md-1.text-left
+                    h6.text-muted 月
+            .row.m-t-10(style='margin-top:20px')
+                span.col-md-2.text-right.text-muted.small 类型
+                .col-md-3.text-left
+                    .btn-group(data-toggle='buttons-radio', id='type', name='type')
+                        each type, i in typeList
+                            if(i == 0)
+                                button.btn-sm.btn.btn-light-info.active(type='button', value='#{type.key}') #{type.name}
+                            else
+                                button.btn-sm.btn.btn-light-info(type='button', value='#{type.key}') #{type.name}
+                span.col-md-2.text-right.text-muted.small 计息日期
+                .col-md-3.text-left
+                    input(type='text', name="dividendDate", id="dividendDate", placeholder='计息日期' , class='required form-control')
+            .row(style='margin-top:30px')
+                .col-md-10.col-md-offset-1
+                    input.holo(type='text', style='width: 100%;', placeholder='备注', id='comment', name='comment')
+                    input.holo(type='hidden', id='periodUnit', name='periodUnit', value='月')
+                    input.holo(type='hidden', id='status', name='status', value='selling')
+            .modal-footer
+                .text-center
+                    button#cancel.btn.btn-lg.btn-default(style='margin-right: 40px;', type='button', data-dismiss='modal') 取消
+                    button#submit.btn.btn-lg.btn-success(type='submit') 确定
+
+script.
+
+    $('#formCreate #dividendDate').datetimepicker({format : 'yyyy-mm-dd', autoclose: true, weekStart: 1, todayBtn: true, minView : 'month'});
+    var productPagination = new pup.Pagination({
+        templateKey : "product.dataList",
+        paginationParamName : "pagination"
+    });
+    //跳转到第一页
+    productPagination.first();
+
+    $('#query #queryQuick').click(function() {
+        if($('#keyword').val() == '') {
+            var condition = {};
+            if($('#query #status > .btn.active').val() != '') {
+                condition.status = $('#query #status > .btn.active').val();
+            }
+            if($('#query #type').find("input[type='radio']:checked").val() != '') {
+                condition.type = $('#query #type').find("input[type='radio']:checked").val();
+            }
+            productPagination.setCondition(condition).first();
+        } else {
+            productPagination.setCondition({keyword: $('#keyword').val()}).first();
+        }
+    });
+
+    $('#query #status').find('button').click(function() {
+        var condition = {};
+        if($(this).val() != '') {
+            condition.status = $(this).val();
+        }
+        if($('#query #type').find("input[type='radio']:checked").val() != '') {
+            condition.type = $('#query #type').find("input[type='radio']:checked").val();
+        }
+        productPagination.setCondition(condition).first();
+    });
+
+
+    $('.selectpicker').selectpicker({noneSelectedText:'请选择'});
+    $('#muCreate').click(function() {
+        $('#create').modal('show');
+        $('#formCreate').validate_popover({onsubmit: false, popoverPosition: 'top'});
+        $("#create").on("scroll", function() { $.validator.reposition(); });
+        $('#create').on('hide.bs.modal', function (e) {
+            $('.popover').each( function() {
+                $(this).hide();
+            });
+        });
+        $(window).resize(function() {
+            $.validator.reposition();
+        });
+    });
+
+    $('#formCreate').submit(function(ev) {
+        ev.preventDefault();
+        var type = $("#type > .btn.active").val();
+        var serializeForm = $('#formCreate').serialize();
+        var allForm = 'type='+type+'&'+ serializeForm;
+        if($('#formCreate').validate().form()) {
+            var url = $(this).attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                dataType: 'json',
+                data: allForm,
+                success: function (data) {
+                    if(data.msg.type == 'success') {
+                        $('#formCreate')[0].reset();
+                        $('#formCreate #type > .btn').first().button('toggle');
+                        $('#create').modal('hide');
+                    }
+                    toast(data.msg);
+                }
+            });
+        }
+        return false;
+    });
+
+    function showAMsg(msg) {
+        $('.alert').html(msg);
+        $('.alert').show();
+        $('.alert').fadeOut(3000);
+    }
+
+    jQuery.validator.addMethod("legalNumber", function(value, element) {
+        var maxPeriod = $(element).val();
+        var minPeriod = $('#formCreate #minPeriod').val();
+        console.log(maxPeriod, minPeriod);
+        alert(maxPeriod, minPeriod)
+        return this.optional(element) || (maxPeriod >= minPeriod);
+        }, "请填写合法字段");
+
+    //刷新当前页面数据
+    //pup.context.put('fsl-1', onResume);
+
+    function onResume() {
+        productPagination.reload();
+    }
+
+    var typeRadio = new pup.widgets.labelRadio('#type').radio(function(value) {
+        var condition = {};
+        if($('#query #status > .btn.active').val() != '') {
+            condition.status = $('#query #status > .btn.active').val();
+        }
+        if(typeRadio.val() != '') {
+            condition.type = typeRadio.val();
+        }
+        productPagination.setCondition(condition).first();
+    });

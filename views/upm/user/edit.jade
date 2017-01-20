@@ -1,0 +1,139 @@
+
+//
+   Created by tanyuan on 7/31/14.
+form#editForm(action='/upm/user/edit', enctype='multipart/form-data', data-id='#{user._id}')
+    .modal-header
+        button.close(type='button', data-dismiss='modal') &times
+        .row
+            .col-md-3
+                h4.modal-title 修改用户信息
+    .modal-body
+        .row
+            .col-md-2.text-right.text-muted.small 登录名
+            .col-md-3.text-left
+                input.holo(type='text', placeholder='登录名', value='#{user.username}', id='username', name='username', readonly='readonly')
+            .col-md-2.text-right.text-muted.small 姓名
+            .col-md-3.text-left
+                input.holo(type='text', placeholder='姓名', id='realName', name='realName', class='required', value='#{user.realName}')
+        .row.m-t-20
+            .col-md-2.text-right.text-muted.small 分机号
+            .col-md-3.text-left
+                if(user.extNo)
+                    input.holo(type='text', placeholder='分机号', id='extNo', name='extNo', class='fourDigit number', value='#{user.extNo}')
+                else
+                    input.holo(type='text', placeholder='分机号', id='extNo', name='extNo', class='fourDigit number')
+
+        .row.m-t-20
+            .col-md-2.text-right.text-muted.small 性别
+            .col-md-3.text-left
+                .btn-group(data-toggle='buttons-radio', id='sex', name='sex')
+                    each sex, i in sexList
+                        if(user.sex)
+                            if(user.sex == sex.key)
+                                button.btn.btn-sm.btn-light-info.active(value='#{sex.key}', type='button') #{sex.name}
+                            else
+                                button.btn.btn-sm.btn-light-info(value='#{sex.key}', type='button') #{sex.name}
+                        else
+                            if(i == 0)
+                                button.btn.btn-sm.btn-light-info.active(value='#{sex.key}', type='button') #{sex.name}
+                            else
+                                button.btn.btn-sm.btn-light-info(value='#{sex.key}', type='button') #{sex.name}
+            .col-md-2.text-right.text-muted.small 状态
+            .col-md-3.text-left
+                button.btn.btn-sm.btn-light-info.active(type='button') #{user.statusName}
+
+
+        .row.m-t-20
+            .col-md-2.text-right.text-muted.small 职位
+            .col-md-3.text-left
+                select(class='selectpicker', id='position', name='position')
+                    each position in positionList
+                        if(user.position)
+                            if(user.position == position.key)
+                                option(value='#{position.key}', selected='selected') #{position.name}
+                            else
+                                option(value='#{position.key}') #{position.name}
+                        else
+                            option(value='#{position.key}') #{position.name}
+
+        .row.m-t-20
+            .col-md-2.text-right.text-muted.small 分公司
+            .col-md-10.text-left
+                .btn-group(data-toggle='buttons-radio', id='orgCode', name='orgCode')
+                    each org, i in orgList
+                        if(user.orgCode)
+                            if(user.orgCode == org.code)
+                                button.btn.btn-sm.btn-light-info.active(value='#{org.code}', type='button') #{org.name}
+
+
+        .row.m-t-20
+            .col-md-2.text-right.text-muted.small 角色
+            .col-md-10.text-left
+                each roleCode in roleCodes
+                    if(roleCode.flag == 1)
+                        input(type='checkbox', class='checkbox checkbox-inline', id='roleCodes', name='roleCodes', value='#{roleCode.code}', data-label='#{roleCode.name}', checked='checked')
+                    else
+                        input(type='checkbox', class='checkbox checkbox-inline', id='roleCodes', name='roleCodes', value='#{roleCode.code}', data-label='#{roleCode.name}')
+
+    .modal-footer
+        .text-center
+            button.btn.btn-lg.btn-default(data-dismiss='modal', type='button') 取消
+            button#ok.btn.btn-lg.btn-success(type='button') 确定
+
+#ifEditUser.modal(style='display: none')
+    .modal-body
+        p 确认修改？
+    .modal-footer
+        .text-center
+            button.btn.btn-default(type='button', data-dismiss='modal') 取消
+            button.btn.btn-danger#ok(type='button') 确定
+
+
+script.
+
+    $('#editForm #username').css({ background: "#F0F0F0" });
+    $('#editForm #ok').click(function() {
+        $('#editForm').validate_popover({popoverPosition : 'top'});
+        if($('#editForm').validate().form()) {
+            $('#ifEditUser').modal('show');
+        }
+    });
+    $('#ifEditUser #ok').click(function() {
+        var roles = [];
+        var sex = $('#editForm #sex > .btn.active').val();
+        var orgCode = $('#editForm #orgCode > .btn.active').val();
+        $('#editForm #roleCodes:checked').each(function() {
+           roles.push($(this).val());
+        })
+        var serializeForm = $('#editForm').serializeObject();
+        var id = $('#editForm').data('id');
+        serializeForm.sex = sex;
+        serializeForm.orgCode = orgCode;
+        serializeForm.id = id;
+        serializeForm.roleCodes = roles;
+        var url = $('#editForm').attr('action');
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            data: serializeForm,
+            url: url,
+            success: function(data) {
+                if(data.msg.type == 'success') {
+                    $('#editForm #roleCodes').prop('checked', false);
+                    userPagination.reload();
+                    $('#edit').modal('hide');
+                }
+                $('#ifEditUser').modal('hide')
+                toast(data.msg);
+            }
+        });
+        return false;
+    });
+    $('.checkbox').checkbox();
+    $('.selectpicker').selectpicker('refresh');
+    jQuery.validator.addMethod("fourDigit", function(value, element) {
+              var length = value.length;
+              return this.optional(element) || length == 4;
+              }, "请填写四位数字分机号");
+
+

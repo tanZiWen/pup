@@ -1,0 +1,175 @@
+//
+   Created by wangnan on 14-6-3.
+   外拨列表页面
+script(src='/javascripts/pup-callCenter.js')
+.row.m-t-25
+    .col-sm-8.col-sm-offset-2.mm-box.form-horizontal
+        #callListForm
+            .row.m-t-20
+                .form-group
+                    label.control-label.col-md-3 手机/用户名
+                    .col-md-9
+                        input.holo(name='telOrNames', type='text', style='display: inline-block;margin-right:10px;width:300px;')
+                .form-group
+                    label.control-label.col-md-3 批次号
+                    .col-md-9
+                        input.holo(name='impBatchName', type='text', style='display: inline-block;margin-rigth:10px;width:300px')
+                .form-group
+                    label.control-label.col-md-3 拨打状态
+                    .col-md-9
+                        #selectCallStatus.labelRadio
+                            each callStatus in callStatusList
+                                if callStatus.key != 'vacant' && callStatus.key != 'noResponse' && callStatus.key!= 'closed' && callStatus.key!= 'busySignal' && callStatus.key!= 'refused'  && callStatus.key!= 'fax' && callStatus.key!= 'reAssign'
+                                    input(type='radio', value='#{callStatus.key}', data-name="#{callStatus.name}")
+                .form-group
+                    label.control-label.col-md-3 质检状态
+                    .col-md-9
+                        #selectAuditStatus.labelRadio
+                            each auditStatus in auditStatusList
+                                input(name='auditStatus', type='radio', value='#{auditStatus.key}', data-name="#{auditStatus.name}")
+                .form-group
+                    label.control-label.col-md-3 标签
+                    .col-md-9
+                        input.holo#tagSearch(name='customerTagSearch', type='text', data-role='tagsinput', value='', placeholder='请输入标签，回车确认')
+                .form-group.m-t-10
+                    .col-md-12
+                        .divider.divider-default
+                .form-group.m-t-10
+                    .col-md-12.text-center
+                        button.btn.btn-primary(onclick='search()')
+                            i.icon.icon-filter-1.m-r-5
+                            | 过滤
+
+
+
+.row.m-t-25
+    .col-sm-8.col-sm-offset-2
+        #customerCallListTable.row
+
+#customerCallListDetail.modal(tabindex='-1', data-width='760', style='display:none;')
+    .modal-body
+#customerAuditInfo.modal(data-width='760px', style='display:none')
+
+script.
+    $('[name=telOrNames]').keypress(function(e) {
+        var code = (e.keyCode ? e.keyCode : e.which);
+        if(code == 13) {
+            search();
+            e.preventDefault();
+            return false;
+        }
+    });
+    $('[name=impBatchName]').keypress(function(e) {
+        var code = (e.keyCode ? e.keyCode : e.which);
+        if(code == 13) {
+            search();
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    $('#callListForm').find('[name=customerTagSearch]').tagsinput({
+        trimValue: true,
+        maxTags: 5,
+        maxChars: 20
+    });
+
+    //$('#callListForm').keypress(function(e) {
+    //    if(e.keyCode == 13) {
+    //        search();
+    //        e.preventDefault();
+    //        return false;
+    //    }
+    //});
+
+    function search() {
+        setTimeout(function(){ $('body').oLoader('hide'); }, 3000);
+
+        var telOrName = $('[name=telOrNames]').val();
+        var impBatchName = $('[name=impBatchName]').val();
+        var callStatus = callStatusRadio.val();
+        var auditStatus = auditStatusRadio.val();
+        var tags = $('#callListForm').find('[name=customerTagSearch]').tagsinput('items');
+
+        callListPagination.clear();
+
+        if(telOrName) {
+            callListPagination.condition('telOrName', telOrName);
+        }
+
+        if(impBatchName) {
+            callListPagination.condition('impBatchName', impBatchName);
+        }
+
+        if(callStatus) {
+            callListPagination.condition('callStatus', callStatus);
+        }
+        if(auditStatus) {
+            callListPagination.condition('auditStatus', auditStatus);
+        }
+        if(tags) {
+            callListPagination.condition('tags', {$in : tags});
+        }
+
+        callListPagination.condition('status', {$nin : ['potential', 'bc20', 'bc40', 'bc60', 'bc80', 'deal', 'vip', 'diamondVip', 'crownedVip']})
+        callListPagination.first();
+    }
+
+    var callStatusRadio = new pup.widgets.labelRadio('#selectCallStatus').radio(function() {
+        search();
+    });
+
+    var auditStatusRadio = new pup.widgets.labelRadio('#selectAuditStatus').radio(function() {
+        search();
+    });
+
+    var tagRadio = new pup.widgets.labelRadio('#selectTag').radio(function() {
+        //search();
+    });
+
+    var callListPagination = new pup.Pagination({
+        //pup template key, required
+        templateKey : "customer.callList.listTable",
+        // name "pagination" is default, not required
+        paginationParamName : "pagination"
+    });
+    callListPagination.condition('status', {$nin : ['potential', 'bc20', 'bc40', 'bc60', 'bc80', 'deal', 'vip', 'diamondVip', 'crownedVip']});
+    callListPagination.first();
+
+    var callCenter = new CallCenter('callCenter');
+    callCenter.close = function() {
+        callListPagination.reload();
+    }
+    callCenter.save = function(data) {
+        //console.log('save call info : ' + callCenter.currentIndexInPage);
+        //console.log(data);
+        //console.log(callListPagination.getParameter());
+        var params = callListPagination.getParameter();
+        params.currentIndexInPage = callCenter.currentIndexInPage;
+        //console.log(data.customer);
+        if(data.customer.status) {
+            params.status = data.customer.status;
+        }
+        if(_.contains(['reAssign', 'vacant', 'noResponse', 'closed', 'busySignal', 'refused', 'fax'], data.customer.callStatus)) {
+            params.callStatus = data.customer.callStatus;
+        }else {
+            params.conditionCallStatus = data.customer.callStatus;
+        }
+        $.getJSON('/crm/customer/callList/next', params, function(json) {
+            if(json.customer) {
+                console.log('call next :');
+                console.log(json);
+                callCenter.currentIndexInPage = json.currentIndexInPage;
+                callCenter.show(json.customer._id)
+                if(callListPagination.currentPage != json.pagination.currentPage) {
+                    callListPagination.to(json.pagination.currentPage);
+                }
+                toastr.clear();
+            } else {
+                toastr.clear();
+                toast(json.msg);
+                callListPagination.reload();
+            }
+        });
+
+    }

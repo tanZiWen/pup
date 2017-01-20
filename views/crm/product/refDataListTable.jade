@@ -1,0 +1,12 @@
+each refData in data
+    .row.m-t-10
+        span.col-md-2.text-right.text-muted.small 文件名
+        span.col-md-2.text-left #{refData.name}
+        span.col-md-1.text-right.text-muted.small 描述
+        span.col-md-5.text-left #{refData.description}
+    .row.m-t-10
+        .divider.divider-default
+
+
+script.
+    productRefDataPagination.bar('#productRefDataPageBar');

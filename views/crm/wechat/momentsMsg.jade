@@ -1,0 +1,319 @@
+//
+   Created by tanyuan on 6/17/15.
+
+.sidebar.sidebar-left.mm-box
+    #imgUpload.sidemenu
+        i.icon.icon-plus-6
+        | 图片上传
+    .divider.divider-default
+    #muAdd.sidemenu
+        i.icon.icon-plus-6
+        | 添加
+
+.row.m-t-20
+    form#formSearch
+        .col-sm-8.col-sm-offset-2.mm-box.form-horizontal.filter-pan
+            .form-group.m-t-5
+                label.col-md-2.text-right 类型
+                .col-md-8.text-left
+                    #selectMomentsMsgType.labelRadio
+                        each momentsMsgType in momentsMsgTypeList
+                            input(type='radio', name='area', id='area', value='#{momentsMsgType.key}', data-name='#{momentsMsgType.name}')
+
+.row.m-t-25
+    .col-sm-8.col-sm-offset-2
+        #momentsMsgListData.row
+
+#uploadImage.modal(style='display: none;', data-width='760px')
+    form#uploadImageForm(action='/crm/wechat/momentsMsg/uploadImage', enctype="multipart/form-data")
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            .row
+                .col-md-3
+                    h4.modal-title 图片上传
+        .modal-body
+            .row
+                .col-md-2.text-right.text-muted 图片上传
+                .col-md-10.text-left
+                    input(type='file', class='filestyle', name='files[]' multiple)
+            .row.m-t-20
+                .col-md-2.text-right.text-muted 名称
+                .col-md-10.text-left
+                    input.holo(name='image', type='text', data-role='tagsinput', value='')
+        .modal-footer
+            .row.text-center
+                button.btn.btn-lg.btn-default(data-dismiss='modal') 取消
+                button.btn.btn-lg.btn-success(type='submit') 确定
+
+#addMomentsMsg.modal(style='display: none;', data-width= '760px')
+    form#addMomentsMsgForm(action='/crm/wechat/momentsMsg/add')
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            .row
+                .col-md-3
+                    h4.modal-title 朋友圈消息
+        .modal-body
+            .row
+                .col-md-2.text-right.text-muted 所有账号
+                .col-md-10.text-left
+                    select(class='selectpicker', name='accountCode', id='accountCode', data-live-search='true')
+                        each account in accounts
+                            option(value='#{account.code}') #{account.code}
+            .row.m-t-20
+                .col-md-2.text-right.text-muted 微信号
+                .col-md-10
+                    input.holo(name='momentsWechat', type='text', data-role='tagsinput', value='', placeholder='微信号')
+
+            .row.m-t-20
+                .col-md-2.text-right.text-muted 类型
+                .col-md-10.text-left
+                    .btn-group(data-toggle='buttons-radio', id='type', name='type', class='required')
+                        each momentsMsgType, i in momentsMsgTypeList
+                            if i == 0
+                                button.btn-sm.btn.btn-light-info.active(value='#{momentsMsgType.key}') #{momentsMsgType.name}
+                            else
+                                button.btn-sm.btn.btn-light-info(value='#{momentsMsgType.key}') #{momentsMsgType.name}
+            .row.m-t-20.f-image(style='display: none')
+                .col-md-2.text-right.text-muted 图片库
+                .col-md-4.text-left
+                    #myGallery.btn.btn-primary 我的图片库
+                    #allGallery.btn.btn-success.m-l-10 公共图片库
+            .row.m-t-20.f-image(style='display: none')
+                .col-md-2.text-right.text-muted 图片名称
+                .col-md-10.text-left
+                    input.holo(name='momentsImageName', type='text', data-role='tagsinput', value='')
+            .row.m-t-20.f-image(style='display: none')
+                .col-md-2.text-right.text-muted 图片说明
+                .col-md-10.text-left
+                    textarea.holo(name='momentsImageContext', placeholder='图片说明', rows='6', style='width: 100%')
+            .row.m-t-20.f-text(style='display: none')
+                .col-md-2.text-right.text-muted 文本内容
+                .col-md-10.text-left
+                    textarea.holo(name='momentsTextContext', placeholder='文本内容', rows='6', style='width: 100%')
+            .row.m-t-20.f-url(style='display: none')
+                .col-md-2.text-right.text-muted 标题
+                .col-md-9.text-left
+                    input.holo(name='momentsUrlTitle', type='text', value='', placeholder='标题', class='required')
+            .row.m-t-20.f-url(style='display: none')
+                .col-md-2.text-right.text-muted 链接说明
+                .col-md-10.text-left
+                    textarea.holo(name='momentsUrlContext', placeholder='链接说明', rows='6', style='width: 100%')
+        .modal-footer
+            .row.text-center
+                button.btn.btn-lg.btn-default(data-dismiss='modal') 取消
+                button.btn.btn-lg.btn-success(type='submit') 确定
+
+#momentsImageList.modal(style='display: none;', data-width= '760px')
+    .modal-header
+        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row
+            .col-md-3
+                h4.modal-title 图片列表
+    .modal-body
+        .row#momentsImages
+        #momentsImagesBar
+    .modal-footer
+        .row.text-center
+            button.btn.btn-lg.btn-default(data-dismiss='modal') 取消
+            button.btn.btn-lg.btn-success#selectImage 确定
+
+script.
+    var imageNames = [];
+    $('#selectImage').click(function() {
+        _.each(imageNames, function(value) {
+            $('[name=momentsImageName]').tagsinput('add', value)
+        });
+
+        $('#momentsImageList').modal('hide');
+    });
+    $('#myGallery').click(function(ev) {
+        ev.preventDefault();
+        imageListPagination.condition('cuserid', #{userId});
+        imageListPagination.sort('ctime', -1).first();
+        $('#momentsImageList').modal('show');
+    });
+    $('#allGallery').click(function(ev) {
+        ev.preventDefault();
+        imageListPagination.sort('ctime', -1).first();
+        $('#momentsImageList').modal('show');
+    })
+    $("#uploadImageForm :file").filestyle({
+        'buttonText' : '图片上传',
+        'classButton' : 'btn btn-success',
+        'classIcon' : 'icon-plus-6',
+        'input': false
+    });
+
+    $('[name=momentsImageName]').on('beforeItemRemove', function (event) {
+        // event.item: contains the item
+        // event.cancel: set to true to prevent the item getting removed
+        console.log(event.item);
+        var idx = imageNames.indexOf(event.item);
+        if (idx != -1) {
+            imageNames.splice(idx, 1);
+        }
+    });
+
+    var filesList = [];
+    var paramNames = [];
+    $('#uploadImageForm :file').fileupload({
+        autoUpload: false,
+        change: function (e, data) {
+            $.each(data.files, function (index, file) {
+                $('[name=image]').tagsinput('add', file.name);
+            });
+        },
+        add: function(e, data) {
+            if (!_.contains(filesList, data.files[0])) {
+                filesList.push(data.files[0]);
+            }
+            if (!_.contains(paramNames, data.files[0].name)) {
+                paramNames.push(data.files[0].name);
+            }
+        }
+    });
+
+    $('#uploadImageForm').submit(function (e) {
+        e.preventDefault();
+        $('#uploadImageForm :file').fileupload('send', {files: filesList, paramName: paramNames}).done(function(e, data) {
+            if (data == 'success') {
+                filesList = [];
+                paramNames = [];
+                imageNames = [];
+                $('[name=image]').tagsinput('removeAll');
+                $('#uploadImage').modal('hide');
+                toast({
+                    "type": "success",
+                    "body": "上传成功!"
+                });
+            }else {
+                toast({
+                    "type": "error",
+                    "body": "上传失败!"
+                });
+            }
+
+        });
+    })
+
+    $('#imgUpload').click(function(ev) {
+        ev.preventDefault();
+        $('#uploadImage').modal('show');
+    });
+
+    var imageListPagination = new pup.Pagination({templateKey: "momentsMsg.imageList"});
+    //跳转到第一页
+    imageListPagination.setPageCount(36);
+    imageListPagination.bar('#momentsImagesBar');
+
+    var momentsMsgPagination = new pup.Pagination({templateKey : "momentsMsg.dataList"});
+    //跳转到第一页
+    momentsMsgPagination.sort('ctime', -1).first();
+
+    var momentsMsgRadio = new pup.widgets.labelRadio('#selectMomentsMsgType').radio(function() {
+        searchMomentsMsg();
+    });
+
+    function searchMomentsMsg() {
+        var momentsMsgType = momentsMsgRadio.val();
+
+        momentsMsgPagination.clear();
+
+        if(momentsMsgType) {
+            momentsMsgPagination.condition('momentsMsgType', momentsMsgType);
+        }
+        momentsMsgPagination.sort('ctime', -1).first();
+    }
+
+    var wechatIds = [];
+    $('#muAdd').click(function(ev) {
+        ev.preventDefault();
+        $('#addMomentsMsg').modal('show');
+    })
+    $('.selectpicker').selectpicker({noneSelectedText:'请选择'});
+
+    $('#addMomentsMsgForm').find('[name=momentsWechat]').tagsinput({
+        trimValue: true,
+        maxTags: 10
+    });
+
+    $('#addMomentsMsgForm').find('[name=momentsImageName]').tagsinput({
+        trimValue: true,
+        maxTags: 9
+    });
+
+    $('#uploadImageForm').find('[name=image]').tagsinput({
+        trimValue: true,
+        maxTags: 10
+    });
+
+    $('.f-image').show();
+
+    $('#type').find('button').click(function(ev) {
+        ev.preventDefault();
+        var type = $(this).val();
+        if(type == 'image') {
+            $('.f-image').show();
+            $('.f-text').hide();
+            $('.f-url').hide();
+        }else if(type == 'text') {
+            $('.f-image').hide();
+            $('.f-text').show();
+            $('.f-url').hide();
+        }else {
+            $('.f-image').hide();
+            $('.f-text').hide();
+            $('.f-url').show();
+        }
+    })
+
+    $('#accountCode').change(function(ev) {
+        ev.preventDefault();
+        var accountCode = $(this).val()
+        $('[name=momentsWechat]').tagsinput('add', accountCode)
+    })
+
+
+    $('#addMomentsMsgForm').validate_popover({popoverPosition: 'top'});
+
+    $('#addMomentsMsgForm').submit(function(ev) {
+        ev.preventDefault();
+        var data = {};
+        data.wechatNos = $('[name=momentsWechat]').val();
+        var type = $('#type > .btn.active').val();
+        data.type = type;
+        var refObj = {};
+        if(type == 'image') {
+            refObj.imageNames = $('[name=momentsImageName]').val();
+            refObj.content = $('[name=momentsImageContext]').val();
+        }else if(type == 'text') {
+            refObj.content = $('[name=momentsTextContext]').val();
+        }else {
+            refObj.title = $('[name=momentsUrlTitle]').val();
+            refObj.content = $('[name=momentsUrlContext]').val();
+        }
+
+        data.refObj = refObj;
+
+        if($(this).validate().form()) {
+            var url = $(this).attr('action');
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: data,
+                dataType: 'JSON',
+                success: function (data) {
+                    if (data.msg.type == 'success') {
+                        $('#addMomentsMsg').modal('hide');
+                        $('#addMomentsMsgForm')[0].reset();
+                        $('#addMomentsMsgForm #type > .btn').first().button('toggle');
+                        $('[name=momentsWechat]').tagsinput('removeAll');
+                        $('[name=momentsImageName]').tagsinput('removeAll');
+                        $('[name=momentsUrl]').tagsinput('removeAll');
+                    }
+                    toast(data.msg);
+                }
+            })
+        }
+        return false;
+    });

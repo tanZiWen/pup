@@ -1,0 +1,11 @@
+each refData, i in data
+    .row.m-t-10
+        span.col-md-2.text-right.text-muted.small 文件名
+        span.col-md-2.text-left #{refData.name}
+        span.col-md-1.text-right.text-muted.small 描述
+        span.col-md-5.text-left #{refData.description}
+    .row.m-t-10
+        .divider.divider-default
+.row.m-t-10.text-center.cust-record(onclick='loadRefDataByPage();')
+    a(href='javascript:void(0);', onclick='loadRefDataByPage();', title='加载更多')
+        i.icon.icon-angle-double-down

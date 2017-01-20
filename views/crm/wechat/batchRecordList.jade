@@ -1,0 +1,183 @@
+.sidebar.sidebar-left.mm-box
+    #muAdd.sidemenu
+        i.icon.icon-plus-6
+        | 添加
+.row.m-t-20
+    form#formSearch
+        .col-sm-8.col-sm-offset-2.mm-box.form-horizontal.filter-pan
+            .form-group.m-t-5(id='requireArea', name='requireArea')
+                label.col-md-2.text-right 类型
+                .btn-group(data-toggle='buttons-radio', id='queryType', name='queryType')
+                    button.btn.btn-sm.btn-light-info.active(type='button', value='all') 全部
+                    each type in typeList
+                        button.btn.btn-sm.btn-light-info(value='#{type.key}', type='button')  #{type.name}
+
+
+#batchInsert.modal.fade(tabindex='-1', data-width='760', style='display: none;')
+    form#formAdd(action='/crm/wechat/batchRecord/add')
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            .row
+                .col-md-3
+                    h4.modal-title  批量添加账号
+        .modal-body
+            .row
+                .alert.alert-success(style='display: none;')
+            .row
+                .col-md-2.text-right.text-muted.small 类型
+                .col-md-3
+                    .btn-group(data-toggle='buttons-radio', id='type', name='type', class='required')
+                        each type, i in typeList
+                            if i == 0
+                                button.btn-sm.btn.btn-light-info.active(value='#{type.key}') #{type.name}
+                            else
+                                button.btn-sm.btn.btn-light-info(value='#{type.key}') #{type.name}
+            .row(style='margin-top:30px')
+                .col-md-2.text-right.text-muted.small 所用账号
+                .col-md-3
+                    select(class='selectpicker', name='accountId', id='accountId', data-live-search='true')
+                        each account in accounts
+                            option(value='#{account._id}') #{account.nickname}
+            .row(style='margin-top:30px', id='orgView')
+                label.col-md-2.text-right.text-muted.small 分公司
+                .col-md-8.text-left
+                    #selectOrg.labelRadio
+                        each area in areas
+                            input(type='radio', name='area', id='area', value='#{area.code}', data-name='#{area.name}')
+            .row(style='margin-top:30px', id='implBatchView')
+                .col-md-2.text-right.text-muted.small 批次名
+                .col-md-3
+                    select(class='selectpicker', name='implBatchId', id='implBatchId', data-live-search='true')
+                        option(value='') 空
+                        each implBtach in implBtachs
+                            option(value='#{implBtach._id}') #{implBtach.name}
+                .col-md-3.m-l-50
+                    label.text-muted.m-r-10 去除:
+                    input(type='checkbox', id='check', name='check')
+            .row(style='margin-top:30px', id='repeatView')
+                .col-md-2.text-right.text-muted.small 次数
+                .col-md-3.text-left
+                    input.holo(type='text', style='margin-top:-20px;width:170px', id='repeat', name='repeat', value='5', class='digits countLimit')
+            .row(style='margin-top:30px', id='countView')
+                .col-md-2.text-right.text-muted.small 条数
+                .col-md-3.text-left
+                    input.holo(type='text', style='margin-top:-20px;width:170px', id='count', name='count', value='10', class='digits countLimit')
+            .row(style='margin-top:30px;', id='accountView')
+                .col-md-2.text-right.text-muted.small 账号
+                .col-md-3.text-left
+                    textarea(type='text', cols='75', rows='10', name='accounts', id='accounts')
+            .row(style='margin-top:30px;', id='accountView')
+                .col-md-2.text-right.text-muted.small 验证备注
+                .col-md-8.text-left
+                    input.holo(type='text', id='validateMsg', name='validateMsg', value='你好')
+        .modal-footer
+            .text-center
+                button#cancel.cancel.btn.btn-lg.btn-default(style='margin-right: 40px;', type='button', data-dismiss='modal') 取消
+                button#submit.btn.btn-lg.btn-success(type='submit') 确定
+
+.row.m-t-25
+    .col-sm-8.col-sm-offset-2 
+        #batchRecordListData.row
+
+script.
+
+    $('.selectpicker').selectpicker({noneSelectedText:'请选择'});
+
+    var batchRecordPagination = new pup.Pagination({templateKey : "batchRecord.dataList"});
+    //跳转到第一页
+    batchRecordPagination.sort('ctime', -1).first();
+
+    $('#queryType').find('button').click(function() {
+        if($(this).val() == 'all'){
+            batchRecordPagination.setCondition({}).first();
+        }else{
+            batchRecordPagination.setCondition({type : $(this).val()}).first();
+        }
+    });
+
+    var orgRadio = new pup.widgets.labelRadio('#selectOrg').radio(function () {
+    })
+
+    showHiddenView($('#type > .btn.active').val());
+
+    $('#type').find('button').click(function() {
+        showHiddenView($(this).val());
+    });
+
+    function showHiddenView(val) {
+        if(val == 'random'){
+            $('#repeatView').show();
+            $('#countView').show();
+            $('#accountView').hide();
+            $('#orgView').show();
+            $('#implBatchView').show();
+            $('#count').addClass('required');
+            $('#repeat').addClass('required');
+            $('#accounts').removeClass('required');
+        } else {
+            $('#repeatView').hide();
+            $('#countView').hide();
+            $('#orgView').hide();
+            $('#implBatchView').hide();
+            $('#accountView').show();
+            $('#count').removeClass('required');
+            $('#repeat').removeClass('required');
+            $('#accounts').addClass('required');
+        }
+    }
+
+    $('#muAdd').click(function() {
+        $('#batchInsert').modal('show');
+        $('.selectpicker').selectpicker('refresh');
+        $('#formAdd').validate_popover({onsubmit: false, popoverPosition: 'top'});
+        $("#batchInsert").on("scroll", function() { $.validator.reposition(); });
+        $('#batchInsert').on('hide.bs.modal', function (e) {
+           $('.popover').each( function() {
+              $(this).hide();
+           });
+        });
+        $(window).resize(function() {
+           $.validator.reposition();
+        });
+    });
+    $('#cancel, .close').click(function() {
+        $('#batchInsert').modal('hide');
+        $('.popover').each( function() {
+            $(this).hide();
+        });
+    });
+
+    // 条数验证
+    jQuery.validator.addMethod("countLimit", function(value, element) {
+        return this.optional(element) || (value >= 1 && value <= 50);
+    }, "条数只能在1到50之间");
+
+    $('#formAdd').validate_popover({popoverPosition : 'top'});
+
+    $('#formAdd').submit(function(ev) {
+        ev.preventDefault();
+        var serializeForm = $('#formAdd').serializeObject();
+        serializeForm.type = $('#type > .btn.active').val();
+        var area = orgRadio.val();
+        if(area) {
+            serializeForm.area = area;
+        }
+        if($('#formAdd').validate().form()) {
+            var url = $(this).attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                dataType: 'json',
+                data: serializeForm,
+                success: function (data) {
+                    if(data.msg.type == 'success') {
+                        $('#batchInsert').modal('hide');
+                        $('#formAdd')[0].reset();
+                        batchRecordPagination.reload();
+                    }
+                    toast(data.msg);
+                }
+            });
+        }
+        return false;
+    });

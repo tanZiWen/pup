@@ -1,0 +1,104 @@
+//
+   Created by tanyuan on 7/6/15.
+form#editHNWCForm(action='/crm/wechat/editHNWC', data-id='#{wechatHNWC._id}')
+    .modal-header
+        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row
+            .col-md-3
+                h4.modal-title 高净值客户修改
+    .modal-body
+        .row
+            .col-md-2.text-right.text-muted 客户姓名
+            .col-md-4.text-left
+                input.holo(name='name', id='name', type='text', value='#{wechatHNWC.name}')
+            .col-md-2.text-right.text-muted 客户评级
+            .col-md-4.text-left
+                #selectCustRateType.labelRadio
+                    each custRateType in custRateTypes
+                        if wechatHNWC.rate == custRateType.key
+                            input(type='radio', name='rate', id='rate', value='#{custRateType.key}', data-name='#{custRateType.name}' checked)
+                        else
+                            input(type='radio', name='rate', id='rate', value='#{custRateType.key}', data-name='#{custRateType.name}')
+        .row.m-t-20
+            .col-md-2.text-right.text-muted 微信工作号
+            .col-md-4.text-left
+                select(class='selectpicker', name='account', id='account', data-live-search='true')
+                    each account in wechatAccounts
+                        if wechatHNWC.accountId == account._id
+                            option(value='#{account._id},#{account.code}' selected) #{account.code}
+                        else
+                            option(value='#{account._id},#{account.code}') #{account.code}
+            .col-md-2.text-right.text-muted 客户联系方式
+            .col-md-4.text-left
+                select(class='selectpicker', name='telNo', id='telNo', data-live-search='true')
+        .row.m-t-20
+            .col-md-2.text-right.text-muted 初步接触情况
+            .col-md-10.text-left
+                textarea.holo(id='primaryComment', name='primaryComment', type='text', style='width: 100%;', rows='3', placeholder='客户初步接触情况') #{wechatHNWC.primaryComment}
+        .row.m-t-20
+            .col-md-2.text-right.text-muted 备注
+            .col-md-10.text-wechatHNWC
+                textarea.holo(id='comment', name='comment', type='text', style='width: 100%;', rows='3', placeholder='备注') #{wechatHNWC.comment}
+    .modal-footer
+        .row.text-center
+            button.btn.btn-lg.btn-default(data-dismiss='modal') 取消
+            button.btn.btn-lg.btn-success(type='submit') 确定
+
+script.
+    $('.selectpicker').selectpicker({noneSelectedText: '请选择'});
+
+    var custRateTypeRadio = new pup.widgets.labelRadio('#selectCustRateType').radio(function () {
+    });
+    loadAccountContacts($('[name=account]').val().split(',')[0]);
+    function loadAccountContacts(val) {
+        $.getJSON("/crm/wechat/HNWC/" + val, function (data) {
+            $('[name=telNo] option').remove();
+            _.each(data.contacts, function (value) {
+                var html = '<option value="' + value.telNo + '" ';
+                if(value.telNo == #{wechatHNWC.telNo}) {
+                    html +='selected';
+                }
+                html += '>' + value.telNo + '</option>';
+                $('[name=telNo]').append(html);
+            })
+            $('[name=telNo]').selectpicker('refresh');
+        });
+    };
+    $('[name=account]').change(function(ev) {
+        ev.preventDefault();
+        var val = $(this).val();
+        loadAccountContacts(val.split(',')[0]);
+    });
+
+    $('#editHNWCForm').submit(function (ev) {
+        ev.preventDefault();
+        var url = $(this).attr('action');
+        var data = $(this).serializeObject();
+        var account = data.account.split(',');
+        data.accountId = account[0];
+        data.accountCode = account[1];
+        delete data.account;
+        data.id = $(this).data('id');
+        data.rate = custRateTypeRadio.val();
+        if ($(this).validate().form()) {
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: data,
+                dataType: 'JSON',
+                success: function (data) {
+                    if (data.msg.type == 'success') {
+                        $('#editHNWC').modal('hide');
+                        $('#editHNWCForm')[0].reset();
+                        loadAccountContacts($('[name=account]').val().split(',')[0]);
+                        HNWCListPagination.first();
+                    }
+                    toast(data.msg);
+                }
+            })
+        }
+        return false;
+    })
+
+
+

@@ -1,0 +1,38 @@
+//
+   Created by tanyuan on 8/5/14.
+.row.m-t-20
+    .col-md-6.mm-box
+        .form-group.m-t-20
+            label.col-md-2.text-right 角色名
+            .col-md-6.text-left
+                input.holo(type='text', id='name', name='name')
+            button.btn.btn-primary.text-left(type='button')
+                i.icon-search-8(style='margin-right: 10px;')
+                span 快速查找
+    .col-md-4.text-center.col-md-offset-1.mm-box
+        .row.m-t-25
+            h4 功能展示
+
+.row.m-t-20
+    .col-md-6
+        #roleData.row
+    .col-md-4.text-center.col-md-offset-1
+        .row.tree
+
+
+
+
+
+
+script.
+    var rolePagination = new pup.Pagination({templateKey: 'role.listTable'});
+    rolePagination.setPageCount(1000);
+    rolePagination.first();
+    $('.btn').click(function() {
+        var name = $('#name').val();
+        rolePagination.clear();
+        if(name) {
+            rolePagination.condition('name', name);
+        }
+        rolePagination.first();
+    })

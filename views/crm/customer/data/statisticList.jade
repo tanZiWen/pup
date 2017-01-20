@@ -1,0 +1,65 @@
+//
+   Created by tanyuan on 11/27/14.
+
+.modal-header.row
+    h4.pan-title.modal-title(style='display: inline-block;') 商机汇总
+    .row.m-t-20
+        .divider.divider-danger
+    .row.m-t-30
+        table.table.mm-box
+            tr.th-inverse-success.text-center
+                td 年份
+                td 20商机
+                td 40商机
+                td 60商机
+                td 80商机
+                td 成交客户
+                td 帆茂荟贵宾会员
+                td 帆茂荟钻石会员
+                td 帆茂荟皇冠会员
+            tbody
+                each statistic in statisticList
+                    tr.cust-record.text-center
+                        td #{statistic._id}
+                        td
+                            if statistic.statusList.bc20
+                                | #{statistic.statusList.bc20}
+                            else
+                                | 0
+                        td
+                            if statistic.statusList.bc40
+                                | #{statistic.statusList.bc40}
+                            else
+                                | 0
+                        td
+                            if statistic.statusList.bc60
+                                | #{statistic.statusList.bc60}
+                            else
+                                | 0
+                        td
+                            if statistic.statusList.bc80
+                                | #{statistic.statusList.bc80}
+                            else
+                                | 0
+                        td
+                            if statistic.statusList.deal
+                                | #{statistic.statusList.deal}
+                            else
+                                | 0
+                        td
+                            if statistic.statusList.vip
+                                | #{statistic.statusList.vip}
+                            else
+                                | 0
+                        td
+                            if statistic.statusList.diamondVip
+                                | #{statistic.statusList.diamondVip}
+                            else
+                                | 0
+                        td
+                            if statistic.statusList.crownedVip
+                                | #{statistic.statusList.crownedVip}
+                            else
+                                | 0
+
+

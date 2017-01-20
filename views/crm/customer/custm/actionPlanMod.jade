@@ -1,0 +1,36 @@
+//
+   Created by wangnan on 14-10-23.
+
+.modal-header
+    button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+    .row
+        .col-md-12
+            h4.modal-title(style='display: inline-block;margin-right:10px;') 修改备注
+.modal-body
+    .row.m-t-10
+        span.col-md-2.text-right.text-muted.small 备注
+        .col-md-8.text-left
+            input.holo(name='customerActionPlanModComment', type='text', value='#{customerActionPlan.comment}', placeholder='备注')
+.modal-footer
+    .text-center
+        button#customerActionPlanModCancel.btn.btn-lg.btn-default(style='margin-right: 40px;', data-dismiss='modal') 取消
+        button#customerActionPlanModOk.btn.btn-lg.btn-success 保存
+script.
+    $('#customerActionPlanModCancel').click(function() {
+        $('#customerActionPlanCompleteModal').modal('hide');
+    });
+    $('#customerActionPlanModOk').click(function() {
+        var id = '#{customerActionPlan._id}';
+        var type = '#{customerActionPlan.type}';
+        var comment = $('[name=customerActionPlanModComment]').val();
+        $.ajax({
+            type: 'POST',
+            url: '/crm/customerActionPlan/mod',
+            dataType: 'json',
+            data: 'id=' + id + '&type=' + type + '&comment=' + comment,
+            success: function (data) {
+                $('#customerActionPlanModModal').modal('hide');
+                    toast(data.msg);
+            }
+        });
+    });

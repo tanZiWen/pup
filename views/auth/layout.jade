@@ -1,0 +1,25 @@
+doctype html
+html
+    head
+        block head
+            title= title
+            link(rel='stylesheet', href='/stylesheets/bootstrap.css')
+            link(rel='stylesheet', href='/font-css/fontello.css')
+            link(rel='stylesheet', href='/stylesheets/style.css')
+            block style
+            script(src='/javascripts/jquery-1.11.0.min.js')
+            script(src='/javascripts/bootstrap.min.js')
+            //
+                script(src='/js/bootstrap.min.js')
+                script(src='/js/underscore-min.js')
+                script(src='/js/util.js')
+            block script
+    body(style='')
+        #wrap
+            include header
+            .container
+                #msg.alert.alert-success.col-md-6.col-md-offset-3.alert-dismissable(style='display: none;')
+                    button(class="close", data-dismiss="alert", aria-hidden="true") &times;
+                    p 操作成功
+                block content
+        include footer

@@ -1,0 +1,110 @@
+//
+   Created by michael on 6/4/14.
+
+table.table
+    tr
+        th 人员
+        th 未拨数
+        th 数量
+        th
+            input.checkbox(select='selected',type='checkbox', id='checkAll', checked='checked')
+    each user in data
+        tr.cust-record
+            td.col-xs-4 #{user.realName}
+            td.col-xs-4 #{user.noCallCount}
+            td.col-xs-4
+                input(style='width: 60px;', name='count', id='count#{user._id}')
+            td.col-xs-2
+                input.checkbox(checked='checked',type='checkbox', name='userBox', value='#{user._id}')
+
+
+
+script.
+    var userCount = $('input[name=count]').length;
+
+    var checkedCount = userCount;
+
+    assign(getAssignType());
+
+    function assign(assignType) {
+        if(assignType == 'avg') {
+            var extraCount = userCount == 0 ? 0 : validCount % checkedCount;
+            var avgCount = userCount == 0 ? 0 : Math.floor(validCount/checkedCount);
+
+            $('#userListData').find("input[name=count]").each(function(key, value) {
+                $(this).val('');
+                $(this).attr('readonly', 'readonly');
+            });
+
+            $("#userListData input:checkbox[name='userBox']:checked").each(function(key, value) {
+                var inputId = 'count'+$(this).val();
+                if(extraCount > 0) {
+                    $('#' + inputId).val(avgCount + 1);
+                } else {
+                    $('#' + inputId).val(avgCount);
+                }
+                extraCount --;
+            });
+
+            leftCount = dataCount - validCount;
+            $('#leftCount').html(leftCount);
+        } else {
+            $('#userListData').find("input[name=count]").each(function(key, value) {
+                $(this).removeAttr('readonly');
+            });
+            var assignedCount = 0;
+            $("#userListData input:checkbox[name='userBox']").each(function(key, value) {
+                var inputId = 'count'+$(this).val();
+                if($(this).is(':checked')) {
+                    if(posNum($('#' + inputId).val())) {
+                        assignedCount += parseInt($('#' + inputId).val());
+                    }
+                } else {
+                    $('#' + inputId).attr('readonly', 'readonly');
+                    $('#' + inputId).val('');
+                }
+            });
+            leftCount = dataCount - assignedCount;
+            $('#leftCount').html(leftCount + '');
+        }
+        if(assignCount != 0) {
+            $('#userListData').find("input[name=count]").each(function (key, value) {
+                $(this).val(assignCount);
+                $(this).attr('readonly', false);
+            });
+        }
+    }
+
+    function refreshLeftCount() {
+        var assignedCount = 0;
+        $("#userListData input:checkbox[name='userBox']:checked").each(function(key, value) {
+            var inputId = 'count'+$(this).val();
+            if(posNum($('#' + inputId).val())) {
+                assignedCount += parseInt($('#' + inputId).val());
+            }
+        });
+        leftCount = dataCount - assignedCount;
+        $('#leftCount').html(leftCount + '');
+    }
+
+    $('input[name=count]').keyup(function() {
+        refreshLeftCount();
+    });
+
+    $('input[name=userBox]').change(function() {
+        var inputId = 'count'+$(this).val();
+        if(!$(this).is(':checked')) {
+            $('#' + inputId).attr('readonly', 'readonly');
+        }
+        checkedCount = $("#userListData input:checkbox[name='userBox']:checked").length;
+        assign(getAssignType());
+    });
+
+    $('#userListData #checkAll').click(function(ev) {
+        ev.stopPropagation();
+        if($(this).is(':checked')) {
+            $("#userListData input:checkbox[name='userBox']").prop("checked",true);
+        } else {
+            $("#userListData input:checkbox[name='userBox']").attr('checked', false);
+        }
+    });

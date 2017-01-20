@@ -1,0 +1,22 @@
+
+table#batchDetailTable.table.table-striped.table-hover.table-bordered.table-condensed
+    thead
+        tr.th-inverse
+            th.col-sm-3  顾问
+            th.col-sm-3  分配条数
+            th.col-sm-3  分配人
+            th.col-sm-3  分配时间
+    tbody
+        each assignData in data
+            tr
+                td #{assignData.realName}
+                td #{assignData.count}
+                td #{assignData.operateRealName}
+                td #{format(assignData.ctime)}
+
+script(src='/javascripts/jquery.scrollTableBody.js')
+script(src='/javascripts/underscore-1.5.2.min.js')
+
+script.
+
+    $('#batchDetailTable').scrollTableBody();

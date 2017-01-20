@@ -1,0 +1,73 @@
+//
+   Created by michael on 6/4/14.
+.list-group
+    each request, i in data
+        a.list-group-item.cust-record(id='#{request._id}')
+            .row
+                .col-sm-12
+                    .col-sm-3.text-left
+                        span
+                            i.icon.icon-user-8.small.text-muted.m-r-15
+                            | #{request.crealName}
+                    .col-sm-2.text-center
+                        span.m-r-15 #{request.levelName}
+                    .col-sm-2.text-left
+                        span.text-primary #{request.count}
+                    .col-sm-3.text-left
+                        span
+                            i.icon.icon-calendar.small.text-muted.m-r-15
+                            | #{format(request.ctime, 'yyyy-MM-dd hh:mm')}
+                    .col-sm-2.text-left
+                        span.icon.icon-btn.icon-cancel-7(title='取消', id='#{request._id}')
+
+                .col-sm-12.text-left
+                    .col-sm-12
+                        span.m-r-15
+                            i.icon.icon-comment.small.text-muted
+                        span.text-left #{request.description}
+
+#cancelRequestConfirm.modal(tabindex='-1', style='display: none;')
+    .modal-body
+        p#confirmMsg 确定取消此申领请求？
+        p#opStatus(style='font-size: 20px; font-face: bold; display: none;')
+            i.icon.icon-spin5.animate-spin.text-success
+    .modal-footer
+        .text-center
+            button.cancel.btn.btn-default(style='margin-right: 40px;', data-dismiss='modal') 取消
+            button#ok.btn.btn-danger(style='margin-right: 40px;', data-dismiss='modal') 确定
+
+#callListRequestUnassignedPageBar.m-l-10
+
+
+
+script.
+    callListRequestUnassignedPagination.bar('#callListRequestUnassignedPageBar');
+
+    var requestId = '';
+
+    $('#cancelRequestConfirm #ok').click(function() {
+        var url = '/crm/customer/callListRequest/' + requestId;
+        $('#cancelRequestConfirm').modal('hide');
+        $.ajax({
+            type: 'DELETE',
+            url: url,
+            dataType: 'json',
+            data: {},
+            success: function (data) {
+                callListRequestUnassignedPagination.first();
+                toast(data.msg);
+                refreshUnAssignCount();
+            }
+        });
+    });
+
+    $('.list-group-item .icon-cancel-7').click(function(ev) {
+        ev.stopPropagation();
+        requestId = $(this).attr('id');
+        $('#cancelRequestConfirm').modal('show');
+    });
+
+    $('.list-group-item').click(function(ev) {
+        ev.stopPropagation();
+        toAssign({requestId : $(this).attr('id')});
+    });

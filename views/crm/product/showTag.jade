@@ -1,0 +1,37 @@
+//
+   Created by tanyuan on 11/12/15.
+.modal-header
+    button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+    .row
+        .col-md-3
+            h4.modal-title 选择动态
+.modal-body
+    .row.m-t-10
+        span.col-md-2.text-right.text-muted.small 标签名称
+        .col-md-9.text-left
+            select(class='selectpicker', id='tagcode', name='tagcode', data-size='5', data-live-search="true")
+                each tag in tags
+                    option(value='#{tag.tagcode}') #{tag.brief}
+.modal-footer
+    .text-center
+        button.cancel.btn.btn-lg.btn-default(style='margin-right: 40px;', type='button', data-dismiss='modal') 取消
+        button#ok.btn.btn-lg.btn-success(type='submit') 确定
+
+
+script.
+    var tagcode = '';
+    $('.selectpicker').selectpicker({noneSelectedText: '请选择'});
+    $('#showTags #ok').click(function (ev) {
+        ev.preventDefault();
+        $('#showTags').modal('hide');
+        tagcode = $('#showTags #tagcode').val();
+        if (!tagcode) {
+            toast({type: 'error', body: '标签不能为空!'});
+            return;
+        }
+        pup.template.renderTemplateByKey('news.showAdd', {}, {
+            afterRender: function () {
+                $('#addNews').modal('show');
+            }
+        });
+    });

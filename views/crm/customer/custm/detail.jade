@@ -1,0 +1,387 @@
+//
+   Created by wangnan on 14-6-11.
+
+//左侧菜单
+.sidebar.sidebar-left.mm-box(style='display: none')
+    #lMenuCustomerEdit.sidemenu
+        i.icon.icon-edit-3
+        | 编辑
+    .divider.divider-default
+    #lMenuCustomerTag.sidemenu
+        i.icon.icon-tag-7
+        | 标签
+    .divider.divider-default
+
+    #lMenuCustomerActionPlanAdd.sidemenu
+        i.icon.icon-calendar-8
+        | 行动计划
+    .divider.divider-default
+    #lMenuCustomerAttachmentAdd.sidemenu
+        i.icon.icon-attach-7
+        | 添加附件
+    .divider.divider-default
+    #lMenuCustomerOrderadd.sidemenu
+        i.icon.icon-yen
+        | 创建订单
+    .divider.divider-default
+    #lMenuCustomerAuditList.sidemenu
+        i.icon.icon-pencil
+        | 质检记录
+    if user.position == 'rm'
+        .divider.divider-default
+        #lMenuAppointConsultant.sidemenu(data-id='#{customer._id}')
+            i.icon.icon-user-1
+            | 指定顾问
+//右侧菜单
+.sidebar-mini.sidebar-right.mm-box
+    //拨打
+    #rMenuCustomerCall.sidemenu.text-center(style='display: none')
+        i.icon.icon-phone-3.text-success(style='font-size: 24px;')
+    //关闭
+    #rMenuCustomerCancel.sidemenu.text-center
+        i.icon.icon-cancel-7.text-success(style='font-size: 24px;')
+
+.row(style='margin-top: 80px;')
+    .mm-box.col-md-8.col-md-offset-2(style='padding-bottom: 15px')
+        .modal-header.row
+            h4.pan-title.modal-title(style='display: inline-block;') 基本信息
+            .pull-right(style='display: none')
+                span.m-l-15.icon-btn(onclick='openCustomerEditModal()')
+                    i.icon-edit-3
+        #customerBaseInfo
+.row.m-t-20
+    .mm-box.col-md-8.col-md-offset-2(style='padding-bottom: 15px')
+        .modal-header.row
+            h4.pan-title.modal-title(style='display: inline-block;') 服务记录
+            .pull-right(style='display: none')
+                #selectCustomerListServiceRecordType.labelRadio(style='display:none;')
+                    input(name='customerServiceRecordType', type='radio', value='', data-name="全部", checked='checked')
+                    each type, i in customerServiceRecordTypeList
+                        input(name='customerServiceRecordType', type='radio', value='#{type.key}', data-name="#{type.name}")
+        div
+            .row
+                .col-sm-12.t-action-in
+                    #customerServiceRecordList
+            #customerServiceRecordPageBar
+                .row.m-t-10.text-center.cust-record(onclick='customerServiceRecordListPage()')
+                    a(href='javascript:void(0);', onclick='', title='加载更多')
+                        i.icon.icon-angle-double-down
+.row(style='margin-top: 20px;')
+    .mm-box.col-md-8.col-md-offset-2(style='padding-bottom: 15px')
+        .modal-header.row
+            h4.pan-title.modal-title(style='display: inline-block;') 行动计划
+            .pull-right(style='display: none')
+                span.m-l-15.icon-btn(onclick='openCustomerActionPlanAddModal()')
+                    i.icon-plus-6
+        div
+            .row
+                .col-sm-12.t-action-in
+                    #customerActionPlanList
+            #customerActionPlanPageBar
+                .row.m-t-10.text-center.cust-record(onclick='customerActionPlanListPage()')
+                    a(href='javascript:void(0);', onclick='', title='加载更多')
+                        i.icon.icon-angle-double-down
+.row(style='margin-top: 20px;')
+    .mm-box.col-md-8.col-md-offset-2(style='padding-bottom: 15px')
+        .modal-header.row
+            h4.pan-title.modal-title(style='display: inline-block;') 客户附件
+            .pull-right(style='display: none')
+                span.m-l-15.icon-btn(onclick='openCustomerAttachmentAddModal()')
+                    i.icon-upload-5
+        div
+            #customerAttachmentList
+            #customerAttachmentPageBar
+                .row.m-t-10.text-center.cust-record(onclick='customerAttachmentListPage()')
+                    a(href='javascript:void(0);', onclick='', title='加载更多')
+                        i.icon.icon-angle-double-down
+.row(style='margin-top: 20px; margin-bottom: 30px;')
+    .mm-box.col-md-8.col-md-offset-2(style='padding-bottom: 15px')
+        .modal-header.row
+            h4.pan-title.modal-title(style='display: inline-block;') 成交记录
+        #order-report.row.m-t-10
+        .row(style='margin-top: 20px;')
+            #customerOrderList
+
+
+#customerEditModal.modal(tabindex='-1', data-width='960', style='display: none;')
+#customerTagModal.modal(tabindex='-1', data-width='760', style='display: none;')
+#customerActionPlanAddModal.modal(tabindex='-1', data-width='760', style='display: none;')
+#customerAttachmentAddModal.modal(tabindex='-1', data-width='760', style='display: none;')
+#customerOrderAddModal.modal(tabindex='-1', data-width='760', style='display: none;')
+#customerActionPlanAddScheduleModal.modal(tabindex='-1', data-width='760', style='display: none;')
+#customerAuditInfo.modal(tabindex='-1', data-width='760px', style='display:none')
+#appointConsultant.modal(tabindex='-1', data-width='760px', style='display:none')
+
+
+script.
+    if('#{type}' == 'customer') {
+        $('.sidebar.sidebar-left').show();
+        $('#rMenuCustomerCall').show();
+        $('.pull-right').show();
+    }
+    var customerAuditPagination = new pup.Pagination({templateKey : "customer.callList.auditTable"});
+    $('#lMenuCustomerAuditList').click(function(ev) {
+        ev.preventDefault();
+        customerAuditPagination.condition('customer.customerId', #{customer._id});
+        customerAuditPagination.sort('call.callTime', -1);
+        customerAuditPagination.first({
+            afterRender: function() {
+                $('#customerAuditInfo').modal('show');
+            }
+        });
+    })
+    //MENU编辑
+    function openCustomerEditModal() {
+        pup.template.renderTemplateByKey('customer.edit', {id : #{customer._id}}, {
+            afterRender : function() {
+                $('#customerEditModal').modal('show');
+            }
+        });
+    }
+    $('#lMenuCustomerEdit').click(function() {
+        openCustomerEditModal();
+    });
+    //MENU标签
+    $('#lMenuCustomerTag').click(function() {
+        pup.template.renderTemplateByKey('customer.tag', {id : '#{customer._id}'}, {
+            afterRender : function() {
+                $('#customerTagModal').modal('show');
+            }
+        });
+    });
+
+    //MENU行动计划
+    function openCustomerActionPlanAddModal() {
+        pup.template.renderTemplateByKey('customer.actionPlanAdd', {id: #{customer._id}}, {
+            afterRender : function() {
+                $('#customerActionPlanAddModal').modal('show');
+            }
+        });
+    }
+    $('#lMenuCustomerActionPlanAdd').click(function() {
+        openCustomerActionPlanAddModal();
+    });
+    $('#btnCustomerActionPlanAdd').click(function() {
+        openCustomerActionPlanAddModal();
+    });
+
+    //MENU附件
+    function openCustomerAttachmentAddModal() {
+        pup.template.renderTemplateByKey('customer.attachmentAdd', {id : #{customer._id}}, {
+            afterRender : function() {
+                $('#customerAttachmentAddModal').modal('show');
+            }
+        });
+    }
+    $('#lMenuCustomerAttachmentAdd').click(function() {
+        openCustomerAttachmentAddModal();
+    });
+
+    //MENU订单
+    $('#lMenuCustomerOrderadd').click(function() {
+        pup.template.renderTemplateByKey('customer.orderAdd', {id : #{customer._id}}, {
+            afterRender : function() {
+                $('#customerOrderAddModal').modal('show');
+            }
+        });
+    });
+
+    //MENU拨打
+    var customerCallCenter = new CallCenter('customerCallCenter');
+    $('#rMenuCustomerCall').click(function() {
+        customerCallCenter.show('#{customer._id}');
+    });
+
+    //MENU关闭客户详细信息页面
+    $('#rMenuCustomerCancel').click(function() {
+        pup.widgets.layerManager.close();
+    });
+
+
+    //CONTENT基本信息
+    function loadCustomerBaseInfo() {
+        pup.template.renderTemplateByKey('customer.baseInfo', {id : '#{customer._id}'});
+    }
+    loadCustomerBaseInfo();
+
+    //CONTENT服务记录
+    var customerServiceRecordPagination = new pup.Pagination({templateKey : "customer.serviceRecord.pageList"});
+    var custmerServiceRecordTypelableRadio = new pup.widgets.labelRadio('#selectCustomerListServiceRecordType').radio(function() {
+        console.log('customerServiceRecordType : ' + custmerServiceRecordTypelableRadio.val());
+        customerServiceRecordListPage();
+    });
+    function loadCustomerServiceRecord() {
+        customerServiceRecordListPage(true);
+    }
+    loadCustomerServiceRecord(true);
+
+    function customerServiceRecordListPage(latest) {
+        console.log('customerServiceRecordListPage');
+        customerServiceRecordPagination.clear();
+        customerServiceRecordPagination.setCondition({customerId : #{customer._id}});
+        customerServiceRecordPagination.setSort({ctime : -1});
+        if(!customerServiceRecordPagination.pageBar && latest) {
+            customerServiceRecordPagination.setPageCount(2);
+            customerServiceRecordPagination.first();
+        } else {
+            if(custmerServiceRecordTypelableRadio.val()) {
+                customerServiceRecordPagination.condition('type', custmerServiceRecordTypelableRadio.val());
+            }
+            customerServiceRecordPagination.setPageCount(5);
+            customerServiceRecordPagination.first({
+                afterRender : function() {
+                    customerServiceRecordPagination.bar('#customerServiceRecordPageBar');
+                }
+            });
+            $('#selectCustomerListServiceRecordType').show();
+        }
+    }
+
+    //CONTENT行动计划
+    var customerActionPlanPagination = new pup.Pagination({templateKey : "customer.actionPlan.pageList"});
+    function loadCustomerActionPlan() {
+        customerActionPlanListPage(true);
+    }
+    loadCustomerActionPlan(true);
+
+    function customerActionPlanListPage(latest) {
+        console.log('customerActionPlanListPage');
+        customerActionPlanPagination.clear();
+        customerActionPlanPagination.setCondition({customerId : #{customer._id}});
+        customerActionPlanPagination.setSort({ctime : -1});
+        if(!customerActionPlanPagination.pageBar && latest) {
+            console.log('load action plan latest');
+            customerActionPlanPagination.setPageCount(2);
+            customerActionPlanPagination.first();
+        } else {
+            console.log('load action plan pagination');
+            customerActionPlanPagination.setPageCount(5);
+            customerActionPlanPagination.first({
+                afterRender : function() {
+                    console.log('show action plan page bar');
+                    customerActionPlanPagination.bar('#customerActionPlanPageBar');
+                }
+            });
+        }
+    }
+
+    //CONTENT客户附件
+    var customerAttachmentPagination = new pup.Pagination({templateKey : "customer.attachment.pageList"});
+    function loadCustomerAttachment() {
+        customerAttachmentListPage(true);
+    }
+    loadCustomerAttachment();
+
+    function customerAttachmentListPage(latest) {
+        console.log('customerAttachmentListPage');
+        customerAttachmentPagination.clear();
+        customerAttachmentPagination.setCondition({customerId : #{customer._id}});
+        customerAttachmentPagination.setSort({ctime : -1});
+        if(latest) {
+            console.log('load attachment latest');
+            customerAttachmentPagination.setPageCount(2);
+            customerAttachmentPagination.first();
+        } else {
+            console.log('load attachment pagination');
+            customerAttachmentPagination.setPageCount(5);
+            customerAttachmentPagination.first({
+                afterRender : function() {
+                    console.log('show attachment page bar');
+                    customerAttachmentPagination.bar('#customerAttachmentPageBar');
+                }
+            });
+        }
+    }
+
+    //CONTENT成交记录
+    var customerOrderPagination = new pup.Pagination({templateKey : "customer.order.pageList"});
+    function loadCustomerOrder() {
+        customerOrderListPage();
+    }
+    loadCustomerOrder();
+
+    function customerOrderListPage(latest) {
+        console.log('customerOrderListPage');
+        customerOrderPagination.clear();
+        customerOrderPagination.setCondition({'customer.customerId' : #{customer._id}});
+        customerOrderPagination.setSort({ctime : -1});
+        console.log('load Order pagination');
+        customerOrderPagination.setPageCount(5);
+        customerOrderPagination.first({
+            afterRender : function() {
+                console.log('show Order page bar');
+                customerOrderPagination.bar('#customerOrderListPageBar');
+            }
+        });
+
+    }
+    //指定顾问
+    $('#lMenuAppointConsultant').click(function(ev) {
+        ev.preventDefault();
+        var id = $(this).data('id');
+        pup.template.renderTemplateByKey('customer.appoint.consultant', {id: id}, {
+            afterRender: function() {
+                $('#appointConsultant').modal('show');
+            }
+        })
+    });
+
+
+//function report() {
+    //    $('#order-report').highcharts({
+    //        chart: {
+    //            type: 'column',
+    //            margin: [ 50, 50, 100, 80]
+    //        },
+    //        title: {
+    //            text: '张xx先生近5笔投资回报'
+    //        },
+    //        xAxis: {
+    //            categories: [
+    //                '长城xxx一期',
+    //                'TOP Ten',
+    //                '长城xxx三期',
+    //                '长城xxx四期',
+    //                '信中利xxx一期'
+    //            ],
+    //            labels: {
+    //                rotation: -45,
+    //                align: 'right',
+    //                style: {
+    //                    fontSize: '13px',
+    //                    fontFamily: 'Verdana, sans-serif'
+    //                }
+    //            }
+    //        },
+    //        yAxis: {
+    //            min: 0,
+    //            title: {
+    //                text: '内部收益率(IRR)'
+    //            }
+    //        },
+    //        legend: {
+    //            enabled: false
+    //        },
+    //        tooltip: {
+    //            pointFormat: '内部收益率: <b>{point.y:.1f} %</b>'
+    //        },
+    //        series: [{
+    //            name: 'Population',
+    //            data: [34.4, 21.8, 20.1, 20, 19.6],
+    //            dataLabels: {
+    //                enabled: true,
+    //                rotation: -90,
+    //                color: '#FFFFFF',
+    //                align: 'right',
+    //                x: 4,
+    //                y: 10,
+    //                style: {
+    //                    fontSize: '13px',
+    //                    fontFamily: 'Verdana, sans-serif',
+    //                    textShadow: '0 0 3px black'
+    //                }
+    //            }
+    //        }]
+    //    });
+    //}
+    //setTimeout('report()', 500);

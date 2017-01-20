@@ -1,0 +1,49 @@
+//
+   Created by tanyuan on 11/20/15.
+
+doctype html
+html
+    head
+        title 帆茂统一平台
+        link(href='/stylesheets/bootstrap.css', rel='stylesheet')
+        style.
+            body {
+                padding-top: 40px;
+                background-color: #eee;
+                overflow-x: hidden;
+            }
+
+            .function-bar {
+                background-color: #FFFFFF;
+                border-top: 1px solid #cccccc;
+                -webkit-box-shadow: 0 -5px 5px -5px rgba(0, 0, 0, .4);
+                box-shadow: 0 -5px 5px -5px rgba(0, 0, 0, .4);
+                position: fixed;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                height: 100px;
+                z-index: 10;
+            }
+
+            .container {
+                background-color: #fbfcfd;
+                height: 80%;
+                margin-left: 20%;
+                width: 60%;
+                position: fixed;
+                z-index: 10;
+                border: 1px solid #cccccc;
+                -webkit-box-shadow: 0 -5px 5px -5px rgba(0, 0, 0, .4);
+                box-shadow: 0 -5px 5px -5px rgba(0, 0, 0, .4);
+            }
+
+
+    body
+        .row.container
+            #wrap
+                .col-md-12.text-center(style="margin-top: 20%")
+                    p(style="font-size: 20px; color: red;") #{msg}
+    .function-bar
+        .row.text-center(style='margin-top: 30px')
+            p.text-muted © 2014 帆茂投资管理有限公司

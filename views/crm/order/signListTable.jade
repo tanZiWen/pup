@@ -1,0 +1,34 @@
+//
+   Created by michael on 5/29/14.
+
+table.table.mm-box.col-md-10
+    tr.th-inverse
+        th  客户
+        th  文件名
+        th  产品名称
+        th  产品类别
+        th  状态
+    each prdSign in data
+        tr.cust-record
+            td  #{prdSign.customer.name}
+            td  #{prdSign.productRefData.name}
+            td  #{prdSign.product.name}
+            td  #{prdSign.product.typeName}
+            td
+                if user.position == 'pm'
+                    if prdSign.productorSigned == 'unsigned'
+                        span.icon-btn.sign(title='签收', id='#{prdSign._id}',  onclick='sign(this);')
+                            i.icon.icon-pencil
+                    else
+                        span.m-l-15 已签
+                if user.position == 'consultant'
+                    if prdSign.salesSigned == 'unsigned'
+                        span.icon-btn.sign(title='签收', id='#{prdSign._id}',  onclick='sign(this);')
+                            i.icon.icon-pencil
+                    else
+                        span.m-l-15 已签
+#signPageBar
+
+script.
+
+    signPagination.bar('#signPageBar');

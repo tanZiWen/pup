@@ -1,0 +1,207 @@
+//
+   Created by wangnan on 14-6-11.
+form#create(action='/crm/customer/custm/create', enctype="multipart/form-data")
+    .modal-header
+        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row
+            .col-md-3
+                h4.modal-title 客户资料
+    .modal-body
+        #customerCreateChangeBelongUserRow.row(style='margin-top:20px;displap:none;')
+            #customerCreateChangeBelongUserCol.col-md-12.text-left.text-danger
+        .row(style='margin-top:20px')
+            .col-md-2.text-right.text-muted.small 姓名
+            .col-md-4
+                input.holo(type='text', id='name', name='name', placeholder='姓名')
+            .col-md-2.text-right.text-muted.small 性别
+            .col-md-4
+                .btn-group(data-toggle='buttons-radio', id='sex', name='sex')
+                    each sex, i in sexList
+                        if i == 0
+                            button.btn-sm.btn.btn-light-info.active(value='#{sex.key}') #{sex.name}
+                        else
+                            button.btn-sm.btn.btn-light-info(value='#{sex.key}') #{sex.name}
+            .col-md-2.text-right.text-muted.small.hidden 客户等级
+            .col-md-2.text-left.hidden
+                select(class='selectpicker show-tick form-control', id='level', name='level')
+                    each level in levels
+                        option(value='#{level.key}') #{level.name}
+
+        .row(style='margin-top:20px')
+            .col-md-2.text-right.text-muted.small 归属
+            .col-md-4
+                .btn-group(data-toggle='buttons-radio', id='area', name='area')
+                    each area, i in areas
+                        if i == 0
+                            button.btn.btn-sm.btn-light-info.active(value='#{area.code},#{area.name}')  #{area.name}
+                        else
+                            button.btn.btn-sm.btn-light-info(value='#{area.code},#{area.name}')  #{area.name}
+            .col-md-2.text-right.text-muted.small.hidden 证件类型
+            .col-md-2.text-left.hidden
+                select(class='selectpicker show-tick form-control', id='identityDocType', name='identityDocType')
+                    each identityDocType in identityDocTypes
+                        option(value='#{identityDocType.key}') #{identityDocType.name}
+            .col-md-2.text-right.text-muted.small 生日
+            .col-md-3
+                input(type='text', id='birthday', class="form-control", name='birthday', placeholder='生日')
+        .row(style='margin-top:20px')
+            .col-md-2.text-right.text-muted.small.hidden 身份证/相关证件
+            .col-md-4.hidden
+                input.holo(type='text', id='identityDocNo', class='isRight', name='identityDocNo', placeholder='身份证/相关证件')
+
+        .row(style='margin-top:20px')
+            .col-md-2.text-right.text-muted.small 手机
+            .col-md-4.input-append
+                input.holo(type='text', id='telNo', name='telNo', class='required mobile', placeholder='手机')
+            .col-md-2.text-right.text-muted.small 城市
+            .col-md-3
+                input.holo(type='text', id='city', name='city', placeholder='城市')
+        .row(style='margin-top:20px')
+            .col-md-2.text-right.text-muted.small 电子邮箱
+            .col-md-4
+                input.holo(type='text', id='email', name='email', class='email', placeholder='电子邮箱')
+            .col-md-2.text-right.text-muted.small 微信号
+            .col-md-3
+                input.holo(type='text', id='wechatNo', name='wechatNo', placeholder='微信号')
+        .row(style='margin-top:20px')
+            .col-md-2.text-right.text-muted.small 网址
+            .col-md-4
+                input.holo(type='text', id='homepage', name='homepage', class='url', placeholder='网址')
+            .col-md-2.text-right.text-muted.small QQ
+            .col-md-3
+                input.holo(type='text', id='qqNo', name='qqNo', class='digits', placeholder='QQ')
+        .row(style='margin-top:20px;')
+            .col-md-2.text-right.text-muted.small 备注
+            .col-md-10
+                input.holo(type='text', style='width: 100%;', placeholder='备注', id='comment', name='comment')
+    .modal-footer
+        .row.text-center
+            button.btn.btn-lg.btn-default(style='margin-right: 40px;', data-dismiss='modal') 取消
+            #customerPotentialBtn.btn.btn-lg.btn-warning(style='display:none;') 跟进
+            button#customerCreateBtn.btn.btn-lg.btn-success(type='submit') 确定
+
+script.
+    var now = new Date();
+    var except = new Date(now.getTime() - 1000*60*60*24*365*40);
+    if(!$('[name=birthday]').val()) {
+        $('[name=birthday]').val(format(except))
+    }
+    $('#birthday').datetimepicker({format : 'yyyy-mm-dd', autoclose: true, weekStart: 1, minView : 'month'});
+    $('.selectpicker').selectpicker({noneSelectedText:'请选择'});
+
+    function customerCreateGetFormData() {
+        var area = $('#create #area > .btn.active').val();
+        var sex = $('#create #sex > .btn.active').val();
+        var formSerialize = $('#create').serialize();
+        var formData = formSerialize+'&'+'area='+area+'&'+'sex='+sex;
+        return formData;
+    }
+
+    $('#create').submit(function(ev){
+        ev.preventDefault();
+        toastr.clear();
+        $(this).validate_popover({popoverPosition : 'top'});
+        var area = $('#create #area > .btn.active').val();
+        var sex = $('#create #sex > .btn.active').val();
+        var formSerialize = $(this).serialize();
+        var formData = customerCreateGetFormData();
+        if($(this).validate().form()){
+            var url = $(this).attr('action');
+            $.ajax({
+                type : 'POST',
+                url : url,
+                dataType : 'json',
+                data : formData,
+                success : function(data){
+                    if(data.msg.type == 'success') {
+                        $('#modalCustomerAddModal').modal('hide');
+                        if(typeof(customerListPagination) != 'undefined')
+                            customerListPagination.first();
+                        if(typeof(callListPagination) != 'undefined')
+                            callListPagination.first();
+                        $('#create')[0].reset();
+                    } else if(data.msg.type == 'warning') {
+                        console.log('to change Belonger');
+                        console.log(data.potential);
+                        if(data.potential) {
+                            //set form value
+                            $('#create').find('input[name="name"]').val(data.customer.name);
+                            $('#create').find('[name="sex"] button').removeClass('active');
+                            $('#create').find('[name="sex"]').find('button[value="' + data.customer.sex + '"]').addClass('active');
+                            $('#create').find('[name="level"] option').each(function() {
+                                if($(this).val() == data.customer.level) {
+                                    $(this).attr('selected', true);
+                                } else {
+                                    $(this).attr('selected', false);
+                                }
+                            });
+                            console.log('select ' + $('#create').find('[name="level"]').val());
+                            $('#create').find('[name="area"]').find('button').removeClass('active');
+                            $('#create').find('[name="area"]')
+                                .find('button[value="' + data.customer.belongArea.areaCode + ',' + data.customer.belongArea.areaName + '"]')
+                                .addClass('active');
+                            $('#create').find('[name="identityDocType"]').val(data.customer.identityDocType);
+                            $('#create').find('input[name="identityDocNo"]').val(data.customer.identityDocNo);
+                            console.log('brithday : ' + data.customer.birthdayStr);
+                            $('#create').find('input[name="birthday"]').val(data.customer.birthdayStr);
+                            $('#create').find('input[name="telNo"]').val(data.customer.telNo);
+                            $('#create').find('input[name="city"]').val(data.customer.city);
+                            $('#create').find('input[name="email"]').val(data.customer.email);
+                            $('#create').find('input[name="wechatNo"]').val(data.customer.wechatNo);
+                            $('#create').find('input[name="homepage"]').val(data.customer.homepage);
+                            $('#create').find('input[name="qqNo"]').val(data.customer.qqNo);
+                            $('#create').find('input[name="comment"]').val(data.customer.comment);
+
+                            $('#create').find('input[name="telNo"]').attr("readonly","readonly");
+                            $('#customerCreateChangeBelongUserCol').html(data.msg.body
+                                + '若要将该客户变更为自己的客户并加入客户跟进列表，请点击[跟进]按钮。');
+                            $('#customerCreateChangeBelongUserRow').show();
+                            $('#customerCreateBtn').hide();
+                            $('#customerPotentialBtn').show();
+                            $('#customerPotentialBtn').click(function() {
+                                console.log('submit change Belonger');
+                                var params = customerCreateGetFormData() + '&optType=changeBelonger';
+                                console.log(params);
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '/crm/customer/custm/create',
+                                    dataType: 'json',
+                                    data: params,
+                                    success: function (data) {
+                                        $('#modalCustomerAddModal').modal('hide');
+                                        if(typeof(customerListPagination) != 'undefined')
+                                            customerListPagination.first();
+                                        if(typeof(callListPagination) != 'undefined')
+                                            callListPagination.first();
+                                        $('#create')[0].reset();
+                                        $('#customerCreateBtn').show();
+                                        $('#customerPotentialBtn').hide();
+                                        $('#customerCreateChangeBelongUserRow').hide();
+                                        console.log(data);
+                                        toast(data.msg);
+                                    }
+                                });
+                            });
+                        }
+                    }
+                    toast(data.msg);
+                }
+            });
+        }
+        return false;
+    });
+    jQuery.validator.addMethod("mobile", function(value, element) {
+        if(value) {
+            value = value.trim();
+        }
+        var length = value.length;
+        var mobile = /^0?(1[34578][0-9])[0-9]{8}$/ ;
+        return this.optional(element) || mobile.test(value);
+        }, "请输入正确的手机号码");
+
+    jQuery.validator.addMethod("isRight", function(value, element) {
+        var length = value.length;
+        var isRight = /^([a-zA-Z0-9]+)$/;
+        return this.optional(element) || isRight.test(value);
+        }, "请输入正确的证件号码");
+

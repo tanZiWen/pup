@@ -1,0 +1,98 @@
+//
+   Created by tanyuan on 1/28/16.
+
+.sidebar.sidebar-left.mm-box
+    #muAdd.sidemenu
+        i.icon.icon-user-1
+        | 添加
+
+.row.m-t-20
+    form#formSearch
+        .col-sm-8.col-sm-offset-2.mm-box.form-horizontal.filter-pan
+            .form-group.m-t-5
+                label.col-md-2.text-right 类型
+                .col-md-8.text-left
+                    #officeType.labelRadio
+                        input(type='radio', name='type', id='type', value='news', data-name='全部', checked='checked')
+                        each office in officeTypes
+                            input(type='radio', name='type', id='type', value='#{office.key}', data-name='#{office.name}')
+
+.row.m-t-25
+    .col-sm-8.col-sm-offset-2
+        #joinusDataList.row
+
+#addJoinUs.modal(tabindex='-1', data-width='960px', style='display: none;')
+    form#formAdd(action='/crm/joinus/add')
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            .row
+                .col-md-3
+                    h4.modal-title 添加招聘信息
+        .modal-body
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 办公室
+                .col-md-4.text-left
+                    select(class='selectpicker show-tick form-control', name='officeCode', id='officeCode', data-size='5', data-live-search="true")
+                        each office in officeTypes
+                            option(value='#{office.key}') #{office.name}
+            .row.m-t-20
+                span.col-md-2.text-right.text-muted.small 职位
+                .col-md-4.text-left
+                    input.holo(type='text', name='position', required='required', placeholder='职位名称')
+            .row.m-t-20
+                span.col-md-2.text-right.text-muted.small 优先级
+                .col-md-4.text-left
+                    input.holo(type='text', name='priority', required='required', placeholder='显示职位时的排列顺序,1为最高优先级')
+            .row.m-t-20
+                span.col-md-2.text-right.text-muted.small 岗位职责
+                .col-md-8.text-left
+                    textarea.holo(type='text', name='responsibilities', style='width: 100%;', rows=8, cols=20)
+            .row.m-t-20
+                span.col-md-2.text-right.text-muted.small 任职资格
+                .col-md-8.text-left
+                    textarea.holo(type='text', name='qualification', style='width: 100%;', rows=8, cols=20)
+        .modal-footer
+            .text-center
+                button.cancel.btn.btn-lg.btn-default(data-dismiss='modal') 取消
+                button#ok.btn.btn-lg.btn-success(type='submit') 确定
+
+
+script.
+    var joinusPagination = new pup.Pagination({templateKey: "joinus.dataList"});
+    joinusPagination.sort('ctime', -1)
+    joinusPagination.condition('status', false);
+    joinusPagination.first();
+
+    $('.selectpicker').selectpicker({noneSelectedText: '请选择'});
+    var officeTypeRadio = new pup.widgets.labelRadio('#officeType').radio(function () {
+    });
+    var positions = {};
+    $('#muAdd').click(function (ev) {
+        ev.preventDefault();
+        positions = [];
+        $('#addJoinUs .content').html('');
+        $('#addJoinUs').modal('show');
+    });
+
+    $('#formAdd').submit(function (ev) {
+        ev.preventDefault();
+        var url = $(this).attr('action');
+        var serializeForm = $(this).serializeObject();
+        $.ajax({
+            type: "POST",
+            url: url,
+            dataType: 'json',
+            data: serializeForm,
+            success: function (data) {
+                if (data.msg.type == 'success') {
+                    $('#formAdd')[0].reset();
+                    $('#addJoinUs').modal('hide');
+                    $('.selectpicker').selectpicker('refresh');
+                    $('#addJoinUs .content').html('');
+                    joinusPagination.first();
+                }
+                toast(data.msg)
+            }
+        });
+        return false;
+    });

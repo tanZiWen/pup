@@ -1,0 +1,18 @@
+
+table.table.mm-box
+    tr.th-inverse
+        th 创建时间
+        th 类型
+        th 条数
+    tbody
+        each batchRecord in data
+            tr
+                td #{format(batchRecord.ctime)}
+                td #{batchRecord.typeName}
+                td #{batchRecord.count}
+
+#batchRecordPageBar
+
+script.
+
+    batchRecordPagination.bar('#batchRecordPageBar');

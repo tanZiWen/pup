@@ -1,0 +1,23 @@
+//
+   Created by tanyuan on 9/2/14.
+
+//
+   Created by tanyuan on 8/21/14.
+.modal-header
+    button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+    .row
+        .col-md-3
+            h4.modal-title 录音
+    .modal-body
+        if callCenter.valid
+            .row
+                .col-md-9.text-right
+                    audio(controls)
+                        source(src='http://' + callCenter.recordingAddress + '/%7B' + ucid + '%7D.mp4', type='audio/mp4')
+                        | Your browser does not support the audio element.
+                .col-md-3.text-left
+                    a.pointer-cursor(href='http://' + callCenter.recordingAddress + '/%7B' + ucid + '%7D.MP4')
+                        span.glyphicon.glyphicon-download-alt
+    .modal-footer
+        .text-center
+            button#cancel.btn.btn-lg.btn-default(style='margin-right: 40px;', data-dismiss='modal', type='button') 关闭

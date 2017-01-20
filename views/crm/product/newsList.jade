@@ -1,0 +1,96 @@
+//
+   Created by tanyuan on 10/29/15.
+
+.sidebar.sidebar-left.mm-box
+    #tagsCreate.sidemenu
+        i.icon.icon-plus-6
+        | 标签添加
+    .divider.divider-default
+    #imageUpload.sidemenu
+        i.icon.icon-plus-6
+        | 图片上传
+    .divider.divider-default
+    #newsCreate.sidemenu
+        i.icon.icon-plus-6
+        | 新闻添加
+.mm-box.col-md-8.col-md-offset-2.form-horizontal.m-b-20
+    .row.form-group.m-t-20
+        .col-md-2.text-right.text-muted 标题
+        .col-md-4.text-left
+            input.holo(type='text', id='title', name='title')
+        .col-md-2.text-right.text-muted 标签
+        .col-md-4.text-left
+            input.holo(type='text', id='tag', name='tag')
+    .row.form-group.m-t-20
+        .divider.divider-default
+    .row.form-group.m-t-20
+        .col-md-12.text-center
+            button.btn.btn-primary(onclick='search()')
+                i.icon.icon-filter-1
+                | 过滤
+
+#addTag.modal(tabindex='-1', data-width='760', style='display: none;')
+#uploadImage.modal(tabindex='-1', data-width='960', style='display: none;')
+#showTags.modal(tabindex='-1', data-width='760', style='display: none;')
+#addNews.modal(tabindex='-1', data-width='960', style='display: none;')
+.row.m-t-25
+    .col-sm-8.col-sm-offset-2
+        #newsListData.row
+
+script.
+    var newsDataListPagination = new pup.Pagination({templateKey: "product.newsDataList"});
+    newsDataListPagination.first();
+
+    function search() {
+        var title = $('#title').val();
+        var tag = $('#tag').val();
+        newsDataListPagination.clear();
+        if(title != '') {
+            newsDataListPagination.condition('title', title);
+        }
+        if(tag != '') {
+            newsDataListPagination.condition('tag', tag);
+        }
+        newsDataListPagination.first();
+    }
+
+    $('#newsCreate').click(function(ev) {
+        ev.preventDefault();
+        getTags();
+    });
+
+    $('#imageUpload').click(function(ev) {
+        ev.preventDefault();
+        showUpdateImage();
+    });
+
+    $('#tagsCreate').click(function(ev) {
+        ev.preventDefault();
+        showAddTag();
+    });
+
+    function getTags() {
+        pup.template.renderTemplateByKey('news.getTag', {}, {
+            afterRender: function () {
+                $('#showTags').modal('show');
+            }
+        });
+    };
+
+    function showUpdateImage() {
+        pup.template.renderTemplateByKey('image.showUpload', {}, {
+            afterRender: function () {
+                $('#uploadImage').modal('show');
+            }
+        });
+    };
+
+    function showAddTag() {
+        pup.template.renderTemplateByKey('tag.showAdd', {}, {
+            afterRender: function () {
+                $('#addTag').modal('show');
+            }
+        });
+    };
+    var um;
+

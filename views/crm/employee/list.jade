@@ -1,0 +1,339 @@
+.sidebar.sidebar-left.mm-box
+    #muJoin.sidemenu
+        i.icon.icon-user-1
+        | 入职
+.row.m-t-20
+    form#formSearch
+        .col-sm-8.col-sm-offset-2.mm-box.form-horizontal.filter-pan
+            .form-group(id='requireName', name='requireName')
+                label.control-label.col-md-2.text-right 姓名
+                .col-md-8
+                    input.holo(type='text', class='required', id='name', name='name', style='display: inline-block;margin-right:10px;width: 300px;')
+                    button.btn.btn-primary.text-left#ok(style='width:120px',pxdata-toggle="modal", data-target="#detail", type='button')
+                        i.icon-search-8(style='margin-right: 10px;')
+                        span 快速查找
+            .form-group.m-t-5
+                label.col-md-2.text-right 分公司
+                .col-md-8.text-left
+                    #selectOrg.labelRadio
+                        each area in rootOrg
+                            input(type='radio', name='area', id='area', value='#{area.code}', data-name='#{area.name}')
+
+#detail.modal(tabindex='-1', data-width='760', style='display: none;')
+    form#formModify(action='/crm/employee/modify')
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            .row
+                .col-md-3
+                    h4.modal-title  修改员工信息
+        .modal-body
+            .row.text-center
+                span#userInfo.col-md-12.text-danger
+            .row(style='margin-top:30px')
+                .col-md-2.text-right.text-muted.small 姓名：
+                .col-md-3
+                    input.holo(type='text', style='margin-top:-20px;width:170px', id='name', name='name', class='required')
+                .col-md-2.text-right.text-muted.small 工号：
+                .col-md-3
+                    input.holo(type='text', style='margin-top:-20px;width:170px', id='workno', name='workno', class='required')
+
+            .row(style='margin-top:30px')
+                .col-md-2.text-right.text-muted.small 性别：
+                .col-md-3.text-left
+                    .btn-group(data-toggle='buttons-radio', id='sex', name='sex')
+                        each sex, i in sexList
+                            if i == 0
+                                button.btn-sm.btn.btn-light-info.active(value='#{sex.key}') #{sex.name}
+                            else
+                                button.btn-sm.btn.btn-light-info(value='#{sex.key}') #{sex.name}
+                .col-md-2.text-right.text-muted.small 状态：
+                .col-md-3
+                    .btn-group(data-toggle='buttons-radio', id='status', name='status', class='required')
+                        each status, i in statusList
+                            if i == 0
+                                button.btn-sm.btn.btn-light-info.active(value='#{status.key}') #{status.name}
+                            else
+                                button.btn-sm.btn.btn-light-info(value='#{status.key}') #{status.name}
+
+            .row(style='margin-top:30px')
+                .col-md-2.text-right.text-muted.small 手机号：
+                .col-md-3
+                    input.holo(type='text', style='margin-top:-20px;width:170px', id='telNo', name='telNo', class='mobile')
+                .col-md-2.text-right.text-muted.small Email：
+                .col-md-3
+                    input.holo(type='text', style='margin-top:-20px;width:170px', id='email', name='email', class='email')
+
+            .row(style='margin-top:30px')
+                .col-md-2.text-right.text-muted.small 分公司：
+                .col-md-10.text-left
+                    .btn-group(data-toggle='buttons-radio', id='area', name='area')
+                        each area, i in rootOrg
+                            if i == 0
+                                button.btn.btn-sm.btn-light-info.active(value='#{area.code}', type='button')  #{area.name}
+                            else
+                                button.btn.btn-sm.btn-light-info(value='#{area.code}', type='button')  #{area.name}
+
+            .row(style='margin-top:30px')
+                .col-md-2.text-right.text-muted.small 部门：
+                .col-md-3
+                    select(class='selectpicker show-tick',data-size='6', style='width:200px', data-width='100%', id='orgCode', name='orgCode' required)
+                        each orgCode in departments
+                            option(value='#{orgCode.code}') #{orgCode.name}
+
+            .row(style='margin-top:5px;')
+                .col-md-10.col-md-offset-1
+                    input.holo(type='text', style='width: 100%;', placeholder='备注', id='comment', name='comment')
+                    input.holo(type='hidden', id='_id', name='_id')
+                    input.holo(type='hidden', id='cuserid', name='cuserid')
+                    input.holo(type='hidden', id='cusername', name='cusername')
+                    input.holo(type='hidden', id='crealName', name='crealName')
+                    input.holo(type='hidden', id='ctime', name='ctime')
+        .modal-footer
+            .text-center
+                button.cancel.btn.btn-lg.btn-default(style='margin-right: 40px;', data-dismiss='modal') 取消
+                button#ok.btn.btn-lg.btn-success(type='submit') 确定
+
+#join.modal(tabindex='-1', data-width='760', style='display: none;')
+    form#formAdd(action='/crm/employee/add')
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            .row
+                .col-md-3
+                    h4.modal-title  添加员工信息
+        .modal-body
+            .row
+                .alert.alert-success(style='display: none;')
+            .row
+                .col-md-2.text-right.text-muted.small 姓名：
+                .col-md-3
+                    input.holo(type='text', style='margin-top:-20px;width:170px', id='name', name='name', class='required')
+                .col-md-2.text-right.text-muted.small 工号：
+                .col-md-3
+                    input.holo(type='text', style='margin-top:-20px;width:170px', id='workno', name='workno', class='required')
+
+            .row(style='margin-top:30px')
+                .col-md-2.text-right.text-muted.small 性别：
+                .col-md-3.text-left
+                    .btn-group(data-toggle='buttons-radio', id='sex', name='sex')
+                        each sex, i in sexList
+                            if i == 0
+                                button.btn-sm.btn.btn-light-info.active(value='#{sex.key}') #{sex.name}
+                            else
+                                button.btn-sm.btn.btn-light-info(value='#{sex.key}') #{sex.name}
+                .col-md-2.text-right.text-muted.small 状态：
+                .col-md-3
+                    .btn-group(data-toggle='buttons-radio', id='status', name='status', class='required')
+                        each status, i in statusList
+                            if i == 0
+                                button.btn-sm.btn.btn-light-info.active(value='#{status.key}') #{status.name}
+                            else
+                                button.btn-sm.btn.btn-light-info(value='#{status.key}') #{status.name}
+
+            .row(style='margin-top:30px')
+                .col-md-2.text-right.text-muted.small 手机号：
+                .col-md-3
+                    input.holo(type='text', style='margin-top:-20px;width:170px', id='telNo', name='telNo', class='mobile')
+                .col-md-2.text-right.text-muted.small Email：
+                .col-md-3
+                    input.holo(type='text', style='margin-top:-20px;width:170px', id='email', name='email', class='email')
+
+            .row(style='margin-top:30px')
+                .col-md-2.text-right.text-muted.small 分公司：
+                .col-md-10.text-left
+                    .btn-group(data-toggle='buttons-radio', id='area', name='area')
+                        each area, i in rootOrg
+                            if i == 0
+                               button.btn.btn-sm.btn-light-info.active(value='#{area.code}', type='button')  #{area.name}
+                            else
+                               button.btn.btn-sm.btn-light-info(value='#{area.code}', type='button')  #{area.name}
+
+            .row(style='margin-top:30px')
+                .col-md-2.text-right.text-muted.small 部门：
+                .col-md-3
+                    select(class='selectpicker show-tick', style='width:200px',data-size=6, data-width='100%', id='orgCode', name='orgCode')
+                        each orgCode in departments
+                            option(value='#{orgCode.code}') #{orgCode.name}
+
+            .row(style='margin-top:5px;')
+                .col-md-10.col-md-offset-1
+                    input.holo(type='text', style='width: 100%;', placeholder='备注', id='comment', name='comment')
+        .modal-footer
+            .text-center
+                button#cancel.cancel.btn.btn-lg.btn-default(style='margin-right: 40px;', type='button') 取消
+                button#submit.btn.btn-lg.btn-success(type='submit') 确定
+.row.m-t-25
+    .col-sm-8.col-sm-offset-2 
+        #employeeListData.row
+
+script.
+    //load table list
+    //ajaxPost('/crm/employee/list', backQuery);
+
+    var employeePagination = new pup.Pagination({
+        //pup template key, required
+        templateKey : "employee.dataList",
+        // name "pagination" is default, not required
+        paginationParamName : "pagination"
+    });
+    //跳转到第一页
+    employeePagination
+        //.condition('sex', 'male')
+        //or
+        //.setCondition({sex : 'male'})
+        //.sort('workno', 1)//1|-1|asc|desc
+        //or
+        //.setSort({workno : 1})
+        //.setWhere('this.ctime > new ISODate("2014-05-21")')
+        .first();
+
+    $('#mu-apps').click(function() {
+        $('#apps').show();
+        $('#message').hide();
+    });
+    $('#mu-msg').click(function() {
+        $('#message').show();
+        $('#apps').hide();
+    });
+    $('.app-box').click(function() {
+        var path = $(this).data('href');
+        window.open(path);
+    });
+    $('.selectpicker').selectpicker({noneSelectedText:'请选择'});
+    $('#muJoin').click(function() {
+        $('#join').modal('show');
+        $("#join").on("scroll", function() { $.validator.reposition(); });
+        $('#join').on('hide.bs.modal', function (e) {
+           $('.popover').each( function() {
+              $(this).hide();
+           });
+        });
+        $(window).resize(function() {
+           $.validator.reposition();
+        });
+    });
+    $('#cancel, .close').click(function() {
+        $('#join').modal('hide');
+        $('.popover').each( function() {
+            $(this).hide();
+        });
+    });
+
+    var orgRadio = new pup.widgets.labelRadio('#selectOrg').radio(function() {
+        searchEmployee();
+    })
+    function searchEmployee() {
+        var name = $('#formSearch #name').val();
+        var area = orgRadio.val();
+        employeePagination.clear();
+        if(name) {
+            employeePagination.condition('name' , name);
+        }
+        if(area) {
+            employeePagination.condition('area' , area);
+        }
+        employeePagination.first();
+    }
+    $('#formSearch #ok').click(function() {
+        searchEmployee();
+    })
+    $('#formAdd').validate_popover({onsubmit: false, popoverPosition: 'top'});
+    $('#formModify').validate_popover({onsubmit: false, popoverPosition: 'top'});
+    $('#formAdd #area').find('button').click(function() {
+        changeSelect('formAdd',$(this).val());
+    });
+    $('#formModify #area').find('button').click(function() {
+        changeSelect('formModify',$(this).val());
+    });
+    function changeSelect(id, val){
+        var code ='code='+val;
+        var url = '/crm/employee/code';
+        $.ajax({
+            type: 'POST',
+            url: url,
+            dataType: 'json',
+            data: code,
+            success: function (data) {
+                appendOption(id, data);
+            }
+        });
+    };
+    function appendOption(id, data){
+        $('#'+id+' #orgCode option').remove();
+        $.each(data, function(key, value) {
+            $('#'+id+' #orgCode').append('<option value='+value.code+'>'+value.name+'</option>');
+        })
+        $('.selectpicker').selectpicker('refresh');
+    }
+    $('#formModify').submit(function(ev) {
+        ev.preventDefault();
+        formSubmit('formModify', 'detail');
+    });
+    $('#formAdd').submit(function(ev) {
+        ev.preventDefault();
+        formSubmit('formAdd', 'join');
+    });
+    function formSubmit(id, show){
+        if(id == 'formModify') {
+            $('.modal').oLoader({
+                wholeWindow: true,
+                effect:'slide'
+            });
+            $('#'+show).modal('hide');
+        }
+        var sex = $('#'+id+' #sex > .btn.active').val();
+        var status = $('#'+id+' #status > .btn.active').val();
+        var area = $('#'+id+' #area > .btn.active').val();
+        var serializeForm = $('#'+id).serialize();
+        var allForm = 'sex='+sex+'&area='+area+'&status='+status+'&'+serializeForm;
+
+        if($('#'+id).validate().form()) {
+            var url = $('#'+id).attr('action');
+            $.ajax({
+                type: 'POST',
+                url: url,
+                dataType: 'json',
+                data: allForm,
+                success: function (data) {
+                    if(data.msg.type == 'success') {
+                        $('#'+id)[0].reset();
+                        $('#'+id+' #area > .btn').first().button('toggle');
+                        changeSelect(id, $('#'+id+' #area > .btn.active').val());
+
+                        if(id == 'formAdd') {
+                            employeePagination.last();
+                            $('#'+show).modal('hide');
+                        }
+                        if(id == 'formModify') {
+                            employeePagination.reload();
+                        }
+                    }else {
+                        if(data.msg.type == 'info') {
+                            $('#'+id+' #userInfo').show();
+                            $('#'+id+' #userInfo').text(data.msg.message);
+                        }
+                        if(id == 'formModify') {
+                            $('#'+show).modal('show');
+                        }
+                    }
+                    if(id == 'formModify') {
+                        $('.modal').oLoader('hide');
+                    }
+                    toast(data.msg);
+                }
+            });
+        }
+        return false;
+    }
+    // 手机号码验证
+    jQuery.validator.addMethod("mobile", function(value, element) {
+        var length = value.length;
+        var mobile = /^0?(13[0-9]|15[012356789]|18[02356789]|14[57])[0-9]{8}$/ ;
+        return this.optional(element) || mobile.test(value);
+        }, "请正确填写您的手机号码");
+    //// 联系电话(手机/电话皆可)验证
+    //jQuery.validator.addMethod("isPhone", function(value,element) {
+    //var length = value.length;
+    //var mobile = /^(((13[0-9]{1})|(15[0-9]{1}))+\d{8})$/;
+    //var tel = /^\d{3,4}-?\d{7,9}$/;
+    //return this.optional(element) || (tel.test(value) || mobile.test(value));
+    //                        }, "请输入正确格式的电话号码");

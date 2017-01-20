@@ -1,0 +1,50 @@
+//
+   Created by tanyuan on 6/27/14.
+.row.m-t-20
+    .col-sm-8.col-sm-offset-2.mm-box.form-horizontal.filter-pan
+        .modal-header.row
+            h4.pan-title.modal-title(style='display: inline-block;') 统计
+        .row
+            .divider.divider-danger
+        form#dataList(action='/crm/online/dataList', enctype="multipart/form-data")
+            .row.m-t-20
+                .form-group
+                    label.control-label.col-md-2.text-right 操作日期
+                    .col-md-3
+                        input.holo(type='text', class='required', name='operateStart', style='display: inline-block;width: 180px;',  placeholder='开始')
+                    .col-md-3
+                        input.holo(type='text', class='required legalDate', name='operateEnd', style='display: inline-block;width: 180px;', placeholder='截止')
+                    .col-md-2
+                        button.btn.btn-primary.text-left.col-md-offset-0(pxdata-toggle="modal", data-target="#detail", type='submit')
+                            i.icon-chart-bar-2(style='margin-right: 10px;')
+                            span 统计
+.row.m-t-20
+    .col-sm-8.col-sm-offset-2
+        #wechatList.row.m-t-10
+
+
+
+script.
+    $('[name=operateStart]').datetimepicker({format : 'yyyy-mm-dd', autoclose: true, weekStart: 1, todayBtn: true, minView : 'month'});
+    $('[name=operateEnd]').datetimepicker({format : 'yyyy-mm-dd', autoclose: true, weekStart: 1, todayBtn: true, minView : 'month'});
+    var now = new Date();
+    var weekAgo = new Date(now.getTime() - 1000 * 60 * 60 * 24 * 7);
+    $('[name=operateStart]').val(format(weekAgo));
+    $('[name=operateEnd]').val(format(now));
+    pup.template.renderTemplateByKey('online.dataList', {operateStart: format(weekAgo), operateEnd: format(now)});
+    $('#dataList').submit(function(ev) {
+        ev.preventDefault();
+        $(this).validate_popover({popoverPosition : 'top'});
+        var formData = $(this).serializeObject();
+        if($(this).validate().form()){
+            var url = $(this).attr('action');
+            pup.template.renderTemplateByKey('online.dataList', formData);
+        }
+        return false;
+    });
+    jQuery.validator.addMethod("legalDate", function(value, element) {
+        var maxPeriod = $(element).val();
+        var minPeriod = $('[name=operateStart]').val();
+        return this.optional(element) || (maxPeriod >= minPeriod);
+        }, "截止日期应大于起始日期");
+

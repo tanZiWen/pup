@@ -1,0 +1,162 @@
+//
+   Created by tanyuan on 9/2/14.
+.row.m-t-20
+    .col-md-8.col-md-offset-2.mm-box
+        .row.m-t-10
+            .form-group
+                .col-md-2.text-right.text-muted 电话
+                .col-md-3.text-left
+                    input.holo(type='text', name='called', placeholder='客户电话')
+                .col-md-2.text-right.text-muted 分机号
+                .col-md-3.text-left
+                    input.holo(type='text', name='extension', placeholder='员工分机号')
+        .row.m-t-20
+            .col-md-2.text-right.text-muted 时长
+            .col-md-3.text-left
+                input.holo(type='text', name='start', placeholder='开始')
+            .col-md-2
+            .col-md-3.text-left
+                input.holo(type='text', name='end', placeholder='结束')
+        .row.m-t-20
+            .col-md-2.text-right.text-muted 日期区间
+            .col-md-3.text-left
+                input(class='form-control', type='text', name='startTime', placeholder='起始日期')
+            .col-md-2
+            .col-md-3.text-left
+                input(class='form-control', type='text', name='endTime', placeholder='截止日期')
+        .row.m-t-20
+            .divider.divider-default
+        .row.m-t-20
+            .col-md-12.text-center
+                button.btn.btn-primary(onclick='recordList()')
+                    i.icon.icon-filter-1.m-r-5
+                    | 过滤
+        .row.m-t-10
+
+.row.m-t-25
+    .col-md-8.col-md-offset-2
+        #myRecordList.row
+            table.table.mm-box
+                tr.th-inverse
+                    th(style='width:30%')  分机号
+                    th(style='width:30%')  客户电话
+                    th(style='width:10%')  时长(分钟)
+                    th(style='width:20%')  拨打日期
+                tbody
+.row
+    .col-md-8.col-md-offset-2.text-center
+        button.btn.btn-primary(style='display: none; width:60px')#pre
+            i.glyphicon.glyphicon-circle-arrow-left
+        button.btn.btn-primary.m-l-10(style='display: none;width:60px')#next
+            i.glyphicon.glyphicon-circle-arrow-right
+        button.btn.btn-default.m-l-15(style='display: none; width:120px', disabled="disabled")#totalCount
+
+#myRecordModal.modal(tabindex='-1', data-width='500', style='display: none;')
+
+
+script.
+    var username = '#{username}';
+    var now = new Date();
+    var ago = new Date(now.getTime() - 1000*60*60*24*7);
+
+    $('[name=startTime]').val(format(ago));
+    $('[name=endTime]').val(format(now));
+    $('[name=username]').selectpicker();
+
+    $('[name=startTime]').datetimepicker({format : 'yyyy-mm-dd', autoclose: true, weekStart: 1, todayBtn: true, minView : 'month'});
+    $('[name=endTime]').datetimepicker({format : 'yyyy-mm-dd', autoclose: true, weekStart: 1, todayBtn: true, minView : 'month'});
+
+    $('table').on('click', '.cust-record', function() {
+        var ucid = $(this).data('id');
+        pup.template.renderTemplateByKey('customer.myRecordModal', {ucid: ucid}, {
+            afterRender : function() {
+                $('#myRecordModal').modal('show');
+            }
+        });
+    });
+
+    var number = 0;
+    $('#pre').click(function() {
+        number = number - 10;
+        recordDataList()
+    });
+    $('#next').click(function() {
+        number = number + 10;
+        recordDataList()
+    });
+    function recordList() {
+        number = 0;
+        recordDataList();
+    }
+    function recordDataList() {
+        var called = $('[name=called]').val();
+        var extension = $('[name=extension]').val();
+        var start = $('[name=start]').val();
+        var end = $('[name=end]').val();
+        var startTime = $('[name=startTime]').val();
+        var endTime = $('[name=endTime]').val();
+        var fcalled = '';
+        var fextension = '';
+        var fstart = 0;
+        var fend = 0;
+        var fstartTime = '';
+        var fendTime = '';
+        if(called) {
+            fcalled = called;
+        }
+        if(extension) {
+            fextension = extension;
+        }
+        if(start) {
+            fstart = start;
+        }
+        if(end) {
+            fend = end;
+        }
+        if(startTime) {
+            fstartTime = startTime+' 00:00:00';
+        }
+        if(endTime) {
+            fendTime = endTime+' 23:59:59';
+        }
+        $('#myRecordList table tr').not(function(){if ($(this).has('th').length){return true}}).remove();
+        CallCenterUIController.client.searchRecords(number,10,"","",fstartTime,fendTime,"",fcalled,fextension,username,0,0,0,0,0,0, "", fstart,fend,"", "","",function(v) {
+            var data = v.recordItems;
+            if(number == 0 ) {
+                if(v.totalCount >10 ) {
+                    $('#pre').hide();
+                    $('#next').show();
+                }else {
+                    $('#next').hide();
+                    $('#pre').hide();
+                }
+            }else {
+                if(data.length <10) {
+                    $('#next').hide();
+                    $('#pre').show();
+                }else {
+                    if(number+10 >= v.totalCount) {
+                        $('#pre').show();
+                        $('#next').hide();
+                    }else {
+                        $('#pre').show();
+                        $('#next').show();
+                    }
+                }
+            }
+            $('#totalCount').show();
+            $('#totalCount').html('总条数:'+v.totalCount);
+            if(data.length) {
+                for(var i=0; i <data.length; i++) {
+                    $('#myRecordList table tbody').eq(0).append('<tr class="cust-record", data-id='+data[i].ucid+'>'
+                    +'<td>'+data[i].extension+'</td>'
+                    +'<td>'+data[i].called+'</td>'
+                    +'<td>'+(data[i].seconds/60).toFixed(2)+'</td>'
+                        +'<td>'+data[i].systemTime+'</td>'
+                        +'</tr>');
+                }
+            }
+            });
+    }
+
+

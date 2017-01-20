@@ -1,0 +1,74 @@
+//
+   Created by tanyuan on 11/14/14.
+
+.modal-header
+    button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+    .row
+        .col-md-4
+            h4.modal-title(style='display: inline-block;') 修改顾问
+.modal-body
+    form#editConsultantForm
+        .row
+            .col-md-2.text-right 原顾问
+            .col-md-3.text-left
+                if consultant
+                    input.holo(name='oldConsultant', type='text', value='#{consultant.username}(#{consultant.realName})', data-id='#{consultant._id}', readonly='readonly')
+                else
+                    input.holo(name='oldConsultant', type='text', value='无', data-id='', readonly='readonly')
+            .col-md-2.text-center
+                .glyphicon.glyphicon-arrow-right
+            .col-md-2.text-right 更新顾问
+            .col-md-3.text-left
+                select(class='selectpicker show-tick form-control', name='newConsultant', data-live-search="true")
+                    option(value='') 请选择
+                    each consultant in consultantList
+                        option(value='#{consultant._id}') #{consultant.username}(#{consultant.realName})
+        .row.m-t-20
+            .col-md-2.text-right 修改原因
+            .col-md-10.text-left
+                textarea.holo(name='consultantReason', type='text', style='width: 100%;', placeholder='备注', class='required')
+.modal-footer
+    .text-center
+        button.cancel.btn.btn-lg.btn-default(data-dismiss='modal', style='margin-right: 40px;') 取消
+        button.btn.btn-lg.btn-success(onclick='editConsultant(#{customerId})') 确定
+script.
+    $('.selectpicker').selectpicker('refresh');
+    function editConsultant(id) {
+        var oldConsultant = $('[name=oldConsultant]').data('id');
+        var newConsultant = $('[name=newConsultant]').val();
+        var reason = $('[name=consultantReason]').val();
+        $('#editConsultantForm').validate_popover({onsubmit: false, popoverPosition: 'top'});
+        var url = '/crm/customer/custAdvanced/editConsultant/'+id;
+        $('body').oLoader({
+            wholeWindow: true,
+            effect:'slide'
+        });
+        if($('#editConsultantForm').validate().form()) {
+            $('#editConsultant').modal('hide');
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                url: url,
+                data: {oldConsultant: oldConsultant, newConsultant: newConsultant, reason: reason},
+                success: function(data) {
+                    if(data.msg.type == 'success') {
+                        customerAdvancedPagination.reload();
+                    }else {
+                        $('#editConsultant').modal('show');
+                    }
+                    $('body').oLoader('hide');
+                    toast(data.msg);
+                }
+            });
+        }
+    }
+    //$('#editConsultantForm').keypress(function(e) {
+    //    $('[name=consultantReason]').focus();
+    //    var code = (e.keyCode ? e.keyCode : e.which);
+    //    if(code == 13) {
+    //        $(this).off('keypress');
+    //        editConsultant(#{customerId});
+    //        e.preventDefault();
+    //        return false;
+    //    }
+    //});

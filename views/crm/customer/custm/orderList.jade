@@ -1,0 +1,22 @@
+//
+   Created by wangnan on 14-6-16.
+
+.col-md-12.col-sm-12.col-lg-12
+    table.table.mm-box.col-md-10
+        tr.th-inverse
+            th.col-sm-2  日期
+            th.col-sm-4  产品
+            th.col-sm-2  金额(万元)
+            th.col-sm-3  Sales
+            th.col-sm-1  状态
+        each order in orderList
+            tr.cust-record
+                td  #{order.ctimeStr}
+                td  #{order.product.name}
+                td  #{order.amount}
+                td  #{order.crealName}
+                td
+                    if order.statusName
+                        | #{order.statusName}
+    #customerOrderListPageBar
+script.

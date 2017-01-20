@@ -1,0 +1,26 @@
+//
+   Created by tanyuan on 12/23/15.
+
+each image, i in imageInfos
+    .row
+        each img, j in image
+            .col-md-2.text-center
+                img.img.pointer-cursor(data-id='#{img.originImageName}')(src='#{img.thumbImageName}' alt="...")
+                p.small.text-muted #{img.name}
+
+script.
+    $('.img').click(function (ev) {
+        ev.preventDefault();
+        imageName = $(this).data('id');
+        $('img').removeClass('selected');
+        $('img').removeAttr("style");
+        if ($(this).hasClass('selected')) {
+            $(this).removeClass('selected');
+            $(this).removeAttr("style");
+        } else {
+            $(this).addClass('selected');
+            $(this).css({
+                'border': '10px solid #FF9600'
+            });
+        }
+    });

@@ -1,0 +1,45 @@
+each product in data
+    .mm-box.col-md-3.f-product(style='cursor:pointer;width: 238px; height: 250px; margin: 5px; position: relative;', data-id='#{product._id}')
+        h5 #{product.name}
+        .row
+            .col-md-12
+                i.icon-user-8(style='margin-right: 5px;')
+                span #{product.issueOrg}
+        .row
+            .col-md-12
+                i.icon-clock(style='margin-right: 5px;')
+                span #{product.minPeriod}-#{product.maxPeriod}#{product.periodUnit}
+        .row
+            .col-md-12
+                i.icon-yen(style='margin-right: 5px;')
+                span #{product.minAmount} / 总#{product.totalAmount}万
+        .row
+            .col-md-12
+                .progress(style='height: 10px')
+                    .progress-bar.progress-bar-success(role='progressbar', aria-valuenow='70', aria-valuemin='0', aria-valuemax='100', style='width: 70%;')
+                        span.sr-only 70% Complete (success)
+
+        .row
+            .divider(style='background: #a52410;height: 1px;')
+        p.small.text-muted(style='margin-top: 5px') #{product.comment}
+        .box-mask.f-action
+            .row.text-center(style='margin: 50px auto;position:relative;')
+                button.btn.btn-info.btn-sm
+                    i.icon-pencil-1
+                    | 编辑
+                button.btn.btn-danger.btn-sm.m-l-5
+                    i.icon-cancel
+                    | 删除
+script.
+    productPagination.bar('#productPageBar');
+
+    $('.f-product').click(function() {
+        var id = $(this).data('id');
+        pup.widgets.layerManager.open({layerKey : 'prodDetal', template : {key : 'product.detail', dataParam : {id : id}},
+            beforeClose : function() {
+                onResume();
+                um.destroy();
+                ums.destroy();
+            }});
+        //pup.template.renderTemplateByKey('product.detail', {id : id});
+    });

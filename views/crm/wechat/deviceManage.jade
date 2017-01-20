@@ -1,0 +1,62 @@
+//
+   Created by tanyuan on 7/2/15.
+.sidebar.sidebar-left.mm-box
+    #muAdd.sidemenu
+        i.icon.icon-plus-6
+        | 添加
+#addDevice.modal(style='display: none;', data-width='760px')
+    form#addDeviceForm(action='/crm/wechat/device/add')
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            .row
+                .col-md-3
+                    h4.modal-title 设备添加
+        .modal-body
+            .row
+                .col-md-2.text-right.text-muted 设备编号
+                .col-md-4.text-left
+                    input.holo(name='deviceName', type='text', value='', placeholder='设备编号', class='required')
+
+        .modal-footer
+            .row.text-center
+                button.btn.btn-lg.btn-default(data-dismiss='modal') 取消
+                button.btn.btn-lg.btn-success(type='submit') 确定
+.row.m-t-25
+    .col-sm-8.col-sm-offset-2
+        #deviceData.row
+
+script.
+    $('#muAdd').click(function(ev) {
+        ev.preventDefault();
+        $('#addDevice').modal('show');
+    });
+
+    $('#addDeviceForm').submit(function(ev) {
+        ev.preventDefault();
+        $(this).validate_popover({popoverPosition: 'top'});
+        var url = $(this).attr('action');
+        var data = {};
+        var deviceName = $('[name=deviceName]').val();
+        data.name = deviceName;
+        if ($(this).validate().form()) {
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                data: data,
+                url: url,
+                success: function (data) {
+                    if(data.msg.type == 'success') {
+                        $('#addDevice').modal('hide');
+                        $('#addDeviceForm')[0].reset();
+                        devicePagination.sort('ctime', -1).first();
+                    }
+                    toast(data.msg);
+                }
+            });
+        }
+        return false;
+    });
+
+    var devicePagination = new pup.Pagination({templateKey: "wechatDevice.dataList"});
+    //跳转到第一页
+    devicePagination.sort('ctime', -1).first();

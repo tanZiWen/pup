@@ -1,0 +1,649 @@
+//
+   Created by wangnan on 14-6-11.
+
+.row.m-b-20
+    .list-container
+        each task in taskList
+            if task.type == 'customerActionPlan'
+                .mm-box.t-cust-card(style='cursor:pointer;width: 236px; height: 150px;margin: 5px;position: relative;', data-id='#{task._id}')
+                    .row(style='height: 100%')
+                        .row
+                            .col-md-12
+                                .col-md-4.text-right(style='padding-right: 5px;')
+                                    each taskType in taskTypeList
+                                        if taskType.key == task.type
+                                            span.text-info #{taskType.name}
+                                .col-md-8.text-left(style='padding-right: 5px;')
+                                    each planType in planTypeList
+                                        if planType.key == task.refObj.type
+                                            span.text-info #{planType.name}
+                        .row
+                            .col-md-12
+                                .col-md-4.text-right(style='padding-right: 5px;')
+                                    span.icon-user-8.text-muted.small
+                                .col-md-8.text-left(style='padding-left: 5px;')
+                                    span.text-muted.small
+                                        if task.refObj.customer
+                                            if task.refObj.customer.name
+                                                | #{task.refObj.customer.name}##{task.refObj.customer.id}
+                                            else
+                                                | ##{task.refObj.customer.id}
+                        .row
+                            .col-md-12
+                                .col-md-4.text-right(style='padding-right: 5px;')
+                                    i.text-muted.small 预计时间
+                                .col-md-8.text-left(style='padding-left: 5px;')
+                                    if task.refObj.actionDate
+                                        span.text-muted.small #{task.refObj.actionDateStr}
+                        .row
+                            .col-md-12
+                                .col-md-4.text-right(style='padding-right: 5px;')
+                                    i.text-muted.small 任务状态
+                                .col-md-8.text-left(style='padding-left: 5px;')
+                                    if task.done
+                                        span.text-muted.small 已完成
+                                    else
+                                        span.text-danger.small 未完成
+                        .col-md-12
+                            .divider.divider-danger
+                        .col-md-12
+                            p.small.text-muted(style='margin-top: 5px; padding: 0px 6px;')
+                                if task.refObj.comment
+                                    | #{task.refObj.comment}
+                                else
+                                    | 没留下任何备注信息
+                    .box-mask.bg-grass-static.f-action
+                        .col-sm-12(style='height: 100px;')
+                            .row.m-t-10
+                                .col-sm-12
+                                    p.text-left.text-white 状态
+                                        if task.done
+                                            |  已完成
+                                        else
+                                            |  未完成
+                            .row
+                                .col-sm-12
+                                    p.text-left.text-white 创建时间
+                                        if task.ctimeStr
+                                            |  #{task.ctimeStr}
+                            .row
+                                .col-sm-12.text-left.text-white
+                                    p.text-left.text-white 完成时间
+                                        if task.doneTimeStr
+                                            |  #{task.doneTimeStr}
+                        if !task.done
+                            .divider.divider-white
+                            .row.text-center(style='height: 46px;position:relative;')
+                                .col-sm-12(style='height: 100%;')
+                                    if task.refObj.type == 'call'
+                                        .action.bg-grass.col-sm-12.text-center(onclick='taskListCall(#{task.refId}, #{task.refObj.customer.id});')
+                                            i.icon-phone-3
+                                            span.m-l-5 拨打
+                                    else if task.refObj.type == 'meet'
+                                        .action.bg-grass.col-sm-12.text-center(onclick='taskListMeetOrEmail(#{task.refId});')
+                                            span.m-l-5 标记完成
+                                    else if task.refObj.type == 'email'
+                                        .action.bg-grass.col-sm-12.text-center(onclick='taskListMeetOrEmail(#{task.refId});')
+                                            span.m-l-5 发邮件
+            if task.type == 'callListRequest'
+                .mm-box.t-cust-card(style='cursor:pointer;width: 236px; height: 150px;margin: 5px;position: relative;', data-id='#{task._id}')
+                    .row(style='height: 100%')
+                        .row
+                            .col-md-12
+                                .col-md-4.text-right(style='padding-right: 5px;')
+                                    each taskType in taskTypeList
+                                        if taskType.key == task.type
+                                            i.text-muted.small #{taskType.name}
+                        .row
+                            .col-md-12
+                                .col-md-4.text-right(style='padding-right: 5px;')
+                                    i.icon-user-8.text-muted.small
+                                .col-md-8.text-left(style='padding-left: 5px;')
+                                    span.text-muted.small
+                                        if task.refObj.requestUser
+                                            if task.refObj.requestUser.realName
+                                                | #{task.refObj.requestUser.realName}##{task.refObj.requestUser.id}
+                                            else
+                                                | ##{task.refObj.requestUser.id}
+                        .row
+                            .col-md-12
+                                .col-md-4.text-right(style='padding-right: 5px;')
+                                    i.text-muted.small 申领数量
+                                .col-md-8.text-left(style='padding-left: 5px;')
+                                    if task.refObj.count
+                                        span.text-muted.small #{task.refObj.count}
+                        .row
+                            .col-md-12
+                                .col-md-4.text-right(style='padding-right: 5px;')
+                                    i.text-muted.small 申领时间
+                                .col-md-8.text-left(style='padding-left: 5px;')
+                                    if task.refObj.ctimeStr
+                                        span.text-muted.small #{task.refObj.ctimeStr}
+                        .row
+                            .col-md-12
+                                .col-md-4.text-right(style='padding-right: 5px;')
+                                    i.text-muted.small 任务状态
+                                .col-md-8.text-left(style='padding-left: 5px;')
+                                    if task.done
+                                        if task.refObj.status
+                                            if task.refObj.status == 'canceled'
+                                                span.text-danger.small 已取消
+                                            else
+                                                span.text-danger.small 已分配
+                                        else
+                                            span.text-muted.small 已完成
+                                    else
+                                        span.text-muted.small 未完成
+                        .col-md-12
+                            .divider.divider-danger
+                        .col-md-12
+                            p.small.text-muted(style='margin-top: 5px; padding: 0px 6px;')
+                                if task.refObj.comment
+                                    | #{task.refObj.comment}
+                                else
+                                    | 没留下任何备注信息
+                    .box-mask.bg-grass-static.f-action
+                        .col-sm-12(style='height: 100px;')
+                            .row.m-t-10
+                                .col-sm-12
+                                    p.text-left.text-white 状态
+                                        if task.done
+                                            |  已完成
+                                        else
+                                            |  未完成
+                            .row
+                                .col-sm-12
+                                    p.text-left.text-white 创建时间
+                                        if task.ctimeStr
+                                            |  #{task.ctimeStr}
+                            .row
+                                .col-sm-12.text-left.text-white
+                                    p.text-left.text-white 完成时间
+                                        if task.doneTimeStr
+                                            |  #{task.doneTimeStr}
+                        if !task.done
+                            .divider.divider-white
+                            .row.text-center(style='height: 46px;position:relative;')
+                                .col-sm-12(style='height: 100%;')
+                                    .action.bg-grass.col-sm-6.text-center(onclick='taskListCallListRequest(#{task.refId});')
+                                        span 分配
+                                    .action.bg-grass.col-sm-6.text-center(onclick='taskRejectCallListRequest(#{task.refId});')
+                                        span 驳回
+            if task.type == 'customerAuditRecord'
+                .mm-box.t-cust-card(style='cursor:pointer;width: 236px; height: 150px;margin: 5px;position: relative;', data-id='#{task._id}')
+                    .row(style='height: 100%')
+                        .row
+                            .col-md-12
+                                .col-md-4.text-right(style='padding-right: 5px;')
+                                    each taskType in taskTypeList
+                                        if taskType.key == task.type
+                                            i.text-muted.small #{taskType.name}
+                        .row
+                            .col-md-12
+                                .col-md-4.text-right(style='padding-right: 5px;')
+                                    i.icon-user-8.text-muted.small 客户
+                                .col-md-8.text-left(style='padding-left: 5px;')
+                                    span.text-muted.small
+                                        if task.refObj.customer
+                                            if task.refObj.customer.name
+                                                | #{task.refObj.customer.name}##{task.refObj.customer.id}
+                                            else
+                                                | ##{task.refObj.customer.id}
+                        .row
+                            .col-md-12
+                                .col-md-4.text-right(style='padding-right: 5px;')
+                                    i.icon-user-8.text-muted.small 顾问
+                                .col-md-8.text-left(style='padding-left: 5px;')
+                                    span.text-muted.small
+                                        if task.refObj.callUser
+                                            if task.refObj.callUser.realName
+                                                | #{task.refObj.callUser.realName}##{task.refObj.callUser.id}
+                                            else
+                                                | ##{task.refObj.callUser.id}
+                        .row
+                            .col-md-12
+                                .col-md-4.text-right(style='padding-right: 5px;')
+                                    i.icon-user-8.text-muted.small.text-danger 质检人
+                                .col-md-8.text-left(style='padding-left: 5px;')
+                                    span.text-muted.small.text-danger
+                                        | #{task.auditorName}
+
+                        .row
+                            .col-md-12
+                                .col-md-4.text-right(style='padding-right: 5px;')
+                                    i.text-muted.small 通话时间
+                                .col-md-8.text-left(style='padding-left: 5px;')
+                                    if task.refObj.callTimeStr
+                                        span.text-muted.small #{task.refObj.callTimeStr}
+                        .row
+                            .col-md-12
+                                .col-md-4.text-right(style='padding-right: 5px;')
+                                    i.text-muted.small 任务状态
+                                .col-md-8.text-left(style='padding-left: 5px;')
+                                    if task.done
+                                        span.text-muted.small 已完成
+                                    else
+                                        span.text-danger.small 未完成
+                    .box-mask.bg-grass-static.f-action
+                        .col-sm-12(style='height: 100px;')
+                            .row.m-t-10
+                                .col-sm-12
+                                    p.text-left.text-white 状态
+                                        if task.done
+                                            |  已完成
+                                        else
+                                            |  未完成
+                            .row
+                                .col-sm-12
+                                    p.text-left.text-white 创建时间
+                                        if task.ctimeStr
+                                            |  #{task.ctimeStr}
+                            .row
+                                .col-sm-12.text-left.text-white
+                                    p.text-left.text-white 完成时间
+                                        if task.doneTimeStr
+                                            |  #{task.doneTimeStr}
+                        if !task.done
+                            .divider.divider-white
+                            .row.text-center(style='height: 46px;position:relative;')
+                                .col-sm-12(style='height: 100%;')
+                                    .action.bg-grass.col-sm-12.text-center(onclick='taskListAudit(#{task.refId})')
+                                        span.m-l-5 质检
+            if task.type == 'orderPRDSign'
+                .mm-box.t-cust-card(style='cursor:pointer;width: 236px; height: 150px;margin: 5px;position: relative;', data-id='#{task._id}')
+                    .row(style='height: 100%')
+                        .row
+                            .col-md-12
+                                .col-md-4.text-right(style='padding-right: 5px;')
+                                    each taskType in taskTypeList
+                                        if taskType.key == task.type
+                                            i.text-muted.small #{taskType.name}
+                        .row
+                            .col-md-12
+                                .col-md-4.text-right(style='padding-right: 5px;')
+                                    i.icon-user-8.text-muted.small 客户
+                                .col-md-8.text-left(style='padding-left: 5px;')
+                                    span.text-muted.small
+                                        if task.refObj.customer
+                                            if task.refObj.customer.name
+                                                | #{task.refObj.customer.name}##{task.refObj.customer.id}
+                                            else
+                                                | ##{task.refObj.customer.id}
+                        .row
+                            .col-md-12
+                                .col-md-4.text-right(style='padding-right: 5px;')
+                                    i.icon-user-8.text-muted.small 文件
+                                .col-md-8.text-left(style='padding-left: 5px;')
+                                    span.text-muted.small
+                                        if task.refObj.productRefData
+                                            if task.refObj.productRefData.name
+                                                | #{task.refObj.productRefData.name}
+                        .row
+                            .col-md-12
+                                .col-md-4.text-right(style='padding-right: 5px;')
+                                    i.text-muted.small 产品
+                                .col-md-8.text-left(style='padding-left: 5px;')
+                                    if task.refObj.product
+                                        if task.refObj.product.name
+                                            span.text-muted.small #{task.refObj.product.name}
+                        .row
+                            .col-md-12
+                                .col-md-4.text-right(style='padding-right: 5px;')
+                                    i.text-muted.small 任务状态
+                                .col-md-8.text-left(style='padding-left: 5px;')
+                                    if task.done
+                                        span.text-muted.small 已完成
+                                    else
+                                        span.text-danger.small 未完成
+                    .box-mask.bg-grass-static.f-action
+                        .col-sm-12(style='height: 100px;')
+                            .row.m-t-10
+                                .col-sm-12
+                                    p.text-left.text-white 状态
+                                        if task.done
+                                            |  已完成
+                                        else
+                                            |  未完成
+                            .row
+                                .col-sm-12
+                                    p.text-left.text-white 创建时间
+                                        if task.ctimeStr
+                                            |  #{task.ctimeStr}
+                            .row
+                                .col-sm-12.text-left.text-white
+                                    p.text-left.text-white 完成时间
+                                        if task.doneTimeStr
+                                            |  #{task.doneTimeStr}
+                        if !task.done
+                            .divider.divider-white
+                            .row.text-center(style='height: 46px;position:relative;')
+                                .col-sm-12(style='height: 100%;')
+                                    .action.bg-grass.col-sm-12.text-center(onclick='taskListSign("#{task.refId}", true);')
+                                        span.m-l-5 签收
+            if task.type == 'customerRecycleDistribution'
+                .mm-box.t-cust-card(style='cursor:pointer;width: 236px; height: 150px;margin: 5px;position: relative;', onclick='showRecycleDistributuionDetail(#{task._id}, #{task.done})')
+                    .row(style='height: 100%')
+                        .row
+                            .col-md-12
+                                .col-md-6.text-right(style='padding-right: 5px;')
+                                    each taskType in taskTypeList
+                                        if taskType.key == task.type
+                                            span.text-info #{taskType.name}
+                        .row
+                            .col-md-12
+                                .col-md-4.text-right(style='padding-right: 5px;')
+                                    span.icon-user-8.text-muted.small 员工
+                                .col-md-8.text-left(style='padding-left: 5px;')
+                                    span.text-muted.small
+                                        if task.refObj
+                                            if task.refObj.username
+                                                | #{task.refObj.realName}##{task.refObj.username}
+                                            else
+                                                | 员工未知
+                        .row
+                            .col-md-12
+                                .col-md-4.text-right(style='padding-right: 5px;')
+                                    i.text-muted.small 原因
+                                .col-md-8.text-left(style='padding-left: 5px;')
+                                    if task.refObj.customerRecycleDistributionType
+                                        if task.refObj.customerRecycleDistributionType == 'promotion'
+                                            span.text-muted.small 晋升
+                                        else if task.refObj.customerRecycleDistributionType == 'quitOffice'
+                                            span.text-muted.small 离职
+                                        else
+                                            span.text-muted.small 未知
+                                    else
+                                        span.text-muted.small 未知
+                        .row
+                            .col-md-12
+                                .col-md-4.text-right(style='padding-right: 5px;')
+                                    i.text-muted.small 任务状态
+                                .col-md-8.text-left(style='padding-left: 5px;')
+                                    if task.done
+                                        span.text-muted.small 已完成
+                                    else
+                                        span.text-danger.small 未完成
+                    .box-mask.bg-grass-static.f-action
+                        .col-sm-12(style='height: 100px;')
+                            .row.m-t-10
+                                .col-sm-12
+                                    p.text-left.text-white 状态
+                                        if task.done
+                                            |  已完成
+                                        else
+                                            |  未完成
+                            .row
+                                .col-sm-12
+                                    p.text-left.text-white 创建时间
+                                        if task.ctimeStr
+                                            |  #{task.ctimeStr}
+                            .row
+                                .col-sm-12.text-left.text-white
+                                    p.text-left.text-white 完成时间
+                                        if task.doneTimeStr
+                                            |  #{task.doneTimeStr}
+                        if !task.done
+                            .divider.divider-white
+                            .row.text-center(style='height: 46px;position:relative;')
+                                .col-sm-12(style='height: 100%;')
+                                    .action.bg-grass.col-sm-12.text-center(onclick='taskRecycleDistribution({id: #{task._id}, recycleDistributionPriority: "consultantPriority", customerRecycleDistributionType: "#{task.refObj.customerRecycleDistributionType}"})')
+                                        span.m-l-5 回收分配
+                        else
+                            .divider.divider-white
+                            .row.text-center(style='height: 46px;position:relative;')
+                                .col-sm-12(style='height: 100%;')
+                                    .action.bg-grass.col-sm-12.text-center
+                                        span.m-l-5 查看详情
+            if task.type == 'customerLevelPromotion'
+                .mm-box.t-cust-card(style='cursor:pointer;width: 236px; height: 150px;margin: 5px;position: relative;')
+                    .row(style='height: 100%')
+                        .row
+                            .col-md-12
+                                .col-md-6.text-right(style='padding-right: 5px;')
+                                    each taskType in taskTypeList
+                                        if taskType.key == task.type
+                                            span.text-info #{taskType.name}
+                        .row
+                            .col-md-12
+                                .col-md-4.text-right(style='padding-right: 5px;')
+                                    span.icon-user-8.text-muted.small 员工
+                                .col-md-8.text-left(style='padding-left: 5px;')
+                                    span.text-muted.small
+                                        if task.refObj
+                                            if task.refObj.updateUser.username
+                                                | #{task.refObj.updateUser.realName}##{task.refObj.updateUser.username}
+                                            else
+                                                | 员工未知
+                        .row
+                            .col-md-12
+                                .col-md-4.text-right(style='padding-right: 5px;')
+                                    i.icon-user-8.text-muted.small 客户
+                                .col-md-8.text-left(style='padding-left: 5px;')
+                                    span.text-muted.small
+                                        if task.refObj.customer
+                                            if task.refObj.customer.name
+                                                | #{task.refObj.customer.name}##{task.refObj.customer.id}
+                                            else
+                                                | ##{task.refObj.customer.id}
+                        .row
+                            .col-md-12
+                                .col-md-4.text-right(style='padding-right: 5px;')
+                                    i.text-muted.small 任务状态
+                                .col-md-8.text-left(style='padding-left: 5px;')
+                                    if task.done
+                                        span.text-muted.small 已完成
+                                    else
+                                        span.text-danger.small 未完成
+                    .box-mask.bg-grass-static.f-action
+                        .col-sm-12(style='height: 100px;')
+                            .row.m-t-10
+                                .col-sm-12
+                                    p.text-left.text-white 状态
+                                        if task.done
+                                            |  已完成
+                                        else
+                                            |  未完成
+                            .row
+                                .col-sm-12
+                                    p.text-left.text-white 创建时间
+                                        if task.ctimeStr
+                                            |  #{task.ctimeStr}
+                            .row
+                                .col-sm-12.text-left.text-white
+                                    p.text-left.text-white 完成时间
+                                        if task.doneTimeStr
+                                            |  #{task.doneTimeStr}
+                        .divider.divider-white
+                        .row.text-center(style='height: 46px;position:relative;')
+                            .col-sm-12(style='height: 100%;')
+                                .action.bg-grass.col-sm-12.text-center(onclick='taskListCustomerLevelPromotion(#{task._id})')
+                                    if task.done == false
+                                        span.m-l-5 审核
+                                    else
+                                        span.m-l-5 查看
+
+#rejectRequestConfirm.modal(tabindex='-1', style='display: none;')
+    .modal-body
+        p#confirmMsg 确定驳回此申领请求？
+        p#opStatus(style='font-size: 20px; font-face: bold; display: none;')
+            i.icon.icon-spin5.animate-spin.text-success
+    .modal-footer
+        .text-center
+            button.cancel.btn.btn-default(style='margin-right: 40px;', data-dismiss='modal') 取消
+            button.btn.btn-danger(style='margin-right: 40px;', data-dismiss='modal', onclick='taskCallListRequest()') 确定
+
+
+#taskListPageBar
+
+#recycleDistributionDetail.modal(tabindex='-1', style='display: none;', data-width='960px')
+#customerLevelPromotion.modal(tabindex='-1', style='display: none', data-width='760px')
+
+script.
+    var callListRequestId;
+    function taskRejectCallListRequest(id) {
+        callListRequestId = id;
+        $('#rejectRequestConfirm').modal('show');
+    }
+    function taskCallListRequest() {
+        var url = '/crm/customer/callListRequest/' + callListRequestId;
+        $('#cancelRequestConfirm').modal('hide');
+        $.ajax({
+            type: 'DELETE',
+            url: url,
+            dataType: 'json',
+            data: {},
+            success: function (data) {
+                taskListPagination.reload();
+                toast(data.msg);
+            }
+        });
+    }
+    taskListPagination.bar('#taskListPageBar');
+
+    //行动计划-电话
+    function taskListCall(id, customerId) {
+        console.log('taskListCall:' + id);
+        actionPlanCallCenter.show(customerId);
+        actionPlanCallCenter.save = function(callData) {
+            console.log('customerActionPlanCall complete action plan');
+            var paramStr = 'id=' + id
+                + '&comment=' + callData.customerServiceRecord.comment;
+            $.ajax({
+                type: 'POST',
+                url: '/crm/customerActionPlan/complete',
+                dataType: 'json',
+                data: paramStr,
+                success: function (data) {
+                    toast(data.msg);
+                    taskListPagination.reload();
+                }
+            });
+        }
+    }
+
+    //行动计划-约见&邮件
+    function taskListMeetOrEmail(id) {
+        pup.template.renderTemplateByKey('customer.actionPlan.complete', {id : id}, {
+            afterRender : function() {
+                console.log('show customerActionPlanCompleteModal');
+                $('#customerActionPlanCompleteModal').modal('show');
+            }
+        });
+    }
+
+    //名单申领
+    function taskListCallListRequest(id) {
+        console.log('taskListCallListRequest');
+        pup.template.renderTemplateByKey("customer.task.assignData", {requestId : id}, {
+            afterRender : function() {
+                $('#callListRequestTaskBtn').click(function() {
+                    return startAssign();
+                });
+                $('#callListRequestTaskModal').modal('show');
+            }
+        });
+    }
+    function beforeAssignData() {
+        $('#assignMask').slideDown(150);
+    }
+    function assignDataSuccessCallback(data) {
+        $('#assignMask').hide();
+        taskListPagination.reload();
+        $('#callListRequestTaskModal').modal('hide');
+    }
+
+    //质检
+    function taskListAudit(id) {
+        console.log('taskListAudit : ' + id);
+        pup.widgets.layerManager.open({
+            layerKey : null,
+            targetSelector : null,
+            html : '',
+            template : {
+               key : 'customer.audit.detail',
+               dataParam : {id : id},
+               beforeRender : function() {},
+               afterRender : function() {}
+            },
+            closeButton : {
+                visible : false
+            },
+            beforeClose : function() {
+               taskListPagination.reload();
+                toastr.clear();
+               return true;
+            }
+        });
+    }
+
+    //文件签收
+    function taskListSign(id, confirm) {
+        console.log('taskListSign');
+        if(confirm) {
+            $('#opAcceptConfirm').data('signId', id);
+            $('#opAcceptConfirm').modal('show');
+        } else {
+            $.ajax({
+                type: 'GET',
+                url: '/crm/order/sign',
+                dataType: 'json',
+                data: {id : $('#opAcceptConfirm').data('signId')},
+                success: function (data) {
+                    toast(data.msg);
+                    taskListPagination.reload();
+                    $('#opAcceptConfirm').modal('hide');
+                }
+            });
+        }
+    }
+
+    //回收分配
+    function taskRecycleDistribution(param) {
+        console.log('taskRecycleDistribution:' + param);
+        pup.widgets.layerManager.open({
+            layerKey : 'taskRecycleDistributionLayer',
+            targetSelector : null,
+            html : '',
+            template : {
+               key : 'customer.task.customerRecycleDistribution',
+               dataParam : param,
+               beforeRender : function() {},
+               afterRender : function() {}
+            },
+            closeButton : {
+                visible : false
+            },
+            beforeClose : function() {
+               taskListPagination.reload();
+               toastr.clear();
+               return true;
+            }
+        });
+    }
+    function showRecycleDistributuionDetail(id, done) {
+        if(done) {
+            pup.template.renderTemplateByKey("customer.task.recycleDistributionDetail", {taskId : id}, {
+                afterRender : function() {
+                    $('#recycleDistributionDetail').modal('show');
+                }
+            });
+        }
+    }
+
+    function taskListCustomerLevelPromotion(id) {
+        pup.template.renderTemplateByKey("customer.task.customerLevelPromotion", {taskId : id}, {
+            afterRender : function() {
+                $('#customerLevelPromotion').modal('show');
+            }
+        });
+    }
+
+    $('.t-cust-card').mouseleave(function() {
+        $(this).find('.f-action').slideUp(50);
+    });
+
+    $('.t-cust-card').mouseenter(function() {
+        $(this).find('.f-action').slideDown(50);
+    });
+
+

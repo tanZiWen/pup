@@ -1,0 +1,93 @@
+.row.m-t(style='padding-top: 10px; padding-bottom: 10px;')
+    .col-sm-12
+        .col-md-3.text-left(style='width: 100%;')
+            table.table.table-bordered.mm-box.col-md-10
+                .thead
+                    tr
+                        td.table-bordered
+                            form#queryUserCallList(action='/crm/data/queryCallList')
+                                .form-group
+                                    label.control-label.col-md-2 小组
+                                    select(class='selectpicker', name='workGroup', id='workGroup')
+                                        option(value='') 全部
+                                        each workGroup in workGroups
+                                            option(value='#{workGroup._id}') #{workGroup.name}
+
+                                .form-group
+                                    label.control-label.col-md-2 组员
+                                    select(class='selectpicker', name='groupUser', id='groupUser', data-live-search='true')
+
+
+                                .form-group
+                                    label.control-label.col-md-2 类型
+                                    #customerStatus.labelRadio
+                                        input(name='status', type='radio', value='', data-name="全部", checked='checked')
+                                        each status, i in statusList
+                                            if i < 4
+                                                input(name='status', type='radio', value='#{status.key}', data-name="#{status.name}")
+                .tbody
+                    tr
+                        td#reclycleCallListData
+#recycleMask.box-mask.mask-full(style='opacity: .9;')
+    .row(style='margin-top: 60px')
+        .col-sm-6.col-sm-offset-3.text-center
+            h3#recycleProgress(style='color: #FFFFFF;') 正在处理
+    .row#recycle-next-actions(style='margin-top: 20px; display: none;')
+        .col-sm-6.col-sm-offset-3.text-center
+            button#recycleConBtn.btn.btn-primary 继续回收
+            button#recycleCloseBtn.btn.btn-success.m-l-15 关闭
+script.
+    $('.selectpicker').selectpicker({noneSelectedText:'请选择'});
+
+    var statusRadio = new pup.widgets.labelRadio('#queryUserCallList #customerStatus').radio(function(value) {
+        queryRecycleCallList();
+    });
+
+    queryWorkGroupUsers();
+
+    $('#queryUserCallList #workGroup').change(function() {
+        queryWorkGroupUsers();
+    });
+
+    $('#queryUserCallList #groupUser').change(function() {
+        queryRecycleCallList();
+    });
+
+    function queryWorkGroupUsers() {
+        $('#queryUserCallList #groupUser option').remove();
+        var url = '/crm/user/departingLeaveUsers';
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType: 'json',
+            data: {workGroup : $('#queryUserCallList #workGroup').val()},
+            success: function (data) {
+                $('#queryUserCallList #groupUser').append("<option value=''>全部</option>");
+                queryRecycleCallList();
+                $.each(data.users, function(key, value) {
+                    $('#queryUserCallList #groupUser').append('<option value='+value._id+'>'+value.realName+'</option>');
+                })
+                $('.selectpicker').selectpicker('refresh');
+            }
+        });
+    }
+
+    function queryRecycleCallList() {
+
+        var condition = {};
+
+        if($('#queryUserCallList #workGroup').val() != null && $('#queryUserCallList #workGroup').val() != '') {
+            condition.workGroup = $('#recycleList #workGroup').val();
+        }
+
+        if($('#queryUserCallList #groupUser').val() !=null && $('#queryUserCallList #groupUser').val() != '') {
+            condition.groupUser = $('#recycleList #groupUser').val();
+        }
+
+        if(statusRadio.val() != null && statusRadio.val() != '') {
+            condition.status = statusRadio.val();
+        }
+
+        pup.template.renderTemplateByKey("customer.data.recycleList", condition);
+
+    }

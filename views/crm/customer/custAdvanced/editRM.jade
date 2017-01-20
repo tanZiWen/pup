@@ -1,0 +1,73 @@
+//
+   Created by tanyuan on 11/14/14.
+
+.modal-header
+    button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+    .row
+        .col-md-4
+            h4.modal-title(style='display: inline-block;') 修改RM
+.modal-body
+    form#editRMForm
+        .row
+            .col-md-2.text-right 原RM
+            .col-md-3.text-left
+                if manager
+                    input.holo(name='oldManager', type='text', value='#{manager.username}(#{manager.realName})', data-id='#{manager._id}', readonly='readonly')
+                else
+                    input.holo(name='oldManager', type='text', value='无', data-id='', readonly='readonly')
+            .col-md-2.text-center
+                .glyphicon.glyphicon-arrow-right
+            .col-md-2.text-right 更新RM
+            .col-md-3.text-left
+                select(class='selectpicker show-tick form-control', name='newManager', data-live-search="true")
+                    option(value='') 请选择
+                    each manager in managerList
+                        option(value='#{manager._id}') #{manager.username}(#{manager.realName})
+        .row.m-t-20
+            .col-md-2.text-right 修改原因
+            .col-md-10.text-left
+                textarea.holo(name='rmReason', type='text', style='width: 100%;', placeholder='备注', class='required')
+.modal-footer
+    .text-center
+        button.btn.btn-lg.btn-default(data-dismiss='modal', style='margin-right: 40px;') 取消
+        button.btn.btn-lg.btn-success(onclick='editRM(#{customerId})') 确定
+script.
+    $('.selectpicker').selectpicker('refresh');
+    function editRM(id) {
+        var oldManager = $('[name=oldManager]').data('id');
+        var newManager = $('[name=newManager]').val();
+        var reason = $('[name=rmReason]').val();
+        $('#editRMForm').validate_popover({onsubmit: false, popoverPosition: 'top'});
+        var url = '/crm/customer/custAdvanced/editRM/'+id;
+        $('body').oLoader({
+            wholeWindow: true,
+            effect:'slide'
+        });
+        if($('#editRMForm').validate().form()) {
+            $('#editRM').modal('hide');
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                url: url,
+                data: {oldManager: oldManager, newManager: newManager, reason: reason},
+                success: function(data) {
+                    if(data.msg.type == 'success') {
+                        customerAdvancedPagination.reload();
+                    }else {
+                        $('#editRM').modal('show');
+                    }
+                    $('body').oLoader('hide');
+                    toast(data.msg);
+                }
+            });
+        }
+    }
+    //$('#editRMForm').keypress(function(e) {
+    //    var code = (e.keyCode ? e.keyCode : e.which);
+    //    if(code == 13) {
+    //        $(this).off('keypress');
+    //        editRM(#{customerId});
+    //        e.preventDefault();
+    //        return false;
+    //    }
+    //});

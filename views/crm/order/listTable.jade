@@ -1,0 +1,95 @@
+//
+   Created by michael on 5/29/14.
+
+table.table.mm-box
+    tr.th-inverse
+        th  客户
+        th  产品名称
+        th  产品类别
+        th  金额(万元)
+        th  销售
+        th  下单日期
+        th  状态
+        th  操作
+    if data
+        each order in data
+            tr.cust-record(id='#{order._id}')
+                td  #{order.customer.name}
+                td  #{order.product.name}
+                td  #{order.product.typeName}
+                td  #{order.amount}
+                td  #{order.cusername}
+                td  #{format(order.ctime)}
+                td  #{order.statusName}
+                td
+                    span.icon-btn.edit(title='编辑', id='#{order._id}')
+                        i.icon.icon-edit-3
+                    span.icon-btn.trash(title='撤销', id='#{order._id}')
+                        i.icon.icon-trash
+                    span.icon-btn.payout(title='派息', id='#{order._id}')
+                        i.icon.icon-yen
+
+#orderPageBar
+
+script.
+    $('.cust-record').click(function() {
+        var id = $(this).attr('id');
+        curOrderId = id;
+        pup.widgets.layerManager.open({layerKey : 'orderDetal', template : {key : 'order.detail', dataParam : {id : id}},
+            beforeClose : function() {
+
+            }});
+    });
+
+    $('tr .edit').click(function(ev) {
+        ev.stopPropagation();
+        var url = '/crm/order/detail';
+        $.ajax({
+            type: 'POST',
+            url: url,
+            dataType: 'json',
+            data: {id : $(this).attr('id')},
+            success: function (data) {
+                var formData = data.msg.body;
+                if(data.msg.type == 'success'){
+                    var formData = data.msg.body;
+
+                    $('#detail #id').html(formData.code);
+                    $('#detail #_id').val(formData._id);
+                    $('#detail #cusName').html(formData.customer.name);
+                    $('#detail #prdName').html(formData.product.name);
+                    $('#detail #amount').val(formData.amount);
+                    $('#detail #cusername').html(formData.cusername);
+                    $('#detail #comment').val(formData.comment);
+                    $('#detail #ctime').val(format(formData.ctime));
+                    $("#detail #type").find('button').each(function() {
+                        if(formData.product.type == $(this).val()) {
+                            $(this).button('toggle');
+                        }
+                    });
+                    $("#detail #status").find('button').each(function() {
+                        if(formData.status == $(this).val()) {
+                            $(this).button('toggle');
+                        }
+                    });
+                    $('#detail').modal('show');
+                }else{
+                    toast(data.msg);
+                }
+            }
+        });
+    });
+
+    $('tr .trash').click(function(ev) {
+        curOrderId = $(this).attr('id');
+        ev.stopPropagation();
+        $('#opAcceptConfirm').modal('show');
+    });
+
+    $('tr .payout').click(function(ev) {
+        curOrderId = $(this).attr('id');
+        ev.stopPropagation();
+        $('#add').modal('show');
+    });
+
+    orderPagination.bar('#orderPageBar');

@@ -1,0 +1,66 @@
+//
+   Created by tanyuan on 7/6/15.
+
+table.table.mm-box
+    tr.th-inverse
+        th 设备编号
+        th 微信工作号
+        th 客户评级
+        th 商机客户
+        th 客户联系方式
+        th 创建时间
+        th 操作
+    tbody
+        each wechatHNEC in wechatHNECs
+            tr.pointer-cursor
+                td.f-detial(data-id='#{wechatHNEC._id}') #{wechatHNEC.deviceName}
+                td.f-detial(data-id='#{wechatHNEC._id}') #{wechatHNEC.accountCode}
+                td.f-detial(data-id='#{wechatHNEC._id}') #{wechatHNEC.custRateTypeName}
+                td.f-detial(data-id='#{wechatHNEC._id}') #{wechatHNEC.name}
+                td.f-detial(data-id='#{wechatHNEC._id}') #{wechatHNEC.telNo}
+                td.f-detial(data-id='#{wechatHNEC._id}') #{format(wechatHNEC.ctime)}
+                td
+                    span.icon-btn.f-wechatHNEC-edit(id='#{wechatHNEC._id}', data-toggle="tooltip", title='编辑')
+                        i.icon.icon-edit-3
+#hnwcListPageBar
+
+#editHNWC.modal(style='display: none;', data-width='760px')
+
+script.
+    HNWCListPagination.bar('#hnwcListPageBar');
+    $('.f-wechatHNEC-edit').click(function(ev) {
+        ev.preventDefault();
+        var id = $(this).attr('id')
+        pup.template.renderTemplateByKey('wechatMsg.editHNWC', {id: id}, {
+            afterRender: function () {
+                $('#editHNWC').modal('show');
+            }
+        });
+    });
+    $('.f-detial').click(function(ev) {
+        ev.preventDefault();
+        var id = $(this).data('id');
+        pup.widgets.layerManager.open({
+            layerKey: null,
+            targetSelector: null,
+            html: '',
+            template: {
+                key: 'hnwc.detail',
+                dataParam: {id: id},
+                beforeRender: function () {
+                    toastr.clear();
+                },
+                afterRender: function () {
+                }
+            },
+            closeButton: {
+                visible: false
+            },
+            beforeClose: function () {
+                console.log('close customer detail layer...');
+                toastr.clear();
+                return true;
+            }
+        });
+        return false;
+    })

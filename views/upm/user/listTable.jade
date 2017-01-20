@@ -1,0 +1,58 @@
+//
+   Created by tanyuan on 7/28/14.
+table.table.mm-box
+    tr.th-inverse
+        th(style='width=10%') 登陆名
+        th(style='width=10%') 姓名
+        th(style='width=5%') 性别
+        th(style='width=25%') 分公司
+        th(style='width=20%') 职位
+        th(style='width=20%') 角色
+        th(style='width=10%') 操作
+    tbody
+        each user, i in users
+            tr.cust-record
+                td #{user.username}
+                td #{user.realName}
+                td
+                    if(user.sex == 'male')
+                        | 男
+                    else
+                        |女
+                td  #{user.orgName}
+                td  #{user.positionName}
+                td  #{user.roleName}
+                td
+                    span.icon-btn.f-edit(id='#{user._id}', title='编辑')
+                        i.icon.icon-edit-3
+                    span.icon-btn.f-trash(title='删除', id='#{user._id}')
+                        i.icon.icon-trash
+                    //span.icon-btn.f-restPwd(title='重置密码', id='#{user._id}')
+                    //    i.icon.icon-pencil
+
+#userListBar
+
+script.
+    userPagination.bar('#userListBar');
+    $('.f-edit').click(function() {
+        var id = $(this).attr('id');
+        pup.template.renderTemplateByKey('user.detail', {id: id},
+            {
+                afterRender: function() {
+                    $('#edit').modal('show');
+                }
+            }
+        )
+    });
+    var userId;
+    $('.f-trash').click(function() {
+        $('#delete').modal('show');
+        userId = $(this).attr('id');
+    })
+//    $('.f-restPwd').click(function() {
+//        $('#restPwd').modal('show');
+//        userId = $(this).attr('id');
+//    })
+
+
+

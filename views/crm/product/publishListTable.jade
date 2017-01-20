@@ -1,0 +1,44 @@
+//
+   Created by tanyuan on 9/25/15.
+
+table.table.mm-box
+    tr.th-inverse
+        th 名称
+        th 状态
+        th 发布
+    tbody
+        each product in data
+            tr
+                td #{product.name}
+                td #{product.publishStatusName}
+                td
+                    span.icon-btn.f-edit(data-id='#{product._id}', title='发布')
+                        i.icon.icon-pencil-7
+#publishPageBar
+
+script.
+    publishPagination.bar('#publishPageBar');
+
+    $('.f-edit').click(function(ev) {
+        ev.preventDefault()
+        var id = $(this).data('id');
+
+        var url = '/crm/product/publish/'+id;
+
+        toastr.clear();
+
+        $('.modal').oLoader({
+            wholeWindow: true,
+            effect: 'slide'
+        });
+        $.ajax({
+            type: 'POST',
+            url: url,
+            dataType: 'json',
+            success: function (data) {
+                $('.modal').oLoader('hide');
+                publishPagination.first();
+                toast(data.msg);
+            }
+        });
+    })

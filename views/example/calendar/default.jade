@@ -1,0 +1,72 @@
+doctype html
+html
+    head
+        link(href='/stylesheets/jquery-ui-1.10.4.custom.min.css', rel='stylesheet')
+        link(href='/stylesheets/fullcalendar.css', rel='stylesheet')
+        link(href='/stylesheets/fullcalendar.print.css', rel='stylesheet', media='print')
+        link(rel='stylesheet', href='/stylesheets/bootstrap.css')
+        link(rel='stylesheet', href='/stylesheets/style.css')
+
+        script(src='/javascripts/jquery-1.11.0.min.js')
+        script(src='/javascripts/jquery-ui-1.10.4.custom.min.js')
+        script(src='/javascripts/fullcalendar.min.js')
+        script(src='/javascripts/pup.js')
+        script.
+
+            $(document).ready(function() {
+
+                var date = new Date();
+                var d = date.getDate();
+                var m = date.getMonth();
+                var y = date.getFullYear();
+
+                //$('#calendar').fullCalendar({
+                //    theme : true,
+                //    header: {
+                //        left: 'prev,next today',
+                //        center: 'title',
+                //        right: 'month'
+                //    },
+                //    editable: false,
+                //    events: [
+                //        {
+                //            title: '重要任务（2）',
+                //            start: new Date(y, m, 1, 1),
+                //            url : 'javascript: console.dir($(this));'
+                //        },
+                //        {
+                //            title: '中等任务（1）',
+                //            start: new Date(y, m, 1, 2)
+                //        },
+                //        {
+                //            title: '普通任务（10）',
+                //            start: new Date(y, m, 1, 3)
+                //        }
+                //    ]
+                //});
+
+                var labelCheck = new pup.widgets.labelCheckBox('#labelCheckbox').checkbox(function() {
+                    console.log(labelCheck.val());
+                });
+            });
+
+style.
+    body {
+        margin-top: 40px;
+        text-align: center;
+        font-size: 14px;
+        font-family: "Lucida Grande", Helvetica, Arial, Verdana, sans-serif;
+    }
+
+    #calendar {
+        width: 900px;
+        margin: 0 auto;
+    }
+body
+    #labelCheckbox.labelCheckBox
+        input(type='checkbox', value='1', data-name="label1")
+        input(type='checkbox', value='2', data-name="label2")
+        input(type='checkbox', value='3', data-name="label3")
+        input(type='checkbox', value='4', data-name="label4")
+    #calendar
+

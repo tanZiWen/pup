@@ -1,0 +1,30 @@
+.navbar.navbar-default.navbar-fixed-top
+    .container
+        .navbar-header
+            button.navbar-toggle(type='button', data-toggle='collapse', data-target='.navbar-collapse')
+                span.icon-bar
+                span.icon-bar
+                span.icon-bar
+            a.navbar-brand(href='/') CRM
+        .collapse.navbar-collapse
+            ul.nav.navbar-nav.navbar-left
+                if session.user.curApp.menu
+                    each menu in session.user.curApp.menu
+                        li(class= (locals.chn && chn=='customer') ? 'dropdown active': 'dropdown')
+                            a.dropdown-toggle(href='#', data-toggle='dropdown')
+                                | #{menu.url_name}
+                                span.caret
+                            ul.dropdown-menu(role="menu", aria-labelledby="dropdownMenuCustomer")
+                                each url in menu.urls
+                                    li(role="presentation")
+                                        a(role='menuitem', tabindex="-1", href='#{session.user.curApp.prefix_url}#{url.url}') #{url.url_name}
+
+            if session.user
+                ul.nav.navbar-nav.navbar-right
+                    li.dropdown
+                        a.dropdown-toggle(href='#', data-toggle='dropdown') #{session.user.name}
+                        ul.dropdown-menu(role="menu", aria-labelledby="dropdownMenuUser")
+                            li(role="presentation")
+                                a(role='menuitem', tabindex="-1", href='/user/setting') 设置
+                            li(role="presentation")
+                                a(role='menuitem', tabindex="-1", href='/logout') 注销

@@ -1,0 +1,275 @@
+//
+   Created by wangnan on 14-11-12.
+style.
+
+.row
+    div(style="margin: 20px 20px 60px 20px;")
+        .panel.panel-success.m-t-20
+            .panel-heading.text-center
+                if task.refObj.customerRecycleDistributionType == 'promotion'
+                    h3.panel-title 客户回收分配任务(晋升)
+                else
+                    h3.panel-title 客户回收分配任务(离职)
+            .panel-body
+                .row
+                    strong.col-md-1.text-muted.text-right 员工:
+                    .col-md-3.text-muted.text-left
+                        span #{task.refObj.username}##{task.refObj.realName}
+                    strong.col-md-1.text-muted.text-right 创建时间:
+                    .col-md-3.text-muted.text-left
+                        span #{task.ctimeStr}
+                .row.m-t-5
+                    strong.col-md-1.text-muted.text-right 员工组长:
+                    .col-md-5.text-muted.text-left
+                        if task.leaders
+                            each l in task.leaders
+                                span.m-r-5 #{l.username}##{l.realName}
+
+        if task.refObj.customerRecycleDistributionType == 'promotion'
+            .row.m-t-20
+                .col-md-4
+                    each recycleDistributionPriority in recycleDistributionPrioritys
+                        label.checkbox-inline
+                            input(type='checkbox', id='recycleDistributionPriority', name='recycleDistributionPriority', value='#{recycleDistributionPriority.key}')
+                            | #{recycleDistributionPriority.name}
+
+            form#taskCustomerRecycleDistributionPromotion
+                table.table.mm-box
+                    tr.th-inverse-success
+                        th.text-center(style="width: 10%")  客户姓名
+                        th.text-center(style="width: 10%")  客户编号
+                        th.text-center(style="width: 12%")  查看客户详情
+                        th.text-center(style="width: 22%")  当前顾问
+                        th.text-center(style="width: 22%")  当前RM
+                        th.text-center(style="width: 22%")  最终归属人
+                    tbody
+                        each c in customers
+                            tr
+                                td.text-center #{c.name}
+                                td.text-center #{c.code}
+                                td.text-center
+                                    button.btn.btn-info.c_cust-record.pointer-cursor(data-id='#{c._id}') 查看详情
+                                td.text-center
+                                    if !_.isEmpty(c.refConsultant) && c.refConsultant.status == 'ok'
+                                        | #{c.refConsultant.username}(#{c.refConsultant.realName})
+                                    else
+                                        | 无
+                                td.text-center
+                                    if !_.isEmpty(c.refManager) && c.refManager.status == 'ok'
+                                        | #{c.refManager.username}(#{c.refManager.realName})
+                                    else
+                                        | 无
+                                if !_.isEmpty(c.ultimateBlong)
+                                    if c.ultimateBlong.user
+                                        td.text-center#belongCondition(data-id='#{c._id},#{c.ultimateBlong.flag}')
+                                            span.btn.btn-danger.btn-sm #{c.ultimateBlong.user.username}(#{c.ultimateBlong.user.realName})
+                                    else
+                                        td.text-center.text-danger 无
+                                else
+                                    td.text-center
+        else
+            form#taskCustomerRecycleDistributionQuitOffice
+                table.table.mm-box
+                    tr.th-inverse-success
+                        th.text-center(style="width: 10%")  客户姓名
+                        th.text-center(style="width: 10%")  客户编号
+                        th.text-center(style="width: 10%")  查看客户详情
+                        th.text-center(style="width: 35%")  顾问
+                        th.text-center(style="width: 35%")  RM
+                    tbody
+                        each c in customers
+                            tr
+                                td.text-center #{c.name}
+                                td.text-center #{c.code}
+                                td.text-center
+                                    button.btn.btn-info.c_cust-record.pointer-cursor(data-id='#{c._id}') 查看详情
+                                td.text-center
+                                    if c.belongUser == task.refObj.userid
+                                        if !c.manager || (c.refManager && c.refManager.status == 'exitWork') || (c.refManager && c.refManager.status == 'delete') || c.manager == task.refObj.userid
+                                            .row.text-center
+                                                span.btn.btn-warning.btn-sm.col-md-5 #{task.refObj.realName}
+                                                span.glyphicon.glyphicon-arrow-right.col-md-2(aria-hidden="true")
+                                                span.col-md-5
+                                                    select.form-control.input-sm(name='consultant-#{c._id}')
+                                                        option(value='["consultant",{"userid": ""},"#{c._id}"]')
+                                                        each seller in consultants
+                                                            option(value='["consultant",{"userid" : "#{seller._id}", "username" : "#{seller.username}", "realName" : "#{seller.realName}"},"#{c._id}"]') #{seller.realName}
+                                        else
+                                            .btn.btn-default.btn-sm #{c.refConsultant.realName}
+                                    else if c.belongUser && c.refConsultant
+                                        if c.refConsultant.status == 'ok'
+                                            .btn.btn-primary.btn-sm #{c.refConsultant.realName}
+                                        else
+                                            .btn.btn-default.btn-sm #{c.refConsultant.realName}
+                                    else
+                                        span.text-muted 还没有指定顾问
+                                td.text-center
+                                    if c.manager == task.refObj.userid
+                                        .row.text-center
+                                            span.btn.btn-warning.btn-sm.col-md-5 #{task.refObj.realName}
+                                            span.glyphicon.glyphicon-arrow-right.col-md-2(aria-hidden="true")
+                                            span.col-md-5
+                                                select.form-control.input-sm(name='manager-#{c._id}')
+                                                    option(value='["manager",{"userid": ""},"#{c._id}"]')
+                                                    each seller in managers
+                                                        option(value='["manager",{"userid" : "#{seller._id}", "username" : "#{seller.username}", "realName" : "#{seller.realName}"},"#{c._id}"]') #{seller.realName}
+                                    else if c.manager
+                                        if (c.refManager && c.refManager.status != 'ok')
+                                            span.btn.btn-default.btn-sm #{c.refManager.realName}
+                                        else
+                                            span.btn.btn-primary.btn-sm #{c.refManager.realName}
+                                    else
+                                        span.text-muted 还没有指定RM
+.row(style='margin-top: 50px')
+    .function-bar.text-center
+        .btn.btn-danger.m-t-10(onclick='convertTask()') 转交
+        .btn.btn-default.m-t-10.m-l-10(onclick='taskRecycleDistributionCancel()') 取消
+        .btn.btn-success.m-t-10.m-l-10(onclick='taskRecycleDistributionSubmit()') 提交
+
+
+#convertCustomerRecycleDistribution.modal(tabindex='-1', style='display: none;')
+    .modal-header
+        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row
+            .col-md-3
+                h4.modal-title 转交任务
+    .modal-body
+        select(class='selectpicker show-tick', data-size='6', style='width:200px', data-width='100%', id='leader', name='leader', data-live-search="true")
+    .modal-footer
+        .text-center
+            button.cancel.btn.btn-default(style='margin-right: 40px;', data-dismiss='modal') 取消
+            button#selectLeader.btn.btn-success 确定
+
+#distributeSurplusCust.modal(tabindex='-1', style='display: none;')
+    .modal-body
+        p.text-danger 是否确定回收剩余客户?
+    .modal-footer
+        .text-center
+            button.cancel.btn.btn-default(style='margin-right: 40px;', data-dismiss='modal') 取消
+            button.btn.btn-success(onclick='distributeSurplusCust()') 确定
+
+script.
+    var taskId = #{task._id};
+    $(':checkbox').on('change', function(){
+        var recycleDistributionPriority = $(this).val();
+        var data = {};
+        data.recycleDistributionPriority = recycleDistributionPriority;
+        data.id = #{task._id};
+        data.customerRecycleDistributionType = '#{task.refObj.customerRecycleDistributionType}';
+        taskRecycleDistribution(data);
+    });
+    if('#{recycleDistributionPriority}' == 'consultantPriority') {
+        $(':checkbox').each(function() {
+            if($(this).val() == 'consultantPriority') {
+                $(this).prop('checked', true);
+            }
+        })
+    }else if('#{recycleDistributionPriority}' == 'rmPriority') {
+        $(':checkbox').each(function() {
+            if($(this).val() == 'rmPriority') {
+                $(this).prop('checked', true);
+            }
+        })
+    }
+    $('.selectpicker').selectpicker({noneSelectedText:'请选择'});
+    $('.c_cust-record').click(function(ev) {
+        ev.preventDefault();
+        var id = $(this).data('id');
+        pup.widgets.layerManager.open({
+            layerKey : null,
+            targetSelector : null,
+            html : '',
+            template : {
+                key : 'customer.detail',
+                dataParam : {id : id, type: 'customerRecycleDistribution'},
+                beforeRender : function() {toastr.clear();},
+                afterRender : function() {}
+            },
+            closeButton : {
+                visible : false
+            },
+            beforeClose : function() {
+                toastr.clear();
+            }
+        });
+    })
+
+    function taskRecycleDistributionSubmit() {
+        var submitType = '#{task.refObj.customerRecycleDistributionType}';
+
+        //表单提交参数
+        var params = {taskId : '#{task._id}', submitType : submitType, dealResult : []};
+
+        if(submitType == 'promotion') {
+            $('#taskCustomerRecycleDistributionPromotion #belongCondition').each(function() {
+                var v= $(this).data('id');
+                params.dealResult.push(v);
+            });
+        } else {
+            $('#taskCustomerRecycleDistributionQuitOffice').find('select').each(function() {
+                var v = $(this).val();
+                params.dealResult.push(JSON.parse(v));
+            });
+        }
+
+        console.log('do submit');
+
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: '/crm/task/customerRecycleDistribution',
+            data: params,
+            success: function(data){
+                if(data.msg && data.msg.type != 'error') {
+                    pup.widgets.layerManager.close({
+                        layerKey : 'taskRecycleDistributionLayer'
+                    });
+                }
+                toast(data.msg);
+            }
+        });
+    }
+
+    function taskRecycleDistributionCancel() {
+        pup.widgets.layerManager.close({
+            layerKey : 'taskRecycleDistributionLayer'
+        });
+    }
+
+    function convertTask() {
+        var url = '/crm/task/customerRecycleDistribution/getAllGroupLeaders';
+        $.ajax({
+            type: 'POST',
+            url: url,
+            success: function(data) {
+                $('#leader option').remove();
+                $.each(data.leaders, function(key, value) {
+                    $('#leader').append('<option value='+value._id+'>'+value.username+'-'+value.realName+'</option>');
+                });
+                $('.selectpicker').selectpicker('refresh');
+                $('#convertCustomerRecycleDistribution').modal('show');
+            }
+        });
+    }
+
+    $('#selectLeader').click(function(ev) {
+        ev.preventDefault();
+        var data = {};
+        var leaderId = $('#leader').val();
+        data.leaderId = leaderId;
+        data.taskId = taskId;
+        var url = '/crm/task/customerRecycleDistribution/convertLeader';
+        $.ajax({
+            type: 'POST',
+            data: data,
+            dataType: 'json',
+            url: url,
+            success: function(data) {
+                pup.widgets.layerManager.close();
+                $('#convertCustomerRecycleDistribution').modal('hide');
+                taskListPagination.reload();
+                toast(data.msg);
+            }
+        });
+    });
+

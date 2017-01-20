@@ -1,0 +1,49 @@
+//
+   Created by tanyuan on 11/18/14.
+
+.modal-header
+    button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+    .row
+        .col-md-12
+            h4.modal-title 客户基本信息
+.modal-body
+    .row
+        span.col-md-2.text-right.text-muted 姓名
+        span.col-md-2.text-left
+            if customer.name
+                | #{customer.name}
+            if customer.sex == 'male'
+                span.m-l-5 先生
+            if customer.sex == 'female'
+                span.m-l-5 小姐
+        span.col-md-2.text-right.text-muted 编号
+        span.col-md-2.text-left #{customer.code}
+        span.col-md-2.text-right.text-muted 手机
+        span.col-md-2.text-left #{customer.telNo}
+    .row.m-t-20
+        span.col-md-2.text-right.text-muted 客户状态
+        span.col-md-2.text-left #{customer.statusName}
+        span.col-md-2.text-right.text-muted 拨打状态
+        span.col-md-2.text-left #{customer.callStatusName}
+        span.col-md-2.text-right.text-muted 质检状态
+        span.col-md-2.text-left #{customer.auditStatusName}
+    .row.m-t-20
+        span.col-md-2.text-right.text-muted 生日
+        span.col-md-2.text-left #{format(customer.birthday)}
+        span.col-md-2.text-right.text-muted Email
+        span.col-md-2.text-left #{customer.email}
+        span.col-md-2.text-right.text-muted 微信号
+        span.col-md-2.text-left #{customer.wechatNo}
+    .row.m-t-20
+        span.col-md-2.text-right.text-muted 住房信息
+        span.col-md-2.text-left #{customer.houseInfoName}
+        span.col-md-2.text-right.text-muted 职业
+        span.col-md-2.text-left #{customer.professionName}
+        span.col-md-2.text-right.text-muted 工作地点
+        span.col-md-2.text-left #{customer.workAddress}
+    .row.m-t-20
+        span.col-md-2.text-right.text-muted 车型
+        span.col-md-2.text-left #{customer.carType}
+.modal-footer
+    .text-center
+        button.cancel.btn.btn-lg.btn-info(style='margin-right: 40px;', data-dismiss='modal') 关闭

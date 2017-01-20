@@ -1,0 +1,244 @@
+style.
+    #calendar {
+        width: 900px;
+        margin: 0 auto;
+    }
+    .calendar-pointer-cursor {
+        cursor : pointer
+    }
+
+    .fc-event {
+        border: 1px solid #663399;
+        background-color: #6633CC;
+        color: #fff;
+        opacity: .8;
+        filter: alpha(opacity=80);
+    }
+    .fc-event:hover {
+        border: 1px solid #660066;
+        background-color: #660099;
+        opacity: .8;
+        cursor : pointer;
+        filter: alpha(opacity=80);
+    }
+
+    .fc-today {
+        background: #FFFF00;
+    }
+
+    .fc-view-agendaDay .fc-event {
+        width: auto !important;
+    }
+
+#customerActionPlanScheduleModal.modal(tabindex='-1', data-width='960', style='display: none;')
+    .modal-header
+        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row
+            .col-md-8
+                h4.modal-title
+                    if user.realName
+                        | 行动计划日历 #{user.realName}(#{user.username})
+                    else
+                        | 行动计划日历 (#{user.username})
+    #actionPlanCalendar.modal-body
+    .modal-footer
+        .text-center
+            button.btn.btn-lg.btn-default(style='margin-right: 40px;', data-dismiss='modal') 关闭
+#actionPlanCalendarLoading.icon.icon-spinner(style='display:none;')
+#customerActionPlanScheduleCustomerModal.modal(tabindex='-1', data-width='960', style='display: none;')
+    .modal-header
+        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row
+            .col-md-8
+                h4.modal-title 客户信息
+    #customerActionPlanScheduleCustomerBody.modal-body
+        .row.m-t-20.text-center
+            h4 基本信息
+        .row.m-t-20
+            span.col-md-2.text-right.text-muted.small 编号
+            span#code.col-md-2.text-left
+            span.col-md-2.text-right.text-muted.small 姓名
+            span#name.col-md-2.text-left
+            span.col-md-2.text-right.text-muted.small 性别
+            span#sex.col-md-2.text-left
+        .row.m-t-20
+            span.col-md-2.text-right.text-muted.small 生日
+            span#birthday.col-md-2.text-left
+            span.col-md-2.text-right.text-muted.small 手机号
+            span#telNo.col-md-2.text-left
+            span.col-md-2.text-right.text-muted.small Email
+            span#email.col-md-2.text-left
+        .row.m-t-20
+            span.col-md-2.text-right.text-muted.small 微信号
+            span#wechatNo.col-md-2.text-left
+            span.col-md-2.text-right.text-muted.small 住房信息
+            span#houseInfo.col-md-2.text-left
+            span.col-md-2.text-right.text-muted.small 职业
+            span#profession.col-md-2.text-left
+        .row.m-t-20
+            span.col-md-2.text-right.text-muted.small 工作地点
+            span#workAddress.col-md-2.text-left
+            span.col-md-2.text-right.text-muted.small 车型
+            span#carType.col-md-2.text-left
+        .row.m-t-20.text-center
+            h4 投资信息
+        .row.m-t-20
+            span.col-md-2.text-right.text-muted.small 投资经验
+            span#investmentPreference.col-md-2.text-left
+            span.col-md-2.text-right.text-muted.small 投资期限偏好
+            span#investmentTimePreference.col-md-2.text-left
+            span.col-md-2.text-right.text-muted.small 风险偏好
+            span#venturePreference.col-md-2.text-left
+        .row.m-t-20
+            span.col-md-2.text-right.text-muted.small 是否愿意参加活动
+            span#isLikeAction.col-md-2.text-left
+            span.col-md-2.text-right.text-muted.small 资金体量
+            span#bodyMass.col-md-2.text-left
+            span.col-md-2.text-right.text-muted.small 客户状态
+            span#status.col-md-2.text-left
+        .row.m-t-20
+            span.col-md-2.text-right.text-muted.small 资金回笼时间
+            span#fundBackTime.col-md-2.text-left
+            span.col-md-2.text-right.text-muted.small 暂无投资意向愿意
+            span#noInvestmentReason.col-md-2.text-left
+    .modal-footer
+        .text-center
+            button.btn.btn-lg.btn-default(style='margin-right: 40px;', data-dismiss='modal') 关闭
+
+script.
+    console.log('schedule');
+    //var tooltip = $('<div/>').qtip({
+    //    id: 'actionPlanCalendar',
+    //    prerender: true,
+    //    content: {
+    //        text: ' ',
+    //        title: {
+    //            button: true
+    //        }
+    //    },
+    //    position: {
+    //        my: 'bottom center',
+    //        at: 'top center',
+    //        target: 'mouse',
+    //        viewport: $('#actionPlanCalendar'),
+    //        adjust: {
+    //            mouse: true,
+    //            scroll: true
+    //        }
+    //    },
+    //    show: 'mouseover',
+    //    hide: 'mouseout',
+    //    style: {classes : 'qtip-bootstrap'}
+    //}).qtip('api');
+
+    $('#customerActionPlanScheduleModal').modal('show');
+
+    $('#actionPlanCalendar').fullCalendar({
+        theme : true,
+        //firstDay : 1,
+        handleWindowResize : true,
+        header: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'month,agendaWeek,agendaDay'
+        },
+        editable: false,
+        eventClick: function(event, jsEvent, view) {
+            console.log('event click');
+            customerActionPlanScheduleShowCustomer(event.plan.customer);
+        },
+        timeFormat : 'H:mm{ - H:mm}',
+        allDayDefault : false,
+        allDaySlot: false,
+        ignoreTimezone: false,
+        events: {
+            url: '/crm/customerActionPlan/schedule/list?userId=#{user._id}',
+            type: 'get',
+            error: function() {
+                alert('there was an error while fetching events!');
+            }
+        },
+        loading: function (bool) {
+            if (bool) {
+                console.log('schedule fetching start...');
+                $('#actionPlanCalendarLoading').show();
+            } else {
+                console.log('schedule fetching end...');
+                $('#actionPlanCalendarLoading').hide();
+            }
+        },
+        eventRender: function(event, element) {
+            var title = '<div>';
+            title += '<div class="row">';
+            title += '<div class="col-md-4 text-right">';
+            title += '客户';
+            title += '</div>';
+            title += '<div class="col-md-8 text-left calendar-pointer-cursor">';
+            title += event.plan.customer.name + '#' + event.plan.customer._id;
+            title += '</div>';
+            title += '</div>';
+            title += '<div class="row">';
+            title += '<div class="col-md-4 text-right">';
+            title += '开始';
+            title += '</div>';
+            title += '<div class="col-md-8 text-left">'
+            title += event.start ? moment(event.start).format('YYYY-MM-DD HH:mm') : '';
+            title += '</div>';
+            title += '</div>';
+            title += '<div class="row">';
+            title += '<div class="col-md-4 text-right">';
+            title += '结束';
+            title += '</div>';
+            title += '<div class="col-md-8 text-left">';
+            title += event.end ? moment(event.end).format('YYYY-MM-DD HH:mm') : '';
+            title += '</div>';
+            title += '</div>';
+            title += '</div>';
+            var tooltip = $(element).qtip({
+                prerender: true,
+                content: {
+                    text: title,
+                    title: event.title
+                },
+                position: {
+                    my: 'bottom center',
+                    at: 'top center',
+                    target: 'mouse',
+                    viewport: $('#actionPlanCalendar'),
+                    adjust: {
+                        mouse: false,
+                        scroll: false
+                    }
+                },
+                show: 'mouseover',
+                hide: 'mouseout',
+                style: {classes : 'qtip-bootstrap'}
+            }).qtip('api');
+        }
+    });
+
+    $('#customerActionPlanScheduleModal').on('hidden.bs.modal', function (e) {
+        $('#customerScheduleContent').html('');
+    });
+
+    function customerActionPlanScheduleShowCustomer(customer) {
+        $('#customerActionPlanScheduleCustomerBody #code').text(customer.code);
+        $('#customerActionPlanScheduleCustomerBody #name').text(customer.name);
+        $('#customerActionPlanScheduleCustomerBody #sex').text(customer.sexName);
+        $('#customerActionPlanScheduleCustomerBody #birthday').text(format(customer.birthday));
+        $('#customerActionPlanScheduleCustomerBody #email').text(customer.email);
+        $('#customerActionPlanScheduleCustomerBody #wechatNo').text(customer.wechatNo);
+        $('#customerActionPlanScheduleCustomerBody #houseInfo').text(customer.houseInfoName);
+        $('#customerActionPlanScheduleCustomerBody #profession').text(customer.professionInfo);
+        $('#customerActionPlanScheduleCustomerBody #workAddress').text(customer.workAddress);
+        $('#customerActionPlanScheduleCustomerBody #carType').text(customer.carType);
+        $('#customerActionPlanScheduleCustomerBody #investmentPreference').text(customer.investmentPreferenceInfo);
+        $('#customerActionPlanScheduleCustomerBody #investmentTimePreference').text(customer.investmentTimePreferenceName);
+        $('#customerActionPlanScheduleCustomerBody #venturePreference').text(customer.venturePreferenceName);
+        $('#customerActionPlanScheduleCustomerBody #isLikeAction').text(customer.isLikeActionName);
+        $('#customerActionPlanScheduleCustomerBody #bodyMass').text(customer.bodyMassName);
+        $('#customerActionPlanScheduleCustomerBody #status').text(customer.statusName);
+        $('#customerActionPlanScheduleCustomerBody #fundBackTime').text(format(customer.fundBackTime));
+        $('#customerActionPlanScheduleCustomerBody #noInvestmentReason').text(customer.noInvestmentReason);
+        $('#customerActionPlanScheduleCustomerModal').modal('show');
+    }

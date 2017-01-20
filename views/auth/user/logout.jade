@@ -1,0 +1,14 @@
+doctype html
+html
+    head
+    body
+        each logoutUrl, i in logoutURLs
+            iframe(src='#{logoutUrl}' style="width:0;height:0;border:0; border:none;")
+        script.
+            (function() {
+                    document.cookie = "authorize_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+                    document.cookie = "refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+                    window.location="/login";
+            })();
+
+

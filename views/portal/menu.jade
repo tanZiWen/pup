@@ -1,0 +1,28 @@
+include ../includes/utils
+if session && session.user && menus && menus.length
+    each m in menus
+        if pageUtils.authFunc(m.code)
+            li(class='dropdown')
+                a.dropdown-toggle(href='#', data-toggle='dropdown')
+                    | #{m.name}
+                    span.caret
+                ul.dropdown-menu(role="menu", aria-labelledby="dropdownMenu")
+                    if m.children && m.children.length
+                        each func in m.children
+                            if pageUtils.authFunc(func.code)
+                                li(role="presentation")
+                                    a(role='menuitem', tabindex="-1", href='javascript:pup.template.renderTemplateByKey("#{func.funcAction}");')
+                                        | #{func.name}
+
+
+
+
+
+
+
+
+
+
+
+
+

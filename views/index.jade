@@ -1,0 +1,41 @@
+extends layout
+block script
+    script.
+        $(function() {
+            var currentAppCode ='#{currentApp.code}';
+            pup.template.setup();
+            var callCenterValid = "#{appCfg.callCenter.valid}";
+            var callCenterAddress = "#{appCfg.callCenter.address}";
+            var callCenterAgent = '#{user.username}';
+            var callCenterExtension = '#{user.extNo}';
+            var callCenterGroup = '#{user.org.callCenterGroup}';
+
+            if(callCenterValid == 'true' && currentAppCode == 'CRM') {
+                if(callCenterExtension) {
+                    CallCenterController.setup({
+                        callCenterAddress : callCenterAddress,
+                        callCenterAgent : callCenterAgent,
+                        callCenterExtension : callCenterExtension,
+                        callCenterGroup : callCenterGroup
+                    });
+                }
+            }
+            CallCenterUIController.setup({valid : '#{appCfg.callCenter.valid}', uiAddress : '#{appCfg.callCenter.uiAddress}'});
+            if('#{currentApp.indexPage}' != '')
+                pup.template.renderTemplateByKey('#{currentApp.indexPage}');
+
+            $('ul.nav li.dropdown').hover(function() {
+                $(this).find('.dropdown-menu').stop(true, true).show();
+                $(this).addClass('open');
+            }, function() {
+                $(this).find('.dropdown-menu').stop(true, true).hide();
+                $(this).removeClass('open');
+            });
+            $(window).resize(function() {
+                $.validator.reposition();
+            });
+        });
+block content
+    #main
+
+

@@ -1,0 +1,50 @@
+//
+   Created by tanyuan on 7/6/15.
+table.table.mm-box
+    tr.th-inverse
+        th 设备编号
+        th 微信工作号
+        th 客户评级
+        th 商机客户
+        th 客户联系方式
+        th 创建时间
+    tbody
+        each wechatHNEC in wechatHNECs
+            tr.pointer-cursor
+                td.f-detial(data-id='#{wechatHNEC._id}') #{wechatHNEC.deviceName}
+                td.f-detial(data-id='#{wechatHNEC._id}') #{wechatHNEC.accountCode}
+                td.f-detial(data-id='#{wechatHNEC._id}') #{wechatHNEC.custRateTypeName}
+                td.f-detial(data-id='#{wechatHNEC._id}') #{wechatHNEC.name}
+                td.f-detial(data-id='#{wechatHNEC._id}') #{wechatHNEC.telNo}
+                td.f-detial(data-id='#{wechatHNEC._id}') #{format(wechatHNEC.ctime)}
+
+#hnwcManageListPageBar
+script.
+    HNWCManageListPagination.bar('#hnwcManageListPageBar');
+    $('.f-detial').click(function (ev) {
+        ev.preventDefault();
+        var id = $(this).data('id');
+        pup.widgets.layerManager.open({
+            layerKey: null,
+            targetSelector: null,
+            html: '',
+            template: {
+                key: 'hnwc.detail',
+                dataParam: {id: id, tag: 'manage'},
+                beforeRender: function () {
+                    toastr.clear();
+                },
+                afterRender: function () {
+                }
+            },
+            closeButton: {
+                visible: false
+            },
+            beforeClose: function () {
+                console.log('close customer detail layer...');
+                toastr.clear();
+                return true;
+            }
+        });
+        return false;
+    })

@@ -1,0 +1,392 @@
+//
+   Created by tanyuan on 12/22/15.
+.sidebar.sidebar-left.mm-box
+    #muImage.sidemenu
+        i.icon.icon-user-1
+        | 图片
+    .divider.divider-default
+    #muAdd.sidemenu
+        i.icon.icon-user-1
+        | 添加
+
+.row.m-t-20
+    form#formSearch
+        .col-sm-8.col-sm-offset-2.mm-box.form-horizontal.filter-pan
+            .form-group.m-t-5
+                label.col-md-2.text-right 类型
+                .col-md-8.text-left
+                    #selectType.labelRadio
+                        input(type='radio', name='type', id='type', value='news', data-name='全部', checked='checked')
+                        each t in newsType
+                            input(type='radio', name='type', id='type', value='#{t.key}', data-name='#{t.name}')
+.row.m-t-25
+    .col-sm-8.col-sm-offset-2
+        #newsDataList.row
+#addTrends.modal(tabindex='-1', data-width='960px', style='display: none;')
+    form#formAdd(action='/crm/news/add')
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            .row
+                .col-md-3
+                    h4.modal-title 添加动态
+        .modal-body
+                .row
+                    .col-md-10
+                        .row.m-t-10
+                            span.col-md-2.text-right.text-muted.small 类别
+                            .col-md-6.text-left
+                                .btn-group(data-toggle='buttons-radio', id='newType', name='newType')
+                                    each news, i in newsType
+                                        if i == 0
+                                            .btn-sm.btn.btn-light-info.active(value='#{news.key}') #{news.name}
+                                        else
+                                            .btn-sm.btn.btn-light-info(value='#{news.key}') #{news.name}
+                        .row.m-t-10
+                            span.col-md-2.text-right.text-muted.small 标题
+                            .col-md-6.text-left
+                                input.holo(type='text', name='title', required='required')
+                        .row.m-t-10
+                            span.col-md-2.text-right.text-muted.small 摘要
+                            .col-md-6.text-left
+                                input.holo(type='text', name='summary', required='required')
+                        .row.m-t-10
+                            span.col-md-2.text-right.text-muted.small 地点
+                            .col-md-6.text-left
+                                input.holo(type='text', name='local', required='required')
+                        .row.m-t-25
+                            span.col-md-2.text-right.text-muted.small 时间
+                            .col-md-6.text-left
+                                input(type='text', name='releaseTime', class='form-control', required='required')
+                        .row.m-t-30
+                            .col-md-10.col-md-offset-1
+                                script(id='editor', name='content', type='text/plain', style='height:240px;width:768px')
+                    .col-md-2.m-t-20#cover(style='margin-left:-20%')
+                        .row.dashboard-box.text-center#cover-img(style='height:210px;width: 180px; line-height:180px')
+                            p 点击添加封面图片
+        .modal-footer
+            .text-center
+                button.cancel.btn.btn-lg.btn-default(data-dismiss='modal') 取消
+                button#ok.btn.btn-lg.btn-success(type='submit') 确定
+
+#addImage.modal(tabindex='-1', data-width='960px', style='display: none;')
+    .modal-header
+        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row
+            .col-md-3
+                h4.modal-title 添加图片
+    .modal-body
+        .row.m-t-20
+            .row.text-center.dashboard-box#dropbox
+                .row#message
+                    p.p-t-50.p-b-50 拖拽需要上传的图片
+    .modal-footer
+        .text-center
+            button.cancel.btn.btn-lg.btn-default#close 关闭
+
+#imageView.modal(tabindex='-1', data-width='960px', style='display: none;')
+    .modal-header
+        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times
+        .row
+            .col-md-3
+                h4.modal-title 插入图片
+    .modal-body
+        .row.m-t-10.text-center.col-md-offset-3
+            span.col-md-2.text-right.text-muted.small 目录
+            .col-md-4.text-left
+                select(class='selectpicker show-tick form-control', name='dirName', id='dirName', data-size='5', data-live-search="true")
+                    each dir in dirs
+                        option(value='#{dir.name}') #{dir.name}
+        .row.m-t-10
+            #imageViewContent
+    .modal-footer
+        .text-center
+            button.cancel.btn.btn-lg.btn-default#confirm 确定
+
+#imageViews.modal(tabindex='-1', data-width='960px', style='display: none;')
+    .modal-header
+        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times
+        .row
+            .col-md-3
+                h4.modal-title 插入图片
+    .modal-body
+        .row.m-t-10.text-center.col-md-offset-3
+            span.col-md-2.text-right.text-muted.small 目录
+            .col-md-4.text-left
+                select(class='selectpicker show-tick form-control', name='dirName', id='dirName', data-size='5', data-live-search="true")
+                    each dir in dirs
+                        option(value='#{dir.name}') #{dir.name}
+        .row.m-t-10
+            #imageViewsContent
+    .modal-footer
+        .text-center
+            button.cancel.btn.btn-lg.btn-default(onclick='javascript:imageViews()') 确定
+
+
+style.
+    .dashboard-box {
+        border:3px dashed #E5E5E5;
+        text-align:center;
+        cursor:pointer
+    }
+
+    #dropbox .progressHolder {
+        position: absolute;
+        background-color: #252f38;
+        height: 12px;
+        width: 100%;
+        left: 0;
+        bottom: 0;
+        box-shadow: 0 0 2px #000;
+    }
+
+    #dropbox .progress {
+        background-color: #2586d0;
+        position: absolute;
+        height: 100%;
+        left: 0;
+        width: 0;
+        box-shadow: 0 0 1px rgba(255, 255, 255, 0.4) inset;
+        -moz-transition: 0.25s;
+        -webkit-transition: 0.25s;
+        -o-transition: 0.25s;
+        transition: 0.25s;
+    }
+
+    #dropbox .preview.done .progress {
+        width: 100% !important;
+    }
+
+    #dropbox .preview {
+        width: 180px;
+        height: 210px;
+        float: left;
+        margin: 10px 0 0 0px;
+        position: relative;
+        text-align: center;
+    }
+
+    #dropbox .preview img {
+        width: 180px;
+        height: 210px;
+        border: 3px solid #fff;
+        display: block;
+        box-shadow: 0 0 2px #000;
+    }
+
+    #dropbox .imageHolder {
+        display: inline-block;
+        position: relative;
+    }
+
+    #dropbox .uploaded {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        background: url('/images/success.jpg') no-repeat center center rgba(255, 255, 255, 0.5);
+        display: none;
+    }
+
+    #dropbox .unUploaded {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        background: url('/images/fail.jpg') no-repeat center center rgba(255, 255, 255, 0.5);
+        display: none;
+    }
+
+    #dropbox .preview.done .uploaded {
+        display: block;
+    }
+
+    #dropbox .preview.unDone .unUploaded {
+        display: block;
+    }
+
+script.
+    var typeRadio = new pup.widgets.labelRadio('#selectType').radio(function() {
+        searchType();
+    });
+
+    $('.selectpicker').selectpicker({noneSelectedText:'请选择'});
+    var newsPagination = new pup.Pagination({templateKey: "news.dataList"});
+    newsPagination.condition('type', 'news');
+    newsPagination.first();
+    function searchType() {
+        var type = typeRadio.val();
+        newsPagination.clear();
+        if(type) {
+            newsPagination.condition('type' , type);
+        }
+        newsPagination.first();
+    }
+    $('[name=releaseTime]').datetimepicker({format: 'yyyy-mm-dd', autoclose: true, weekStart: 1, minView: 'month'});
+    $('#muAdd').click(function(ev) {
+        ev.preventDefault();
+        um = UM.getEditor('editor');
+        $('#addTrends').modal('show');
+    });
+    $('#muImage').click(function() {
+        $('#addImage').modal('show');
+    });
+    $('#addTrends').on('hiden.bs.modal', function (e) {
+        um.destroy();
+    });
+    var um;
+    $('#formAdd').submit(function(ev) {
+        ev.preventDefault();
+        var url = $(this).attr('action');
+        var serializeForm = $(this).serializeObject();
+        if(imageName == '') {
+            toast({type: 'info', body: '请选择封面图片!'});
+            return false;
+        }
+        serializeForm.titleImage = imageName;
+        $(this).validate_popover({onsubmit: false, popoverPosition: 'top'});
+        var newsType = $(this).find('#newType > .btn.active').attr("value");
+        serializeForm.type = newsType;
+        if($(this).validate().form()) {
+            $.ajax({
+               type: "POST",
+               url: url,
+               dataType: 'json',
+               data: serializeForm,
+               success: function(data) {
+                  if(data.msg.type == 'success') {
+                     $('#formAdd')[0].reset();
+                     newsPagination.first();
+                     $('#addTrends').modal('hide');
+                     imageName = '';
+                     $('#addTrends #cover-img').html('');
+                     $('<p>点击添加封面图片</p>').appendTo($('#addTrends #cover-img'))
+                     um.setContent('');
+                  }
+                  toast(data.msg)
+               }
+            });
+        }
+        return false;
+    });
+    $(":file").filestyle({
+        'buttonText': '选择图片',
+        'classButton': 'btn btn-primary',
+        'classIcon': 'icon-plus-6'
+    });
+    $('#addImage #close').click(function() {
+        $('#dropbox').html('<div id="message" class="row"><p class="p-t-50 p-b-50">拖拽需要上传的图片</p></div>');
+        $('#addImage').modal('hide');
+    });
+    $('#cover').click(function() {
+        var dirName = $('#imageView').find('[name=dirName]').val();
+        pup.template.renderTemplateByKey('news.imageView', {name: dirName}, {
+            afterRender: function() {
+              $('#imageView').modal('show');
+            }
+        });
+    });
+    var imageName = '';
+    $('#imageView #confirm').click(function() {
+        if(imageName == '') {
+            toast({type:'info', body:'请选择至少一张图片!'})
+            return
+        }
+        $('#imageView').modal('hide');
+        var template = '<img src="'+ imageName +'"/>';
+        $('#addTrends #cover-img').html('');
+        $(template).appendTo($('#addTrends #cover-img'))
+    })
+    $('#imageView #dirName').change(function() {
+        var dirName = $(this).val();
+        pup.template.renderTemplateByKey('news.imageView', {name: dirName, code: 'news'});
+    });
+    $('#imageViews #dirName').change(function() {
+        var dirName = $(this).val();
+        pup.template.renderTemplateByKey('news.imageView', {name: dirName, code: 'news'});
+    });
+    $('#dropbox').filedrop({
+       paramname: 'img',
+          maxfilesize: 3,
+          allowedfileextensions: ['.jpg','.jpeg','.png','.gif'],
+          url: '/crm/news/upload/news',
+          uploadFinished: function(i, file, response){
+              if(response.msg.type == 'success') {
+                $.data(file).addClass('done');
+              }else {
+                $.data(file).addClass('unDone');
+              }
+          },
+          error: function(err, file) {
+              switch(err) {
+                  case 'BrowserNotSupported':
+                      toast({
+                          type: 'error',
+                          body: '该浏览器不支持图片上传功能!'
+                      });
+                      break;
+                  case 'FileTooLarge':
+                      toast({
+                          type: 'error',
+                          body: '上传图片不能超过3M!'
+                      });
+                      break;
+                  default:
+                      break;
+              }
+          },
+          beforeEach: function(file){
+              if(!file.type.match(/^image\//)){
+                  toast({
+                      type: 'error',
+                      body: '不支持除图片以外的其他文件上传!'
+                  });
+                  return false;
+              }
+          },
+          uploadStarted:function(i, file, len){
+              createImage(file);
+          },
+          progressUpdated: function(i, file, progress) {
+              $.data(file).find('.progress').width(progress/6);
+          }
+    });
+    var template = '<div class="preview" style="float:left;margin-left:10px">'+
+                   '<span class="imageHolder">'+
+                   '<img />'+
+                   '<span class="uploaded"></span>'+
+                   '<span class="unUploaded"></span>'+
+                   '</span>'+
+                   '<div class="progressHolder">'+
+                   '<div class="progress"></div>'+
+                   '</div>'+
+                   '</div>';
+
+    function createImage(file){
+        var preview = $(template), image = $('img', preview);
+        var reader = new FileReader();
+        reader.onload = function(e){
+            image.attr('src', e.target.result);
+        };
+        reader.readAsDataURL(file);
+        $('#message').hide();
+        preview.appendTo($('#dropbox'));
+        $.data(file, preview);
+    };
+
+    function imageViews() {
+        insertImages();
+        $('#imageViews').hide();
+    };
+
+    function insertImages() {
+        var imgObjs = [];
+        var img = {};
+        img.src = imageName;
+        img._src = imageName;
+        imgObjs.push(img);
+        um.fireEvent('beforeInsertImage', imgObjs);
+        um.execCommand("insertImage", imgObjs);
+    };
+

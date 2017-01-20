@@ -1,0 +1,1112 @@
+.sidebar.sidebar-left.mm-box
+    #muEdit.sidemenu
+        i.icon.icon-edit-3
+        | 编辑
+    .divider.divider-default
+    #muAddActivity.sidemenu
+        i.icon.icon-rss-7
+        | 添加动态
+    .divider.divider-default
+    #muAddNotice.sidemenu
+        i.icon.icon-split
+        | 资料下发
+    .divider.divider-default
+    //#muAddCusEarnings.sidemenu
+    //    i.icon.icon-chart-bar
+    //    | 客户收益
+    //.divider.divider-default
+    #muAddMaterial.sidemenu
+        i.icon.icon-doc-1
+        | 产品资料
+.row(style='margin-top: 80px;')
+    input(type='hidden', value='#{id}', id='id')
+    #prodInfo.mm-box.col-md-8.col-md-offset-2(style='padding-bottom: 15px')
+        .modal-header.row
+            h4.pan-title.modal-title(style='display: inline-block;') 基本信息
+            .pull-right
+                span#editBtn.m-l-15.icon-btn
+                    i.icon-edit-3
+        .row.m-t-10
+            span.col-md-2.text-right.text-muted.small 产品名称
+            span.col-md-6.text-left(id='name') #{name}
+            span.col-md-2.text-right.text-muted.small 发行机构
+            span.col-md-2.text-left(id='issueOrg') #{issueOrg}
+        .row.m-t-10
+            span.col-md-2.text-right.text-muted.small 投资周期
+            span.col-md-2.text-left(id='period') #{minPeriod}-#{maxPeriod}#{periodUnit}
+            span.col-md-2.text-right.text-muted.small 最低金额
+            span.col-md-2.text-left(id='minAmount') #{minAmount}
+            span.col-md-2.text-right.text-muted.small 总金额
+            span.col-md-2.text-left(id='totalAmount') #{totalAmount}
+        .row.m-t-10
+            span.col-md-2.text-right.text-muted.small 产品种类
+            span.col-md-2.text-left(id='type') #{typeName}
+            span.col-md-2.text-right.text-muted.small 收益预期
+            span.col-md-2.text-left(id='preExpectedEarning') #{preExpectedEarning}
+            span.col-md-2.text-right.text-muted.small 创建日期
+            span.col-md-2.text-left #{format(ctime)}
+        .row.m-t-10
+            span.col-md-2.text-right.text-muted.small 募集进度
+            .col-md-4
+                .progress(style='height: 10px')
+                    #raisePro.progress-bar.progress-bar-success(role='progressbar',  aria-valuenow='#{raisePro}', aria-valuemin='0', aria-valuemax='100', style='width: #{raisePro}%;')
+                        span.sr-only #{raisePro}% Complete (success)
+            .col-md-2
+                p#raiseText #{orderAmount}/#{totalAmount}万
+            span.col-md-2.text-right.text-muted.small 计息日期
+            span.col-md-2.text-left(id='dividendDate') #{format(dividendDate)}
+        .row.m-t-10
+            span.col-md-2.text-right.text-muted.small 产品进度
+            .col-md-4
+                .progress(style='height: 10px')
+                    .progress-bar.progress-bar-success(role='progressbar', aria-valuenow='70', aria-valuemin='0', aria-valuemax='100', style='width: 70%;')
+                        span.sr-only 70% Complete (success)
+            .col-md-2
+                p 剩余3期
+        .row.m-t-10
+            span.col-md-2.text-right.text-muted.small 备注
+            span.col-md-10.text-left(id='comment') #{comment}
+.row(style='margin-top: 20px;')
+    .mm-box.col-md-8.col-md-offset-2(style='padding-bottom: 15px')
+        .modal-header.row
+            h4.pan-title.modal-title(style='display: inline-block;') 最新动态
+            .pull-right
+                span#addActivityBtn.m-l-15.icon-btn
+                    i.icon-plus-6
+        #productTrendData
+            each trend, i in trends
+                .row.m-t-10
+                    span.col-md-2.text-right.text-muted.small 标题
+                    span.col-md-2.text-left #{trend.title}
+                    span.col-md-2.text-right.text-muted.small 摘要
+                    span.col-md-2.text-left #{trend.summary}
+                    span.col-md-2.text-right.text-muted.small 创建日期
+                    span.col-md-2.text-left #{format(trend.crt)}
+                .row.text-right
+                    span.icon-btn.edit(data-id='#{trend.id}' title='编辑')
+                        i.icon.icon-edit-3
+                    span.icon-btn.trash(title='删除', data-id='#{trend.id}')
+                        i.icon.icon-trash
+                .row.m-t-10
+                    .divider.divider-default
+            .row.m-t-10.text-center.cust-record(onclick='loadTrendsByPage();')
+                a(href='javascript:void(0);', onclick='loadTrendsByPage();', title='加载更多')
+                    i.icon.icon-angle-double-down
+        #productTrendPageBar
+.row(style='margin-top: 20px; margin-bottom: 20px;')
+    .mm-box.col-md-8.col-md-offset-2(style='padding-bottom: 15px')
+        .modal-header.row
+            h4.pan-title.modal-title(style='display: inline-block;') 资料下发公告
+            .pull-right
+                span#addRefDataBtn.m-l-15.icon-btn
+                    i.icon-plus-6
+        #productRefData
+            each refData, i in refDatas
+                .row.m-t-10
+                    span.col-md-2.text-right.text-muted.small 文件名
+                    span.col-md-2.text-left #{refData.name}
+                    span.col-md-1.text-right.text-muted.small 描述
+                    span.col-md-5.text-left #{refData.description}
+                .row.m-t-10
+                    .divider.divider-default
+            .row.m-t-10.text-center.cust-record(onclick='loadRefDataByPage();')
+                a(href='javascript:void(0);', onclick='loadRefDataByPage();', title='加载更多')
+                    i.icon.icon-angle-double-down
+        #productRefDataPageBar
+.row(style='margin-top: 20px;')
+    .mm-box.col-md-8.col-md-offset-2(style='padding-bottom: 15px')
+        .modal-header.row
+            h4.pan-title.modal-title(style='display: inline-block;') 产品资料
+            .pull-right
+                span#addProMeterialBtn.m-l-15.icon-btn
+                    i.icon-upload-5
+        #productAttachmentData
+            each attachment, i in attachments
+                each privilege in attachment.privilege
+                    if(privilege.userPosition == user.position)
+                        .row.m-t-10
+                            span.col-md-10.text-left #{attachment.name}
+                            if privilege.download
+                                span.col-md-2.text-left
+                                    span.m-l-15.icon-btn
+                                        i.icon-attach-1(id='#{attachment._id}')
+                        .row.m-t-10
+                            .divider.divider-default
+            .row.m-t-10.text-center.cust-record(onclick='loadAttachmentByPage();')
+                a(href='javascript:void(0);', onclick='loadAttachmentByPage();', title='加载更多')
+                    i.icon.icon-angle-double-down
+        #productAttachmentPageBar
+.row(style='margin-top: 20px; margin-bottom: 30px;')
+    .mm-box.col-md-8.col-md-offset-2(style='padding-bottom: 15px')
+        .modal-header.row
+            h4.pan-title.modal-title(style='display: inline-block;') 成交记录
+        #order-report.row.m-t-10(style='height: 400px;width:940px;display:none;')
+        .row(style='margin-top: 20px;')
+            #prdOrderListData.col-md-12.col-sm-12.col-lg-12
+#edit.modal(tabindex='-1', data-width='760', style='display: none;')
+    form#formModify(action='/crm/product/modify')
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            .row
+                .col-md-3
+                    h4.modal-title 编辑信息
+        .modal-body
+            .row.m-t-10(style='margin-top:20px')
+                span.col-md-2.text-right.text-muted.small 名称
+                .col-md-3.text-right
+                    input(type='hidden', id='_id', name='_id', value='#{_id}')
+                    input.holo(type='text', id='name', name='name', class='required', value='#{name}')
+                span.col-md-2.text-right.text-muted.small 发行机构
+                .col-md-3.text-right
+                    input.holo(type='text', id='issueOrg', name='issueOrg', class='required', value='#{issueOrg}')
+            .row.m-t-10(style='margin-top:20px')
+                span.col-md-2.text-right.text-muted.small 收益预期
+                .col-md-3.text-right
+                    input.holo(type='text', id='preExpectedEarning', name='preExpectedEarning', class='required', value='#{preExpectedEarning}')
+                span.col-md-2.text-right.text-muted.small 总金额
+                .col-md-3.text-left
+                    input.holo(type='text', id='totalAmount', name='totalAmount', class='required digits', value='#{totalAmount}')
+            .row.m-t-10(style='margin-top:20px')
+                span.col-md-2.text-right.text-muted.small 管理人
+                .col-md-3.text-left
+                    input.holo(type='text', id='manager', name='manager', class='required', value='#{manager}')
+                span.col-md-2.text-right.text-muted.small 最低金额
+                .col-md-3.text-left
+                    input.holo(type='text', id='minAmount', name='minAmount', class='required', value='#{minAmount}')
+                .col-md-2.text-left
+                    h6.text-muted 万元
+            .row.m-t-10(style='margin-top:20px')
+                span.col-md-2.text-right.text-muted.small 投资周期
+                .col-md-2.text-left
+                    input.holo(type='text', id='minPeriod', name='minPeriod', class='required digits', value='#{minPeriod}')
+                .col-md-1.text-left
+                    h6.text-muted 到
+                .col-md-2.text-left
+                    input.holo(type='text', id='maxPeriod', name='maxPeriod', class='required digits legalNumber', value='#{maxPeriod}')
+                .col-md-1.text-left
+                    h6.text-muted 月
+            .row.m-t-10(style='margin-top:20px')
+                span.col-md-2.text-right.text-muted.small 类型
+                .col-md-3.text-left
+                    .btn-group(data-toggle='buttons-radio', id='type', name='type')
+                        each entity, i in typeList
+                            if(entity.key == type)
+                                button.btn-sm.btn.btn-light-info.active(type='button', value='#{entity.key}') #{entity.name}
+                            else
+                                button.btn-sm.btn.btn-light-info(type='button', value='#{entity.key}') #{entity.name}
+                span.col-md-2.text-right.text-muted.small 状态
+                .col-md-3.text-left
+                    .btn-group(data-toggle='buttons-radio', id='status', name='status')
+                        each entity in statusList
+                            if(entity.key == status)
+                                button.btn-sm.btn.btn-light-info.active(type='button', value='#{entity.key}') #{entity.name}
+                            else
+                                button.btn-sm.btn.btn-light-info(type='button', value='#{entity.key}') #{entity.name}
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 计息日期
+                .col-md-3.text-left
+                    input(type='text', name="dividendDate", id="dividendDate", value='#{format(dividendDate)}', class='required form-control')
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 备注
+                .col-md-8
+                    input.holo(type='text', name='comment', id='comment', value='#{comment}')
+                    input.holo(type='hidden', id='periodUnit', name='periodUnit', value='月')
+        .modal-footer
+            .text-center
+                button.cancel.btn.btn-lg.btn-default(style='margin-right: 40px;', type='button') 取消
+                button#ok.btn.btn-lg.btn-success(type='submit')
+#funcActivity.modal(tabindex='-1', data-width='760', style='display: none;')
+    .modal-header
+        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row
+            .col-md-3
+                h4.modal-title 动态功能
+    .modal-body
+        .row.m-t-10.col-md-offset-2
+            .col-md-8.text-center
+                button#mkdirTrend.btn.btn-lg.btn-success.btn-block 新建目录
+        .row.m-t-10.col-md-offset-2
+            .col-md-8.text-center
+                button#uploadImageTrend.btn.btn-lg.btn-primary.btn-block 上传图片
+        .row.m-t-10.col-md-offset-2
+            .col-md-8.text-center
+                button#addTrend.btn.btn-lg.btn-info.btn-block 添加动态
+    .modal-footer
+#mkdirActivity.modal(tabindex='-1', data-width='760', style='display: none;')
+    form#formMkdirTrend(action='/crm/productTrend/mkdir')
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            .row
+                .col-md-3
+                    h4.modal-title 新建目录
+        .modal-body
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 名称
+                .col-md-10.text-left
+                    .col-md-4.text-center
+                        input.holo(type='text', name='prefix_dir', id='prefix_dir', readonly='readonly')
+                    .col-md-2.text-center
+                        span ---
+                    .col-md-4.text-center
+                        input.holo(type='text', placeholder='suffix directory name', name='suffix_dir', id='suffix_dir')
+        .modal-footer
+            .text-center
+                button.cancel.btn.btn-lg.btn-default(style='margin-right: 40px;', type='button', data-dismiss='modal') 取消
+                button#ok.btn.btn-lg.btn-success(type='submit') 确定
+
+#uploadImageActivity.modal(tabindex='-1', data-width='760', style='display: none;')
+    form#formUploadImageTrend(action='/crm/productTend/uploadImage')
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times
+            .row
+                .col-md-3
+                    h4.modal-title 上传图片
+        .modal-body
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 上传目录
+                .col-md-4.text-left
+                    select(class='selectpicker', id='dir', name='newsdir', data-size='5', data-live-search="true")
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 上传图片
+                .col-md-4.text-left
+                    input(type='file', class='filestyle', name='files[]' multiple)
+                    input(type='text', hidden=true, name='tagcode', value='#{_id}')
+            .row.m-t-20
+                .col-md-2.text-right.text-muted 图片名称
+                .col-md-10.text-left
+                    input.holo(name='imageNames', type='text', data-role='tagsinput')
+            .modal-footer
+                .text-center
+                    button.cancel.btn.btn-lg.btn-default(style='margin-right: 40px;', type='button', data-dismiss='modal') 取消
+                    button#ok.btn.btn-lg.btn-success(type='submit') 确定
+
+#imageInsert.modal(tabindex='-1', data-width='760px', style='display: none;')
+    .modal-header
+        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times
+        .row
+            .col-md-3
+                h4.modal-title 插入图片
+    .modal-body
+        .row.m-t-10.text-center.col-md-offset-3
+            span.col-md-2.text-right.text-muted.small 上传目录
+            .col-md-4.text-center
+                select(class='selectpicker', id='dir', name='dir', data-size='5', data-live-search="true")
+        .row.m-t-10
+            #imageView
+    .modal-footer
+        .text-center
+            button.cancel.btn.btn-lg.btn-default(style='margin-right: 40px;', type='button', data-dismiss='modal') 取消
+            button#selectImages.btn.btn-lg.btn-success(type='button') 确定
+
+#addActivity.modal(tabindex='-1', data-width='960', style='display: none;')
+    form#formCreateTrend(action='/crm/productTrend/create', data-id='#{_id}')
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            .row
+                .col-md-3
+                    h4.modal-title 添加动态
+        .modal-body
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 标题
+                .col-md-9.text-left
+                    input.holo(type='text', placeholder='title', name='title', id='title', class='require')
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 摘要
+                .col-md-9.text-left
+                    input.holo(type='text', name='summary', id='summary',placeholder='summary', class='require')
+            .row.m-t-20
+                .col-md-10.col-md-offset-1
+                    script(id='editor', name='content', type='text/plain', style='height:240px;width:768px')
+        .modal-footer
+            .text-center
+                button.cancel.btn.btn-lg.btn-default(style='margin-right: 40px;', type='button', data-dismiss='modal') 取消
+                button#ok.btn.btn-lg.btn-success(type='submit') 确定
+
+#addNotice.modal(tabindex='-1', data-width='760', style='display: none;')
+    form#formCreateRefData(action='/crm/productRefData/create')
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            .row
+                .col-md-3
+                    h4.modal-title 添加资料下发提醒
+        .modal-body
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 文件名
+                .col-md-4.text-left
+                    input(type='hidden', name='productId', value='#{_id}')
+                    input.holo(type='text', style='width: 100%;', name='name', class='required')
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 描述
+                .col-md-8.text-left
+                    input.holo(type='text', style='width: 100%;', name='description', class='required')
+        .modal-footer
+            .text-center
+                button.cancel.btn.btn-lg.btn-default(style='margin-right: 40px;', type='button') 取消
+                button#ok.btn.btn-lg.btn-success(type='submit') 确定
+//#addCusEarnings.modal.fade(tabindex='-1', data-width='760', style='display: none;')
+//    .modal-header
+//        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+//        .row
+//            .col-md-3
+//                h4.modal-title 添加客户收益
+//    .modal-body
+//        .row.m-t-10
+//            span.col-md-2.text-right.text-muted.small 客户
+//            .col-md-2.text-right
+//                select(data-width='150px',class='selectpicker')
+//                    option(value='1') 100万
+//                    option(value='2') 300万
+//                    option(value='3') 500万
+//                    option(value='4') 1000万
+//                    option(value='4') 5000万
+//        .row.m-t-10
+//            span.col-md-2.text-right.text-muted.small 期次
+//            .col-md-2.text-left
+//                select(data-width='150px',class='selectpicker')
+//                    option(value='1') Q1
+//                    option(value='2') Q2
+//                    option(value='3') Q3
+//                    option(value='4') Q4
+//            span.col-md-2.text-right.text-muted.small 收益
+//            .col-md-2.text-left
+//                input.input-sm.holo(type='text')
+//            .col-md-1.text-left
+//                h6.text-muted %
+//    .modal-footer
+//        .text-center
+//            button.cancel.btn.btn-lg.btn-default(style='margin-right: 40px;', data-dismiss='modal') 取消
+//            button#ok.btn.btn-lg.btn-success 确定
+#addProMaterial.modal(tabindex='-1', data-width='760', style='display: none;')
+    form#formCreateAttachment(action='/crm/productAttachment/create', enctype="multipart/form-data")
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            .row
+                .col-md-3
+                    h4.modal-title 添加产品资料
+        .modal-body
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 附件
+                .col-md-8.text-left
+                    input(type='file', name='attach', id='attach')
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 文件名
+                .col-md-8.text-right
+                    input.holo(type='hidden', name='productId', value='#{_id}')
+                    input.holo(type='text', name='name', id='name', class='required')
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 描述
+                .col-md-8.text-right
+                    input.holo(type='text', name='description')
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 权限
+                .col-md-8.text-left
+                    table.table.table-bordered.mm-box.col-md-10
+                        tr
+                            th.col-sm-4  岗位
+                            th.col-sm-4  查看
+                            th.col-sm-4  下载
+                        tr.cust-record
+                            td  RM
+                            td
+                                input(type='checkbox', checked='checked', name='rmRead', value='true')
+                            td
+                                input(type='checkbox', name='rmDownload', value='true')
+                        tr.cust-record
+                            td  顾问
+                            td
+                                input(type='checkbox', checked='checked', name='conRead', value='true')
+                            td
+                                input(type='checkbox', name='conDownload', value='true')
+        .modal-footer
+            .text-center
+                button.cancel.btn.btn-lg.btn-default(style='margin-right: 40px;', data-dismiss='modal', type='button') 取消
+                button#ok.btn.btn-lg.btn-success(type='submit') 确定
+#modifyNews.modal(tabindex='-1', data-width='960', style='display: none;')
+    form#formModifyNews(action='/crm/productTrend/modify')
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            .row
+                .col-md-3
+                    h4.modal-title 编辑动态
+        .modal-body
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 标题
+                .col-md-9.text-left
+                    input.holo(type='text', placeholder='title', name='title', id='title')
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 摘要
+                .col-md-9.text-left
+                    input.holo(type='text', name='summary', id='summary',placeholder='summary')
+            .row.m-t-20
+                .col-md-10.col-md-offset-1
+                    script(id='editors', name='content', type='text/plain', style='height:240px;width:768px')
+        .modal-footer
+            .text-center
+                button.cancel.btn.btn-lg.btn-default(style='margin-right: 40px;', type='button', data-dismiss='modal') 取消
+                button#ok.btn.btn-lg.btn-success(type='submit') 确定
+
+#newsDelConfirm.modal(tabindex='-1', style='display: none;')
+    .modal-body
+        p 是否确认删除该条新闻？
+    .modal-footer
+        .text-center
+            button.cancel.btn.btn-default(style='margin-right: 40px;', data-dismiss='modal') 取消
+            button#trendDelBtn.btn.btn-danger 确定
+//link(rel='stylesheet', href='/stylesheets/bootstrap-tagsinput.css')
+//script(src='/javascripts/bootstrap-tagsinput.min.js')
+//script(src='/javascripts/jquery.fileupload.js')
+//script(src='/javascripts/jquery.iframe-transport.js')
+script.
+    var tagCode = '#{_id}';
+    var ums = UM.getEditor('editors');
+
+    $('.edit').click(function(ev) {
+        var id = $(this).data('id');
+        var url = '/crm/product/trendData';
+        $('#imageView #dir>option').remove();
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType: 'json',
+            data: {id: id, tagcode: tagCode},
+            success: function(data) {
+                $('#modifyNews #title').val(data.trend.title);
+                $('#modifyNews #summary').val(data.trend.summary);
+                $('#modifyNews #formModifyNews').attr('data-id' , data.trend.id)
+                ums.setContent(data.trend.content);
+                $('#modifyNews').modal('show');
+                _.each(data.dirs, function(dir) {
+                    var dirOption = '<option value='+dir.name+'>'+dir.name+'</option>';
+                    $('#imageView #dir').append(dirOption);
+                })
+                $('.selectpicker').selectpicker('refresh');
+            }
+        });
+    });
+
+    var delId = '';
+    $('.trash').click(function (ev) {
+        delId = $(this).data('id');
+        $('#newsDelConfirm').modal('show');
+    });
+
+    $('#trendDelBtn').click(function(ev) {
+        if(delId == '') {
+           toastr.clear();
+           toast({type : 'info', body : '删除错误!'})
+           return
+        }
+        var id = delId;
+        var url = '/crm/product/trend/delete/'+id;
+        $.ajax({
+           type: "DELETE",
+           url: url,
+           dataType: 'json',
+           success: function(data) {
+               $('#newsDelConfirm').modal('hide');
+               productTrendPagination.reload();
+           }
+        });
+    })
+
+    $('#formModifyNews').submit(function(ev) {
+        ev.preventDefault();
+        var url = $(this).attr('action');
+        var serializeForm = $(this).serializeObject();
+        if(serializeForm.title == '') {
+            toastr.clear();
+            toast({type : 'info', body : '标题不能为空'})
+            return
+        }
+        if(serializeForm.title == '') {
+            toastr.clear();
+            toast({type : 'info', body : '摘要不能为空'})
+            return
+        }
+        if(serializeForm.content == '') {
+            toastr.clear();
+            toast({type : 'info', body : '编辑框内容不能为空'})
+            return
+        }
+        var id = $(this).attr('data-id');
+        serializeForm.id = id;
+        $.ajax({
+            type: "PUT",
+            url: url,
+            dataType: 'json',
+            data: {data: serializeForm},
+            success: function(data) {
+                if(data.msg.type == 'success') {
+                    $('#modifyNews').modal('hide');
+                    $('#formModifyNews')[0].reset();
+                    productTrendPagination.reload();
+                }
+                toast(data.msg)
+            }
+        });
+    });
+
+    $('#formMkdirTrend').submit(function(ev) {
+        ev.preventDefault();
+        var dir = '';
+        var prefix = $(this).find('#prefix_dir').val();
+        var suffix = $(this).find('#suffix_dir').val();
+        if(suffix == '') {
+            dir = prefix;
+        }else {
+            dir = prefix + '_' + suffix;
+        }
+        var url = $(this).attr('action');
+        $.ajax({
+            type: "POST",
+            url: url,
+            dataType: 'json',
+            data: {newsdir: dir, tagcode: tagCode},
+            success: function(data) {
+                if(data.msg.type == 'success') {
+                    $('#mkdirActivity').modal('hide');
+                    $('#formMkdirTrend').find('#suffix_dir').val('');
+                }
+                toast(data.msg)
+            }
+        });
+        return false;
+    });
+
+    $('#formMkdirTrend #prefix_dir').val(moment(new Date()).format('YYYYMMDD'));
+    $('#formUploadImageTrend').find('[name=imageNames]').tagsinput({
+        trimValue: true,
+        maxTags: 10
+    });
+
+    $("#formUploadImageTrend :file").filestyle({
+        'buttonText' : '图片上传',
+        'classButton' : 'btn btn-success',
+        'classIcon' : 'icon-plus-6',
+        'input': false
+    });
+
+    $('.selectpicker').selectpicker({noneSelectedText:'请选择'});
+
+    $('#formModify #dividendDate').datetimepicker({
+        format: 'yyyy-mm-dd',
+        autoclose: true,
+        weekStart: 1,
+        todayBtn: true,
+        minView: 'month'
+    });
+
+    var trend = 0, refData = 0, attachment = 0;
+    var productTrendPagination = new pup.Pagination({
+        templateKey: "productTrend.dataList"
+    }).condition('tagcode', #{_id}).condition('del', false).setSort({crt: -1});
+
+    //跳转到第一页
+    function loadTrendsByPage() {
+        productTrendPagination.first();
+        trend = 1;
+    }
+
+    var productRefDataPagination = new pup.Pagination({
+        templateKey: "productRefData.dataList"
+    });
+
+    //跳转到第一页
+    function loadRefDataByPage() {
+        productRefDataPagination.setSort({ctime: -1}).first();
+        refData = 1;
+    }
+
+    var productAttachmentPagination = new pup.Pagination({
+        templateKey: "productAttachment.dataList"
+    });
+
+    //跳转到第一页
+    function loadAttachmentByPage() {
+        productAttachmentPagination.setSort({ctime: -1}).first();
+        attachment = 1;
+    }
+
+    var prdOrderPagination = new pup.Pagination({
+        templateKey: "productOrder.dataList"
+    });
+
+    prdOrderPagination.setSort({ctime: -1}).setCondition({'product.productId': $("#formModify #_id").val()}).first();
+
+    $('.icon-attach-1').click(function () {
+        var url = "/crm/productAttachment/download";
+        location.href = url + "?id=" + $(this).attr('id');
+    });
+
+    $('.selectpicker').selectpicker();
+
+    $(":file").filestyle({
+        'buttonText': '选择文件',
+        'classButton': 'btn btn-primary',
+        'classIcon': 'icon-plus-6'
+    });
+    $('#mu-apps').click(function () {
+        $('#apps').show();
+        $('#message').hide();
+    });
+
+    $('#mu-msg').click(function () {
+        $('#message').show();
+        $('#apps').hide();
+    });
+
+    $('.app-box').click(function () {
+        var path = $(this).data('href');
+        window.open(path);
+    });
+    $('.f-task').click(function () {
+        window.open('/crm/audit/detail');
+    });
+    $('#muAddActivity').click(function () {
+        $('#funcActivity').modal('show');
+    });
+    $('#mkdirTrend').click(function() {
+        $('#mkdirActivity').modal('show');
+    });
+
+    var filesList = [];
+    var paramNames = [];
+    var imageNames = [];
+    $('[name=imageNames]').on('beforeItemRemove', function (event) {
+        // event.item: contains the item
+        // event.cancel: set to true to prevent the item getting removed
+        console.log(event.item);
+        var idx = paramNames.indexOf(event.item);
+        if (idx != -1) {
+            paramNames.splice(idx, 1);
+        }
+        _.each(filesList, function(value, key) {
+            if(value.name == event.item) {
+                filesList.splice(key, 1);
+            }
+        })
+    });
+
+    $('#uploadImageTrend').click(function() {
+        getNewsImageDir('uploadImageActivity');
+        $('#uploadImageActivity').modal('show');
+    });
+
+    $('#formUploadImageTrend :file').fileupload({
+        autoUpload: false,
+        change: function (e, data) {
+            $.each(data.files, function (index, file) {
+            console.log('file name', file.name)
+                $('#formUploadImageTrend').find('[name=imageNames]').tagsinput('add', file.name);
+            });
+        },
+        add: function(e, data) {
+            if (!_.contains(filesList, data.files[0])) {
+                filesList.push(data.files[0]);
+            }
+            if (!_.contains(paramNames, data.files[0].name)) {
+                paramNames.push(data.files[0].name);
+            }
+        }
+    });
+
+    $('#formUploadImageTrend').submit(function (e) {
+        e.preventDefault();
+        $('#formUploadImageTrend :file').fileupload('send', {files: filesList, paramName: paramNames}).done(function(e, data) {
+            if (data == 'success') {
+                filesList = [];
+                paramNames = [];
+                $('[name=imageNames]').tagsinput('removeAll');
+                $('#uploadImageActivity').modal('hide');
+                toast({
+                    "type": "success",
+                    "body": "上传成功!"
+                });
+            }else {
+                toast({
+                    "type": "error",
+                    "body": "上传失败!"
+                });
+            }
+        });
+    });
+
+    $('#imageInsert #dir').change(function(){
+        var dirName = $(this).val();
+        pup.template.renderTemplateByKey('news.getImageView', {tagCode: tagCode, name: dirName});
+    });
+
+    $('#selectImages').click(function(ev) {
+        insertImage();
+        $('#imageInsert').modal('hide')
+    });
+
+    var imageNames = [];
+
+    function insertImage() {
+        var imgObjs = [];
+        _.each(imageNames, function(value, key) {
+            var img = {};
+            img.src = value;
+            img._src = value;
+            imgObjs.push(img);
+        });
+        um.fireEvent('beforeInsertImage', imgObjs);
+        um.execCommand("insertImage", imgObjs);
+        imageNames = [];
+    };
+
+    $('#addTrend').click(function() {
+        getNewsImageDir('imageInsert');
+        openTrendModel();
+    });
+
+    function getNewsImageDir(type) {
+        var url = '/crm/productTrend/getImageDir';
+        $('option').remove(type);
+        $.ajax({
+           type: "GET",
+           url: url,
+           dataType: 'json',
+           data: {tagCode: tagCode},
+           success: function(data) {
+               _.each(data.dirs, function(dir) {
+                    var dirOption = '<option value='+dir.name+'>'+dir.name+'</option>';
+                    $('#'+ type +' #dir').append(dirOption);
+               });
+               $('.selectpicker').selectpicker('refresh');
+           }
+        });
+    }
+
+    $('#formCreateTrend').submit(function(ev) {
+        ev.preventDefault();
+        var serializeForm = $(this).serializeObject();
+        if(serializeForm.title == '') {
+           toastr.clear();
+           toast({type : 'info', body : '标题不能为空'})
+           return
+        }
+        if(serializeForm.summary == '') {
+           toastr.clear();
+           toast({type : 'info', body : '标题不能为空'})
+           return
+        }
+        if(serializeForm.content == '') {
+           toastr.clear();
+           toast({type : 'info', body : '编辑框内容不能为空'})
+           return
+        }
+        serializeForm.tagcode = $(this).data('id');
+        var url = $(this).attr('action');
+        $.ajax({
+           type: "POST",
+           url: url,
+           dataType: 'json',
+           data: serializeForm,
+           success: function(data) {
+              if (data.msg.type == 'success') {
+                $('#addActivity').modal('hide');
+                $('#formCreateTrend')[0].reset();
+                productTrendPagination.reload();
+              }
+              toast(data.msg);
+           }
+        });
+        return false;
+    })
+    $('#editBtn').click(function () {
+        openEditModel();
+    });
+    $('#muAddCusEarnings').click(function () {
+        $('#addCusEarnings').modal('show');
+    });
+    $('#muAddNotice').click(function () {
+        openRefDataModel();
+    });
+    $('#addRefDataBtn').click(function () {
+        openRefDataModel();
+    });
+    $('#addActivityBtn').click(function () {
+        openTrendModel();
+    });
+    $('#addProMeterialBtn').click(function () {
+        openAttachmentModel();
+    });
+    $('#muAddMaterial').click(function () {
+        openAttachmentModel();
+    });
+    $('.cancel, .close').click(function () {
+        $('.popover').each(function () {
+            $(this).hide();
+        });
+        $('#main .modal').modal('hide');
+    });
+    $('#order-report').highcharts({
+        chart: {
+            plotBackgroundColor: null,
+            plotBorderWidth: null,
+            plotShadow: false
+        },
+        title: {
+            text: '团队销售业绩统计'
+        },
+        tooltip: {
+            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+        },
+        plotOptions: {
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                dataLabels: {
+                    enabled: true,
+                    color: '#000000',
+                    connectorColor: '#000000',
+                    format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+                }
+            }
+        },
+        series: [{
+            type: 'pie',
+            name: '销售额占比',
+            data: [
+                ['产品市场部', 10.0],
+                ['Sally团队', 20.0],
+                {
+                    name: 'Kevin团队',
+                    y: 20.0,
+                    sliced: true,
+                    selected: true
+                },
+                ['Lafa团队', 20.0],
+                ['深圳分公司', 10.0],
+                ['海宁路总部', 20.0]
+            ]
+        }]
+    });
+    jQuery.validator.addMethod("legalNumber", function (value, element) {
+        var maxPeriod = $(element).val();
+        var minPeriod = $('#formModify #minPeriod').val();
+        return this.optional(element) || (maxPeriod >= minPeriod);
+    }, "请填写合法字段");
+    $('#muEdit').click(function () {
+        openEditModel();
+    });
+    function openEditModel() {
+        $('#edit').modal('show');
+        $('#formModify').validate_popover({onsubmit: false, popoverPosition: 'top'});
+        $("#edit").on("scroll", function () {
+            $.validator.reposition();
+        });
+        $('#edit').on('hide.bs.modal', function (e) {
+            $('.popover').each(function () {
+                $(this).hide();
+            });
+        });
+        $(window).resize(function () {
+            $.validator.reposition();
+        });
+    }
+    function openTrendModel() {
+        $('#addActivity').modal('show');
+        um.setContent('');
+        $('#formCreateTrend').validate_popover({onsubmit: false, popoverPosition: 'top'});
+        $("#addActivity").on("scroll", function () {
+            $.validator.reposition();
+        });
+        $('#addActivity').on('hide.bs.modal', function (e) {
+            $('.popover').each(function () {
+                $(this).hide();
+            });
+        });
+        $(window).resize(function () {
+            $.validator.reposition();
+        });
+    }
+    function openRefDataModel() {
+        $('#addNotice').modal('show');
+        $('#formCreateRefData').validate_popover({onsubmit: false, popoverPosition: 'top'});
+        $("#addNotice").on("scroll", function () {
+            $.validator.reposition();
+        });
+        $('#addNotice').on('hide.bs.modal', function (e) {
+            $('.popover').each(function () {
+                $(this).hide();
+            });
+        });
+        $(window).resize(function () {
+            $.validator.reposition();
+        });
+    }
+    function openAttachmentModel() {
+        $('#addProMaterial').modal('show');
+        $('#formCreateAttachment').validate_popover({onsubmit: false, popoverPosition: 'top'});
+        $("#addProMaterial").on("scroll", function () {
+            $.validator.reposition();
+        });
+        $('#addProMaterial').on('hide.bs.modal', function (e) {
+            $('.popover').each(function () {
+                $(this).hide();
+            });
+        });
+        $(window).resize(function () {
+            $.validator.reposition();
+        });
+    }
+
+    $('#formCreateRefData').submit(function (ev) {
+        ev.preventDefault();
+        var serializeForm = $('#formCreateRefData').serialize();
+        if ($('#formCreateRefData').validate().form()) {
+            var url = $(this).attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                dataType: 'json',
+                data: serializeForm,
+                success: function (data) {
+                    if (data.msg.type == 'success') {
+                        $('#addNotice').modal('hide');
+                        $('#formCreateRefData')[0].reset();
+                        if (refData == 0) {
+                            pup.template.renderTemplateByKey("productRefData.latestList", {id: $("#formModify #_id").val()});
+                        } else {
+                            loadRefDataByPage();
+                        }
+                    }
+                    toast(data.msg);
+                }
+            });
+        }
+        return false;
+    });
+    $('#formCreateAttachment').submit(function (ev) {
+        if ($(this).validate().form()) {
+            if ($('#attach').next().children().first().val() == "") {
+                toast({type: 'error', body: '请选择文件'});
+            }
+        }
+        return false;
+    });
+    $('#formCreateAttachment').fileupload({
+        formData: {},
+        validation: {
+            allowedExtensions: ['xlsl', 'jpg', 'gif', 'png']
+        },
+        add: function (e, data) {
+            var name = data.files[0].name;
+            name = name.substring(0, name.lastIndexOf('.'));
+            $('#formCreateAttachment #name').val(name);
+            $('#formCreateAttachment #ok').off('click').on('click', function () {
+                if ($('#formCreateAttachment').validate().form()) {
+                    data.submit();
+                }
+                return false;
+            });
+        },
+        done: function (e, data) {
+            if (data.result.msg.type == 'success') {
+                $('#addProMaterial').modal('hide');
+                $('#formCreateAttachment')[0].reset();
+                if (attachment == 0) {
+                    pup.template.renderTemplateByKey("productAttachment.dataList", {id: $("#formModify #_id").val()});
+                } else {
+                    loadAttachmentByPage();
+                }
+            }
+            toast(data.result.msg);
+        }
+    });
+    $('#formCreateAttachment').bind('fileuploadsubmit', function (e, data) {
+        data.formData = $('#formCreateAttachment').serializeObject();
+    });
+    $('#formModify').submit(function (ev) {
+        ev.preventDefault();
+        var type = $("#formModify #type > .btn.active").val();
+        var status = $("#formModify #status > .btn.active").val();
+        var serializeForm = $('#formModify').serialize();
+        var allForm = serializeForm + '&' + 'status=' + status + '&type=' + type;
+        if ($('#formModify').validate().form()) {
+            var url = $(this).attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                dataType: 'json',
+                data: allForm,
+                success: function (data) {
+                    if (data.msg.type == 'success') {
+                        $('#edit').modal('hide');
+                        var product = data.msg.attach;
+                        $('#prodInfo #name').html(product.name);
+                        $('#prodInfo #issueOrg').html(product.issueOrg);
+                        $('#prodInfo #period').html(product.minPeriod + '-' + product.maxPeriod + product.periodUnit);
+                        $('#prodInfo #preExpectedEarning').html(product.preExpectedEarning);
+                        $('#prodInfo #minAmount').html(product.minAmount);
+                        $('#prodInfo #maxAmount').html(product.maxAmount);
+                        $('#prodInfo #type').html(product.typeName);
+                        $('#prodInfo #comment').html(product.comment);
+                        $('#prodInfo #dividendDate').html(format(product.dividendDate));
+                        $('#prodInfo #raisePro').data('raisePro', product.raisePro);
+                        $('#prodInfo #raisePro').css('width', product.raisePro + "%");
+                        $('#prodInfo #raiseText').html(product.orderAmount + "/" + product.totalAmount + "万");
+                    }
+                    toast(data.msg);
+                }
+            });
+        }
+        return false;
+    });
+    //pup.showView('fsl-2');
+    var um = UM.getEditor('editor');
+    UM.plugins['image'] = function () {
+        UM.commands[ 'image' ] = {
+            execCommand: function (cmdName) {
+            //在这里实现具体的命令的行为
+            //当调用 editor.execCommand("save") 时， 该方法就会被调用
+            //保存功能的实际代码由用户自己实现
+            var dirName = $('#imageInsert #dir').val();
+            console.log('dirName', dirName);
+            pup.template.renderTemplateByKey('news.getImageView', {tagCode: tagCode, name: dirName}, {
+               afterRender: function() {
+                   $('#imageInsert').modal('show');
+               }
+            });
+        },
+        queryCommandState: function (cmdName) {
+          //这里返回只能是 1, 0, -1
+           //1代表当前命令已经执行过了
+           //0代表当前命令未执行
+           //-1代表当前命令不可用
+           //在这里总是返回0， 这样做可以使保存按钮一直可点击
+            return 0;
+        },
+        //声明该插件不支持“撤销／保存”功能， 这样就不会触发ctrl+z 和ctrl+y的记忆功能
+        notNeedUndo: 1
+        };
+    };
+    UM.registerUI('image', function( name ){
+        //该方法里的this指向编辑器实例
+        var me = this,
+        //实例化一个UMEDITOR提供的按钮对象
+        $button = $.eduibutton({
+            //按钮icon的名字， 在这里会生成一个“edui-icon-save”的className的icon box，
+            //用户可以重写该className的background样式来更改icon的图标
+            //覆盖示例见btn.css
+            'icon': 'image',
+            'title': me.options.lang === "zh-cn" ? "图片" : "image",
+            'click': function(){
+                //在这里处理按钮的点击事件
+                //点击之后执行save命令
+                me.execCommand( name );
+            }
+        });
+        //在这里处理保存按钮的状态反射
+        me.addListener( "selectionchange", function () {
+            //检查当前的编辑器状态是否可以使用save命令
+            var state = this.queryCommandState( name );
+            //如果状态表示是不可用的( queryCommandState()的返回值为-1 )， 则要禁用该按钮
+            $button.edui().disabled( state == -1 ).active( state == 1 );
+        });
+        //返回该按钮对象后， 该按钮将会被附加到工具栏上
+        return $button;
+    });

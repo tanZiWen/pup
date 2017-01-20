@@ -1,0 +1,40 @@
+doctype html
+html
+    head
+        block head
+            title= title
+            link(rel='stylesheet', href='/stylesheets/bootstrap.css')
+            link(rel='stylesheet', href='/font-css/animation.css')
+            link(rel='stylesheet', href='/font-css/fontello.css')
+            link(rel='stylesheet', href='/stylesheets/style.css')
+            link(rel='stylesheet', href='/stylesheets/bootstrap-select.min.css')
+            link(rel='stylesheet', href='/stylesheets/bootstrap-modal-bs3patch.css')
+            link(rel='stylesheet', href='/stylesheets/bootstrap-modal.css')
+            link(rel='stylesheet', href='/stylesheets/bootstrap-tagsinput.css')
+            link(rel='stylesheet', href='/stylesheets/bootstrap-switch.css')
+
+            block style
+            script(src='/javascripts/jquery-1.11.0.min.js')
+            script(src='/javascripts/bootstrap.min.js')
+            script(src='/javascripts/bootstrap-select.min.js')
+            script(src='/javascripts/bootstrap-button.js')
+            script(src='/javascripts/highcharts.js')
+            script(src='/javascripts/bootstrap-modalmanager.js')
+            script(src='/javascripts/bootstrap-modal.js')
+            script(src='/javascripts/bootstrap-tagsinput.js')
+            script(src='/javascripts/bootstrap-switch.js')
+            script(src='/javascripts/bootstrap-filestyle.min.js')
+            //
+                script(src='/js/bootstrap.min.js')
+                script(src='/js/underscore-min.js')
+                script(src='/js/util.js')
+            block script
+    body(style='')
+        #wrap
+            block header
+            .container
+                #msg.alert.alert-success.col-md-6.col-md-offset-3.alert-dismissable(style='display: none;')
+                    button(class="close", data-dismiss="alert", aria-hidden="true") &times;
+                    p 操作成功
+                block content
+        block footer

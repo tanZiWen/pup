@@ -1,0 +1,96 @@
+.sidebar.sidebar-left.mm-box
+    #muAssign.sidemenu
+        i.icon.icon-th-4
+        | 分配
+        .label.label-primary(style='margin-left: 20px;') #{requestCount}
+    .divider.divider-default
+    #muImport.sidemenu
+        i.icon.icon-upload-5
+        | 导入
+    .divider.divider-default
+    #muHistory.sidemenu
+        i.icon.icon-list-bullet
+        | 导入历史
+    .divider.divider-default
+    #muRecycle.sidemenu
+        i.icon.icon-ccw-2
+        | 回收
+    .divider.divider-default
+    #muStatistic.sidemenu
+        i.icon.icon-list-alt
+        | 商机汇总
+.row.m-t-20
+    #requests.f-func-box.mm-box.col-sm-8.col-sm-offset-2.m-b-20
+
+    #import.f-func-box.mm-box.col-sm-8.col-sm-offset-2.form-horizontal.m-b-20(style='display: none;')
+
+    #history.f-func-box.m-b-20(style='display: none;')
+
+    #recycle.f-func-box.mm-box.col-sm-8.col-sm-offset-2.form-horizontal.m-b-20(style='display: none;')
+
+    #statistic.f-func-box.mm-box.col-sm-8.col-sm-offset-2.form-horizontal.m-b-20(style='display: none;')
+
+script(src='/javascripts/jquery.fileupload.js')
+script(src='/javascripts/jquery.iframe-transport.js')
+script(src='/javascripts/jquery.ui.widget.js')
+
+script.
+
+    var batchName = null;
+    var assignItem = 0;
+
+    showAssiagnMenu(0);
+
+    function showAssiagnMenu(item) {
+        if(item != null && item != undefined && item > 1) {
+            assignItem = item;
+        }
+        $('.f-func-box').hide();
+        $('#requests').show();
+        pup.template.renderTemplateByKey("customer.assignMenu");
+    }
+
+    $('#muAssign').click(function() {
+        showAssiagnMenu();
+        batchName = null;
+        assignItem = 0;
+    });
+
+    $('#muImport').click(function() {
+        $('.f-func-box').hide();
+        $('#import').show();
+        pup.template.renderTemplateByKey("customer.importMenu");
+    });
+    $('#muHistory').click(function() {
+        $('.f-func-box').hide();
+        $('#history').show();
+        pup.template.renderTemplateByKey("customer.historyMenu");
+    });
+    $('#muRecycle').click(function() {
+        $('.f-func-box').hide();
+        $('#recycle').show();
+        pup.template.renderTemplateByKey("customer.recycleMenu");
+    });
+    $('#muStatistic').click(function() {
+        $('.f-func-box').hide();
+
+        pup.template.renderTemplateByKey("customer.statisticMenu", {}, {
+            beforeRender: function() {
+                $('#statistic').show();
+            }
+        }
+        );
+    })
+
+    function refreshUnAssignCount() {
+        var url = '/crm/customer/callListRequest/unassignCount';
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType: 'json',
+            data: {},
+            success: function (data) {
+                $('#muAssign .label').html(data.requestCount);
+            }
+        });
+    }

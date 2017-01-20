@@ -1,0 +1,93 @@
+//
+   Created by tanyuan on 1/13/15.
+
+.modal-header
+    .row
+        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row
+            .col-md-3
+                h4.modal-title(style='display: inline-block;') #{customer.taskTypeName}
+        .row.m-t-20
+            .col-md-2.text-right.text-danger 原状态
+            .col-md-3.text-left.text-danger #{customer.oldStatusName}
+            .col-md-2.text-center
+                .i.glyphicon.glyphicon-arrow-right
+            .col-md-2.text-right.text-danger 审核状态
+            .col-md-3.text-left.text-danger #{customer.newStatusName}
+.modal-body
+        span.col-md-2.text-muted.text-right 客户姓名:
+        span.col-md-2.text-left #{customer.name}
+        span.col-md-2.text-muted.text-right 性别:
+        span.col-md-2.text-left
+            if customer.sex == male
+                | 先生
+            else
+                | 女士
+        span.col-md-2.text-muted.text-right 编号:
+        span.col-md-2.text-left #{customer.code}
+    .row.m-t-20
+        span.col-md-2.text-muted.text-right 电话:
+        span.col-md-2.text-left #{customer.telNo}
+        span.col-md-2.text-muted.text-right 职业:
+        span.col-md-2.text-left #{customer.professionName}
+        span.col-md-2.text-muted.text-right 工作地址:
+        span.col-md-2.text-left #{customer.workAddress}
+    .row.m-t-20
+        span.col-md-2.text-muted.text-right 投资期限偏好:
+        span.col-md-2.text-left #{customer.investmentTimePreferenceName}
+        span.col-md-2.text-muted.text-right 资金体量:
+        span.col-md-2.text-left #{customer.bodyMassName}
+        span.col-md-2.text-muted.text-right 投资经验:
+        span.col-md-2.text-left #{customer.investmentPreferenceName}
+    .row.m-t-20
+        span.col-md-2.text-muted.text-right 拨打状态:
+        span.col-md-2.text-left #{customer.callStatusName}
+        span.col-md-2.text-muted.text-right 质检状态:
+        span.col-md-2.text-left #{customer.auditStautsName}
+        span.col-md-2.text-muted.text-right.text-danger 审核状态:
+        span.col-md-2.text-left.text-danger #{customer.reviewStatusName}
+    .row.m-t-20
+        span.col-md-2.text-muted.text-right 顾问:
+        span.col-md-2.text-left #{customer.belongUserInfo.username}##{customer.belongUserInfo.realName}
+        span.col-md-2.text-muted.text-right RM:
+        span.col-md-2.text-left #{customer.managerInfo.username}##{customer.managerInfo.realName}
+        span.col-md-2.text-muted.text-right 任务生成时间:
+        span.col-md-2.text-left #{customer.ctimeStr}
+.modal-footer
+    .text-center
+        if customer.taskDone == false
+            button.cancel.btn.btn-lg.btn-info(style='margin-right: 40px;', onclick='customerLevelPromotionReject(#{customer.taskId})') 驳回
+            button.cancel.btn.btn-lg.btn-success(style='margin-right: 40px;', onclick='customerLevelPromotionSuccess(#{customer.taskId})') 通过
+        else
+            button.cancel.btn.btn-lg.btn-info(style='margin-right: 40px;', data-dismiss='modal') 关闭
+script.
+    function customerLevelPromotionReject(id) {
+        var url = '/crm/task/customerLevelPromotion/reject/'+id;
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: url,
+            success: function(data) {
+                if(data.msg.type == 'success') {
+                    taskListPagination.reload();
+                    $('#customerLevelPromotion').modal('hide');
+                    toast(data.msg);
+                }
+            }
+        });
+    }
+    function customerLevelPromotionSuccess(id) {
+        var url = '/crm/task/customerLevelPromotion/success/'+id;
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: url,
+            success: function(data) {
+                if(data.msg.type == 'success') {
+                    taskListPagination.reload();
+                    $('#customerLevelPromotion').modal('hide');
+                    toast(data.msg);
+                }
+            }
+        });
+    }

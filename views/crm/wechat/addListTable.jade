@@ -1,0 +1,63 @@
+//
+   Created by tanyuan on 5/20/15.
+
+table.table.mm-box
+    tr.th-inverse
+        th 设备编号
+        th 微信号
+        th 昵称
+        th 手机号
+        th 沟通人员
+        th 初次沟通时间
+        th 结束沟通时间
+        th 操作
+    tbody
+        each accountList in data
+            tr.account-contact.pointer-cursor(data-id='#{accountList._id}')
+                td #{accountList.deviceName}
+                td #{accountList.code}
+                td #{accountList.nickname}
+                td #{accountList.telNo}
+                td #{accountList.commuUsername}-#{accountList.commuRealName}
+                if accountList.commuStartTime
+                    td #{format(accountList.commuStartTime)}
+                else
+                    td
+                if accountList.commuEndTime
+                    td #{format(accountList.commuEndTime)}
+                else
+                    td
+                td
+                    span.icon-btn.f-account-edit(id='#{accountList._id}', data-toggle="tooltip", title='编辑')
+                        i.icon.icon-edit-3
+
+#editAccount.modal(style='display: none', data-width='760px')
+
+#addListTablePageBar
+
+#accountContact.modal(tabindex='-1', data-width='960', style='display: none;')
+
+
+script.
+    accountPagination.bar('#addListTablePageBar');
+
+    $('.f-account-edit').click(function(ev) {
+        ev.preventDefault();
+        var accountId = $(this).attr('id')
+        pup.template.renderTemplateByKey('wechatAccountEdit.dataList', {_id: accountId}, {
+            afterRender: function() {
+                $('#editAccount').modal('show');
+            }
+        });
+    });
+    var wechatAccountContactPagination = new pup.Pagination({templateKey: "online.accountContact"});
+    $('.account-contact').click(function () {
+        var id = $(this).data('id');
+        wechatAccountContactPagination.condition('id', id);
+        wechatAccountContactPagination.setPageCount(20);
+        wechatAccountContactPagination.first({
+            afterRender: function () {
+                $('#accountContact').modal('show');
+            }
+        });
+    });

@@ -1,0 +1,28 @@
+//
+   Created by michael on 5/29/14.
+each msg in data
+    if isMyMsg(msg.from.wechatNo)
+        .row.text-center
+            span.small.text-muted #{getBriefDate(msg.ctime)}
+        .row.m-b-10
+            .col-sm-10(align='right')
+                .alert.alert-success.small.text-left(style='width:250px')  #{msg.content}
+            .col-sm-2.text-right
+                span.small.text-muted #{msg.from.comment}
+    else
+        .row.text-center
+            span.small.text-muted #{getBriefDate(msg.ctime)}
+        .row.text-left.m-b-10
+            .col-sm-2
+                span.small.text-muted.m-r-5 #{msg.from.comment}
+            .col-sm-10
+                .alert.alert-success.small(style='width:250px')  #{msg.content}
+
+
+script.
+
+    scrollBottom();
+
+    socket.on('connect', function(data) {
+        console.log('sio connected.');
+    });

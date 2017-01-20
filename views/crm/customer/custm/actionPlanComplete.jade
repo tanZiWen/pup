@@ -1,0 +1,45 @@
+//
+   Created by wangnan on 14-6-16.
+
+.modal-header
+    button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+    .row
+        .col-md-12
+            h4.modal-title(style='display: inline-block;margin-right:10px;') 完成行动计划
+            if customerActionPlan.type == 'email'
+                if customer.email
+                    button.btn.btn-default.btn-xs(onclick="window.location.href = 'mailto:' + #{customer.email}")
+                        span.icon.icon-mail-8.text-info.text-right
+                else
+                    button.btn.btn-default.btn-xs(onclick="window.location.href = 'mailto:'")
+                        span.icon.icon-mail-8.text-info.text-right
+.modal-body
+    .row.m-t-10
+        span.col-md-2.text-right.text-muted.small 备注
+        .col-md-8.text-left
+                input.holo(name='customerActionPlanCompleteComment', type='text', value='#{customerActionPlan.comment}', placeholder='备注')
+.modal-footer
+    .text-center
+        button#customerActionPlanCompleteCancel.btn.btn-lg.btn-default(style='margin-right: 40px;', data-dismiss='modal') 取消
+        button#customerActionPlanCompleteOk.btn.btn-lg.btn-success 保存
+script.
+    $('#customerActionPlanCompleteCancel').click(function() {
+        $('#customerActionPlanCompleteModal').modal('hide');
+    });
+
+    $('#customerActionPlanCompleteOk').click(function() {
+        var id = '#{customerActionPlan._id}';
+        var type = '#{customerActionPlan.type}';
+        var customerId = '#{customerActionPlan.customerId}';
+        var comment = $('[name=customerActionPlanCompleteComment]').val();
+        $.ajax({
+            type: 'POST',
+            url: '/crm/customerActionPlan/complete',
+            dataType: 'json',
+            data: 'id=' + id + '&type=' + type + '&customerId=' + customerId + '&comment=' + comment,
+            success: function (data) {
+                $('#customerActionPlanCompleteModal').modal('hide');
+                toast(data.msg);
+            }
+        });
+    });

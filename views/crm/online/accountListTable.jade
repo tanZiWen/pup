@@ -1,0 +1,29 @@
+//
+   Created by tanyuan on 12/29/14.
+
+table.table.mm-box
+    tr.th-inverse
+        th  微信号
+        th  手机号
+        th  昵称
+    tbody
+        each accountList in accountListTable
+            tr.cust-record.account-contact
+                td #{accountList.code}
+                td #{accountList.telNo}
+                td #{accountList.nickname}
+#accountListBar
+#accountContact.modal(tabindex='-1', data-width='960', style='display: none;')
+script.
+    wechatAccountPagination.bar('#accountListBar');
+    var wechatAccountContactPagination = new pup.Pagination({templateKey : "online.accountContact"});
+    $('.account-contact').click(function() {
+        var id = $(this).data('id');
+        wechatAccountContactPagination.condition('id', id);
+        wechatAccountContactPagination.setPageCount(20);
+        wechatAccountContactPagination.first({
+            afterRender: function() {
+                $('#accountContact').modal('show');
+            }
+        });
+    });

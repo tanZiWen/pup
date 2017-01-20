@@ -1,0 +1,109 @@
+//
+   Created by wangnan on 14-6-11.
+
+form#actionPlanAdd(action='/crm/customer/custm/actionPlanAdd', enctype='multipart/form-data')
+    .modal-header
+        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row
+            .col-md-3
+                h4.modal-title 设置行动计划
+    .modal-body
+        .row.m-t-10
+            span.col-md-2.text-right.text-muted.small 时间
+            .col-md-3.text-left
+                input(name='actionDate', type='text', placeholder='预计开始时间', class='required form-control')
+            .col-md-3.text-left
+                input(name='actionEndDate', type='text', placeholder='预计结束时间', class='required form-control')
+        .row.m-t-10(style='margin-top:20px')
+            span.col-md-2.text-right.text-muted.small 类型
+            .col-md-4.text-left
+                .btn-group(data-toggle='buttons-radio', name='type')
+                    button.btn-sm.btn.btn-light-info.active(onclick='selectActionPlanType("tel")', value='call', type='button') 电话
+                    button.btn-sm.btn.btn-light-info(onclick='selectActionPlanType("email")', value='email', type='button') Email
+                    button.btn-sm.btn.btn-light-info(onclick='selectActionPlanType("date")', value='meet', type='button') 约见
+        .row.m-t-10(style='display:none; margin-top:20px')
+            span.col-md-2.text-right.text-muted.small RM
+            .col-md-5.text-left
+                select(name='rm', class='selectpicker')
+                   each user in users
+                        option(value='#{user._id}') #{user.realName}
+                i#customerActionPlanAddSchedule.icon.icon-calendar.m-l-10
+            span.m-r-10.text-muted.small 配对RM:
+            if user
+                span.small.m-r-5 #{user.realName}
+            else
+                span.small.m-r-5 未知
+        .row.m-t-10(style='display:none;')
+            span.col-md-2.text-right.text-muted.small 地址类型
+            .col-md-5.text-left
+                .btn-group(data-toggle='buttons-radio', name='addressType')
+                    button.btn.btn-sm.btn-light-info.active(value='company', type='button') 公司
+                    button.btn.btn-sm.btn-light-info(value='out', type='button') 外拜
+        .row.m-t-10(style='display:none;')
+            span.col-md-2.text-right.text-muted.small 约见类型
+            .col-md-5.text-left
+                .btn-group(data-toggle='buttons-radio', name='meetType')
+                    button.btn.btn-sm.btn-light-info.active(value='day', type='button') 日约
+                    button.btn.btn-sm.btn-light-info(value='meeting', type='button') 会约
+        .row.m-t-10(style='display:none;')
+            .col-md-10.col-md-offset-1.text-left
+                input.holo(name='dateAddress', type='text', placeholder='约见地址')
+        .row.m-t-10
+            .col-md-10.col-md-offset-1
+                input.holo(type='text', placeholder='备注', name='comment')
+                input.holo(type='hidden', name='customerId', value='#{customerId}')
+    .modal-footer
+        .text-center
+            button.btn.btn-lg.btn-default(style='margin-right: 40px;', data-dismiss='modal') 取消
+            button#ok.btn.btn-lg.btn-success 确定
+script.
+    function selectActionPlanType(type) {
+        if(type == 'date') {
+            $('[name=rm]').closest('.row').show();
+            $('[name=dateAddress]').closest('.row').show();
+            $('[name=addressType]').closest('.row').show();
+            $('[name=meetType]').closest('.row').show();
+        } else {
+            $('[name=rm]').closest('.row').hide();
+            $('[name=dateAddress]').closest('.row').hide();
+            $('[name=addressType]').closest('.row').hide();
+            $('[name=meetType]').closest('.row').hide();
+        }
+    }
+    $('[name=rm]').selectpicker({noneSelectedText:'请选择'});
+    $('[name=actionDate]').datetimepicker({format : 'yyyy-mm-dd hh:ii', autoclose: true, weekStart: 1, minuteStep: 5, todayBtn: true});
+    $('[name=actionEndDate]').datetimepicker({format : 'yyyy-mm-dd hh:ii', autoclose: true, weekStart: 1, minuteStep: 5, todayBtn: true})
+    $('#actionPlanAdd').submit(function(){
+        $(this).validate_popover({popoverPosition : 'top'});
+        var formData = $(this).serializeObject();
+        var customerId = $('[name=customerId]').val();
+        var type = $('[name=type] > .btn.active').val();
+        var addressType = $('[name=addressType] > .btn.active').val();
+        var meetType = $('[name=meetType] > .btn.active').val();
+        formData.customerId = customerId;
+        formData.type = type;
+        formData.addressType = addressType;
+        formData.meetType = meetType;
+        if($(this).validate().form()){
+            var url = $(this).attr('action');
+            $.ajax({
+                type : 'POST',
+                dataType : 'json',
+                url : url,
+                data : formData,
+                success : function(data){
+                    if(data.msg.type == 'success'){
+                        $('#customerActionPlanAddModal').modal('hide');
+                        loadCustomerActionPlan();
+                    }
+                    toast(data.msg);
+                }
+            })
+        }
+        return false;
+    })
+
+    $('#customerActionPlanAddSchedule').click(function() {
+        var rm = $('#actionPlanAdd').find('[name=rm]').val();
+        pup.template.renderTemplateByKey('customer.schedule', {userId : rm});
+    });

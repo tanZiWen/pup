@@ -1,0 +1,669 @@
+//
+   Created by tanyuan on 3/16/15.
+
+div(style="margin: 20px 20px 60px 20px;")
+    .row
+        .panel.panel-primary
+            .panel-heading.text-center
+                h1.panel-title 批量修改客户信息
+            .panel-body
+                .col-md-4.text-center.col-md-offset-4#customDistribution
+                    .panel.panel-info.pointer-cursor
+                        .panel-heading.text-center
+                            h3.panel-title 自定义分配
+                .col-md-4.text-center.col-md-offset-4#averageDistribution
+                    .panel.panel-danger.pointer-cursor
+                        .panel-heading.text-center
+                            h3.panel-title 随机分配
+                .col-md-4.text-center.col-md-offset-4#invalidTelNo
+                    .panel.panel-danger.pointer-cursor
+                        .panel-heading.text-center
+                            h3.panel-title 不合法电话
+    .col-md-12.text-right.m-t-5
+        label.text-muted.m-r-10 客户总量:
+        span.m-r-15 #{totalCount}
+        label.text-muted.m-r-10 已处理量:
+        span.m-r-15#doneCount
+        label.text-muted.m-r-10 可分配量:
+        span.m-r-15#availableCount
+    .row
+        table.table.mm-box.m-t-5
+            tr.th-inverse-success
+                th.text-center(style="width: 8%")  姓名
+                th.text-center(style="width: 8%")  编号
+                th.text-center(style="width: 8%")  电话
+                th.text-center(style="width: 8%")  是否在公共池
+                th.text-center(style="width: 8%")  状态
+                th.text-center(style="width: 10%")  原顾问
+                th.text-center(style="width: 5%")
+                th.text-center(style="width: 10%")  现顾问
+                th.text-center(style="width: 10%")  原RM
+                th.text-center(style="width: 5%")
+                th.text-center(style="width: 10%")  现RM
+                th.text-center(style="width: 10%")  操作
+            tbody#showSelectCustomerListTable
+
+
+.row(style='margin-top: 50px')
+    .function-bar.text-center
+        .btn.btn-default.m-t-10(onclick='multiModifyCancel()') 取消
+        .btn.btn-success.m-l-5.m-t-10(onclick='multiModifySubmit()') 提交
+
+#selectModifyCustomer.modal(tabindex='-1', data-width='980', style='display: none;')
+    .modal-header
+        button.close.f-cancel(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row
+            .col-md-12.text-center
+                h4.modal-title 第一步: 勾选修改客户
+    .modal-body
+        .row.m-t-10
+            .col-md-12.text-right.m-t-5
+                label.text-muted.m-r-10 全选:
+                input(name='allSelect', id='allSelect', type='checkbox')
+        .row(style='height:650px; overflow: scroll')
+            table.table.mm-box
+                tr.th-inverse
+                    th.text-center(style="width: 10%")  姓名
+                    th.text-center(style="width: 10%")  编号
+                    th.text-center(style="width: 10%")  电话
+                    th.text-center(style="width: 10%")  是否在公共池
+                    th.text-center(style="width: 10%")  状态
+                    th.text-center(style="width: 10%")  顾问
+                    th.text-center(style="width: 10%")  RM
+                    th.text-center(style="width: 10%")  操作
+                tbody#customerListTable
+    .modal-footer
+        .row.text-center
+            .btn.btn-default.btn-lg.m-t-10(data-dismiss='modal') 取消
+            .btn.btn-success.btn-lg.m-l-5.m-t-10(onclick='selectModifyCust()') 确定
+
+#appointConsultantOrRM.modal(tabindex='-1', data-width='760', style='display: none;')
+    .modal-header
+        button.close.f-cancel(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row
+            .col-md-12.text-center
+                h4.modal-title 第二步: 指定顾问或RM
+    .modal-body
+        .row.m-t-20
+            .col-md-12.text-center.m-t-5.form-group
+                label.m-r-5 顾问选择:
+                select(class='selectpicker show-tick', data-size="6", name='belongUser', data-live-search="true")
+                    option(value='') 顾问选择
+                    option(value='empty') 空
+                    each consultant in consultants
+                        option(value='#{consultant._id}') #{consultant.username}(#{consultant.realName})
+        .row
+            .col-md-12.text-center.m-t-5.form-group
+                label.m-r-5 RM 选择:
+                select(class='selectpicker show-tick', data-size="6", name='manager', data-live-search="true")
+                    option(value='') RM选择
+                    option(value='empty') 空
+                    each manager in rms
+                        option(value='#{manager._id}') #{manager.username}(#{manager.realName})
+    .modal-footer
+        .row.text-center
+            .btn.btn-default.btn-lg.m-t-10(data-dismiss='modal') 取消
+            .btn.btn-success.btn-lg.m-l-5.m-t-10(onclick='appointConsultantOrRM()') 确定
+
+#whetherContinueSelect.modal(tabindex='-1', style='display: none;')
+    .modal-body
+        p 是否继续操作？
+    .modal-footer
+        .text-center
+            button.cancel.btn.btn-default(style='margin-right: 40px;', data-dismiss='modal') 取消
+            button.btn.btn-danger(onclick='continueSelectCust()') 确定
+
+#averageDistributionCust.modal(tabindex='-1', data-width='960', style='display: none;')
+    .modal-header
+        button.close.f-cancel(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row
+            .col-md-12.text-center
+                h4.modal-title 指定分配的顾问或RM
+        .row.m-t-20
+            .divider.divider-grass
+        .row.m-t-20
+            .col-md-12.text-center.m-t-5.form-group
+                label.m-r-5 顾问选择:
+                select(class='selectpicker show-tick', data-size="6", name='averageBelongUser', data-live-search="true")
+                    option(value='') 顾问选择
+                    option(value='empty') 空
+                    each consultant in consultants
+                        option(value='#{consultant._id}') #{consultant.username}(#{consultant.realName})
+        .row
+            .col-md-12.text-center.m-t-5.form-group
+                label.m-r-5 RM 选择:
+                select(class='selectpicker show-tick', data-size="6", name='averageManager', data-live-search="true")
+                    option(value='') RM选择
+                    option(value='empty') 空
+                    each manager in rms
+                        option(value='#{manager._id}') #{manager.username}(#{manager.realName})
+        .row.m-t-10
+            .divider.divider-grass
+        .row.text-center.m-t-10
+            .btn.btn-success.btn-md(onclick='averageDistributionCust()') 指定
+    .modal-body
+        .row
+            table.table.mm-box.m-t-5
+                tr.th-inverse
+                    th.text-center(style="width: 30%")  顾问
+                    th.text-center(style="width: 30%")  RM
+                    th.text-center(style="width: 30%")  分配数
+                tbody#averageDistributionList
+
+    .modal-footer
+        .row.text-center
+            .btn.btn-default.btn-lg.m-t-10(data-dismiss='modal') 取消
+            .btn.btn-success.btn-lg.m-l-5.m-t-10(onclick='averageDistributionHandle()') 确定
+
+#invalidTelModal.modal(tabindex='-1', data-width='760', style='display: none;')
+    .modal-header
+        button.close.f-cancel(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row
+            .col-md-12.text-center
+                h4.modal-title 不合法电话
+    .modal-body
+        .row
+            .col-md-2.text-right.text-muted.small 重复电话
+            .col-md-10.text-left#mutilTel
+        .row.m-t-10
+            .col-md-2.text-right.text-muted.small 不存在电话
+            .col-md-10.text-left#noExistTel
+        .row.m-t-10
+            .col-md-2.text-right.text-muted.small 不合法电话
+            .col-md-10.text-left#illegal
+    .modal-footer
+        .row.text-center
+            .btn.btn-default.btn-lg.m-t-10(data-dismiss='modal') 取消
+script.
+    $('.selectpicker').selectpicker('refresh');
+    $('#doneCount').text(0);
+    $('#availableCount').text(#{totalCount});
+    var belongUserId = '';
+    var managerId = '';
+    var belongUserName = '';
+    var managerName = '';
+    var remainCustomerListTable = _.clone(customerListTable);
+    var selectCustomerListTabele = [];
+    var selectSumCustomerListTable = [];
+    var selectDataList = [];
+    var averageSelectDate = [];
+    var customCount = 0;
+    var averageCount = 0;
+    var selectNum = 0;
+    var remainTotalCount = #{totalCount};
+    var totalCount = 0;
+    var customCustomerId = [];
+    var averageCustomerId = [];
+
+    function loadSelectCustomerListTable(customers) {
+        $('#customerListTable').html('');
+        _.each(customers, function(value, key) {
+            var freeName = '';
+            if(value.free == true) {
+                freeName = '是';
+            }else {
+                freeName = '否';
+            }
+            var html = '<tr class="cust-record">' +
+                    '<td class="text-center">' + value.name + '</td>' +
+                    '<td class="text-center">' + value.code + '</td>' +
+                    '<td class="text-center" >' + value.telNo + '</td>' +
+                    '<td class="text-center">' + freeName + '</td>' +
+                    '<td class="text-center" data-id="' + value.status + '">' + value.statusName + '</td>' +
+                    '<td class="text-center">' + value.oldBelongUserName + '</td>' +
+                    '<td class="text-center">' + value.oldManagerName + '</td>' +
+                    '<td class="text-center"><input class="selectMultiCust" type="checkbox" data-id="' + value._id + '"></td>' +
+                    '</tr>'
+
+            $('#customerListTable').append(html);
+        });
+
+    }
+
+    function loadShowCustomerListTable(customers, newBelongUserName, newManagerName) {
+        _.each(customers, function(value, key) {
+            var freeName = '';
+            var belondUserName='';
+            var managerName = '';
+            if(value.free == true) {
+                freeName = '是';
+            }else {
+                freeName = '否';
+            }
+            if(newBelongUserName == '顾问选择') {
+                belondUserName = value.oldBelongUserName;
+            }else {
+                belondUserName = newBelongUserName;
+            }
+            if(newManagerName == 'RM选择') {
+                managerName = value.oldManagerName;
+            }else {
+                managerName = newManagerName;
+            }
+            console.log('value', value);
+            console.log('newBelongUserName', newBelongUserName, newManagerName, 'newManagerName');
+            var html = '<tr class="cust-record">' +
+                    '<td class="text-center cust-name">' + value.name + '</td>' +
+                    '<td class="text-center cust-code">' + value.code + '</td>' +
+                    '<td class="text-center cust-telNo">' + value.telNo + '</td>' +
+                    '<td class="text-center cust-free">' + freeName + '</td>' +
+                    '<td class="text-center cust-status" data-id="'+ value.status +'">' + value.statusName + '</td>' +
+                    '<td class="text-center cust-oldBelongUserName">' + value.oldBelongUserName + '</td>' +
+                    '<td class="text-center"><i class="glyphicon glyphicon-arrow-right"></i></td>' +
+                    '<td class="text-center cust-belongUser">' + belondUserName + '</td>' +
+                    '<td class="text-center cust-oldManagerName">' + value.oldManagerName + '</td>' +
+                    '<td class="text-center"><i class="glyphicon glyphicon-arrow-right"></i></td>' +
+                    '<td class="text-center cust-manager">' + managerName + '</td>' +
+                    '<td class="text-center cust-remove"><i class="glyphicon glyphicon-remove" data-id="'+value._id+'"></i></td>' +
+                    '</tr>'
+
+            $('#showSelectCustomerListTable').append(html);
+        });
+    }
+
+    $('#showSelectCustomerListTable').on('click', 'tr',  function() {
+        var customerId = parseInt($(this).find('.glyphicon-remove').data('id'));
+        console.log('remainCustomerListTable length', remainCustomerListTable.length);
+        remainCustomerListTable.unshift(_.findWhere(customerListTable, {_id: customerId}));
+        $(this).remove();
+
+        remainTotalCount++;
+        if(_.contains(customCustomerId, customerId)) {
+            customCount--;
+            customCustomerId = _.without(customCustomerId, customerId);
+        }
+        if(_.contains(averageCustomerId, customerId)) {
+            averageCount--;
+            averageCustomerId = _.without(averageCustomerId, customerId);
+        }
+        console.log(customerId);
+        console.log('remainCustomerListTable length', remainCustomerListTable.length);
+        console.log('customCustomerId', customCustomerId);
+        console.log('averageCustomerId', averageCustomerId);
+        $('#doneCount').text(--totalCount);
+        $('#availableCount').text(remainTotalCount);
+        console.log('totalCount', totalCount, 'customCount', customCount,'remainTotalCount', remainTotalCount, 'averageCount', averageCount);
+    })
+
+    function selectMultiCust() {
+        $('.selectMultiCust').on('change', function () {
+            toastr.clear();
+            var selectCount = $('.selectMultiCust:checked').length;
+            toast({type: 'success', body: '已勾选客户数: ' + selectCount});
+        })
+    }
+
+    $('#allSelect').on('change', function () {
+        var th = $(this);
+        var selectCount = 0;
+        if (th.is(':checked')) {
+            $(':checkbox').prop('checked', true);
+            th.prop('checked', true);
+        } else {
+            $(':checkbox').prop('checked', false);
+            th.prop('checked', false);
+        }
+        toastr.clear();
+        $('.selectMultiCust:checked').each(function () {
+            selectCount++;
+        })
+        toast({type: 'success', body: '已勾选客户数: ' + selectCount});
+    });
+
+    function selectModifyCust() {
+        selectCustomerListTabele = [];
+        if($('.selectMultiCust:checked').length == 0) {
+            toast({type: 'warning', body: '至少要勾选一个客户!'})
+        }else {
+            $('#selectModifyCustomer').modal('hide');
+            $('#appointConsultantOrRM').modal('show');
+            if($('#allSelect').is(':checked')) {
+                $('#allSelect').prop('checked', false);
+            }
+
+        }
+    }
+
+    function appointConsultantOrRM() {
+        $('.selectMultiCust:checked').each(function () {
+            var customerId = $(this).data('id');
+            var customer = _.findWhere(customerListTable, {_id: parseInt(customerId)});
+            selectCustomerListTabele.push(customer);
+            selectSumCustomerListTable.push(customer);
+            customCustomerId.push(parseInt(customerId));
+        });
+        remainCustomerListTable = _.difference(customerListTable, selectSumCustomerListTable);
+        var data = {};
+        var belongUserId = $('[name=belongUser]').find('option:selected').val();
+        var managerId = $('[name=manager]').find('option:selected').val();
+        var belongUserName = $('[name=belongUser]').find('option:selected').html();
+        var managerName = $('[name=manager]').find('option:selected').html();
+
+        if(belongUserId) {
+            data.belongUserId = belongUserId;
+        }
+        if(managerId) {
+            data.managerId = managerId;
+        }
+
+        if (belongUserId == 'empty' && managerId == 'empty') {
+            toast({type: 'warning', body: '顾问和RM不能同时为空'});
+        }else{
+            customCount += selectCustomerListTabele.length;
+            totalCount = customCount + averageCount;
+            $('#doneCount').text(totalCount);
+            remainTotalCount = #{totalCount} - totalCount;
+            $('#availableCount').text(remainTotalCount);
+            console.log('totalCount', totalCount, 'customCount', customCount,'remainTotalCount', remainTotalCount);
+            if(remainTotalCount != 0) {
+                $('#whetherContinueSelect').modal('show');
+            }
+            _.each(selectCustomerListTabele, function(value, key) {
+                var selectData = _.clone(data);
+                selectData.customerId = value._id;
+                selectDataList.push(selectData);
+            })
+            console.log(selectDataList);
+            loadShowCustomerListTable(selectCustomerListTabele, belongUserName, managerName);
+            $('#appointConsultantOrRM').modal('hide');
+        }
+    }
+
+    function continueSelectCust() {
+        loadSelectCustomerListTable(remainCustomerListTable);
+        $('#whetherContinueSelect').modal('hide');
+        $('#selectModifyCustomer').modal('show');
+        selectMultiCust();
+        toast({type: 'info', body: '可分配客户量:'+remainTotalCount});
+    }
+
+    function multiModifyCancel() {
+        pup.widgets.layerManager.close({
+            layerKey: 'multiModifyLayer'
+        });
+    }
+
+    $('#customDistribution').click(function() {
+        toastr.clear();
+        if(remainTotalCount == 0) {
+            toast({type: 'info', body: '没有可分配数据!'});
+        }else {
+            $('body').oLoader({
+                wholeWindow: true,
+                effect: 'slide'
+            });
+            loadSelectCustomerListTable(remainCustomerListTable);
+            toast({type: 'info', body: '可分配客户量:'+remainTotalCount});
+            $('#selectModifyCustomer').modal('show');
+            $('body').oLoader('hide');
+            selectMultiCust();
+        }
+
+    });
+
+    $('#averageDistribution').click(function() {
+        toastr.clear();
+        averageSelectDate = [];
+        selectNum = 0;
+        $('#averageDistributionList').html('');
+        if(remainTotalCount == 0) {
+            toast({type: 'info', body: '没有可分配数据!'});
+        }else {
+            $('#averageDistributionList').on('keyup', 'tr', function () {
+                var thiz = $(this).find('[name=distributeNum]');
+                thiz.val(thiz.val().replace(/\D/g, ''));
+                if (thiz.val().length > 4) {
+                    thiz.val(thiz.val().substring(0, 4));
+                }
+                if(!thiz.val()) {
+                    thiz.val(0);
+                }
+            });
+            toast({type: 'info', body: '可分配客户量:'+remainTotalCount});
+            $('#averageDistributionCust').modal('show');
+        }
+
+    });
+
+    $('#invalidTelNo').click(function(ev) {
+        ev.preventDefault();
+        $('#invalidTelModal #mutilTel').html(customerMultiTel);
+        $('#invalidTelModal #noExistTel').html(customerNotExistTel);
+        $('#invalidTelModal #illegal').html(customerIllegal);
+        $('#invalidTelModal').modal('show');
+    });
+
+    function averageDistributionCust() {
+        var belongUserId = $('[name=averageBelongUser]').find('option:selected').val();
+        var managerId = $('[name=averageManager]').find('option:selected').val();
+        var belongUserName = $('[name=averageBelongUser]').find('option:selected').html();
+        var managerName = $('[name=averageManager]').find('option:selected').html();
+
+        selectNum ++;
+
+        var numArray = [];
+        var data = {};
+        if(belongUserId) {
+            data.belongUserId = belongUserId;
+        }
+        if(managerId) {
+            data.managerId = managerId;
+        }
+        data.belongUserName = belongUserName;
+        data.managerName = managerName;
+
+        averageSelectDate.push(data);
+
+        var average = parseInt(remainTotalCount/selectNum);
+        var remainder = remainTotalCount%selectNum;
+
+        var html = '<tr class="cust-record">' +
+                '<td class="text-center">' + belongUserName + '</td>' +
+                '<td class="text-center">'+ managerName +'</td>' +
+                '<td class="text-center"><input class="inputNum" name="distributeNum" type="text" align="center" value="">' +
+                '</tr>';
+
+        for(var i=0; i< selectNum; i++) {
+            if(remainder != 0) {
+                numArray.push(average+1);
+                remainder--;
+            }else {
+                numArray.push(average);
+            }
+        }
+        $('#averageDistributionList').append(html);
+        var num = 0;
+        console.log(numArray);
+        $('#averageDistributionList tr').each(function() {
+            $(this).find('[name=distributeNum]').val(numArray[num]);
+            num++;
+        });
+    }
+
+
+    function averageDistributionHandle() {
+        var num = 0;
+
+        var sumCount = 0;
+        $('#averageDistributionList tr').each(function() {
+            var count = parseInt($(this).find('[name=distributeNum]').val());
+            sumCount += count;
+        });
+
+        console.log(averageCount, remainTotalCount)
+        if(sumCount > remainTotalCount) {
+            toast({type: 'warning', body: '分配数与总数不匹配!'});
+        }else if(remainTotalCount == 0) {
+            toast({type: 'warning', body: '没有客户可分配!'});
+        }else{
+            $('#averageDistributionList tr').each(function() {
+                var count = parseInt($(this).find('[name=distributeNum]').val());
+                averageCount += count;
+                averageSelectDate[num].count = count;
+                num++;
+            });
+            var customerIds = _.pluck(remainCustomerListTable, '_id');
+            console.log('customerIds length', customerIds.length);
+            for(var i=0; i< averageSelectDate.length; i++) {
+                for(var j=0; j<averageSelectDate[i].count; j++) {
+                    console.log(i, j);
+                    var customerId = customerIds[Math.floor(Math.random()*(customerIds.length-1))];
+                    averageCustomerId.push(customerId);
+                    customerIds = _.without(customerIds, customerId);
+                    var selectData = _.clone(averageSelectDate[i]);
+                    delete selectData.count;
+                    delete selectData.belongUserName;
+                    delete selectData.managerName;
+                    selectData.customerId = customerId;
+                    selectDataList.push(selectData);
+                    console.log(customerIds);
+                    var customer = _.findWhere(customerListTable, {_id: customerId});
+                    console.log(customer)
+                    var freeName = '';
+                    if (customer.free == true) {
+                        freeName = '是';
+                    } else {
+                        freeName = '否';
+                    }
+                    if(!averageSelectDate[i].belongUserId) {
+                        averageSelectDate[i].belongUserName = customer.oldBelongUserName;
+                    }
+                    if(!averageSelectDate[i].managerId) {
+                        averageSelectDate[i].managerName = customer.oldManagerName;
+                    }
+                    selectSumCustomerListTable.push(customer);
+                    var html = '<tr class="cust-record">' +
+                            '<td class="text-center cust-name">' + customer.name + '</td>' +
+                            '<td class="text-center cust-code">' + customer.code + '</td>' +
+                            '<td class="text-center cust-telNo">' + customer.telNo + '</td>' +
+                            '<td class="text-center cust-free">' + freeName + '</td>' +
+                            '<td class="text-center cust-status" data-id="' + customer.status + '">' + customer.statusName + '</td>' +
+                            '<td class="text-center cust-oldBelongUserName">' + customer.oldBelongUserName + '</td>' +
+                            '<td class="text-center"><i class="glyphicon glyphicon-arrow-right"></i></td>' +
+                            '<td class="text-center cust-belongUser">' + averageSelectDate[i].belongUserName + '</td>' +
+                            '<td class="text-center cust-oldManagerName">' + customer.oldManagerName + '</td>' +
+                            '<td class="text-center"><i class="glyphicon glyphicon-arrow-right"></i></td>' +
+                            '<td class="text-center cust-manager">' + averageSelectDate[i].managerName + '</td>' +
+                            '<td class="text-center cust-remove"><i class="glyphicon glyphicon-remove" data-id="'+customer._id+'"></i></td>' +
+                            '</tr>';
+
+                    $('#showSelectCustomerListTable').append(html);
+                }
+            }
+            remainCustomerListTable = _.difference(customerListTable, selectSumCustomerListTable);
+            console.log(customCount, averageCount);
+            totalCount = customCount + averageCount;
+            remainTotalCount = #{totalCount} - totalCount;
+
+            console.log('averageCount', averageCount, 'totalCount', totalCount, 'remainTotalCount', remainTotalCount);
+            $('#doneCount').text(totalCount);
+            $('#availableCount').text(remainTotalCount);
+            $('#averageDistributionCust').modal('hide');
+        }
+    }
+
+    function multiModifySubmit() {
+        var flag = 0;
+        $('#showSelectCustomerListTable tr').each(function () {
+            var belongUserName = $(this).find('.cust-belongUser').html();
+            var managerName = $(this).find('.cust-manager').html();
+            if(belongUserName == '空' && managerName == '空') {
+                flag = 1;
+                $(this).css('color', '#b94a48');
+                $(this).css('background-color', '#f2dede');
+                $(this).css('border-color', '#eed3d7');
+            }
+        });
+
+        if(flag == 1) {
+            toast({type: 'warning', body: '顾问和RM不能同时为空!'});
+        }else {
+            downloadCust();
+            var url = '/crm/customer/custAdvanced/multiModifyCust';
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                data: {selectDataList: selectDataList},
+                url: url,
+                success: function (data) {
+                    pup.widgets.layerManager.close({
+                        layerKey: 'multiModifyLayer'
+                    });
+                    toast(data.msg);
+                }
+            });
+        }
+    }
+
+    function downloadCust() {
+        var customers = [];
+        var customerRow = ['姓名', '编号', '电话', '是否在公共池', '状态', '原顾问', '现顾问', '原RM', '现RM'];
+        customers.push(customerRow);
+        $('#showSelectCustomerListTable tr.cust-record').each(function () {
+            var customer = [];
+            var name = $(this).find('.cust-name').html();
+            var code = $(this).find('.cust-code').html();
+            var telNo = $(this).find('.cust-telNo').html();
+            var free = $(this).find('.cust-free').html();
+            var status = $(this).find('.cust-status').html();
+            var oldBelongUserName = $(this).find('.cust-oldBelongUserName').html();
+            var newBelongUser = $(this).find('.cust-belongUser').html();
+            var oldManagerName = $(this).find('.cust-oldManagerName').html();
+            var newManager = $(this).find('.cust-manager').html();
+            customer.push(name);
+            customer.push(code);
+            customer.push(telNo);
+            customer.push(free);
+            customer.push(status);
+            customer.push(oldBelongUserName);
+            customer.push(newBelongUser);
+            customer.push(oldManagerName);
+            customer.push(newManager);
+            customers.push(customer);
+        });
+        var ws_name = 'downloadModifyCust';
+        var wb = new Workbook(), ws = sheet_from_array_of_arrays(customers);
+        wb.SheetNames.push(ws_name);
+        wb.Sheets[ws_name] = ws;
+        var wbout = XLSX.write(wb, {bookType: 'xlsx', bookSST: true, type: 'binary'});
+        var time = moment(new Date()).format('YYYY-MM-DD HH:mm:ss');
+        saveAs(new Blob([s2ab(wbout)], {type: "application/octet-stream"}), time + "客户更新资料.xlsx");
+    };
+
+    function sheet_from_array_of_arrays(data, opts) {
+        var ws = {};
+        var range = {s: {c: 10000000, r: 10000000}, e: {c: 0, r: 0}};
+        for (var R = 0; R != data.length; ++R) {
+            for (var C = 0; C != data[R].length; ++C) {
+                if (range.s.r > R) range.s.r = R;
+                if (range.s.c > C) range.s.c = C;
+                if (range.e.r < R) range.e.r = R;
+                if (range.e.c < C) range.e.c = C;
+                var cell = {v: data[R][C]};
+                if (cell.v == null) continue;
+                var cell_ref = XLSX.utils.encode_cell({c: C, r: R});
+                if (typeof cell.v === 'number') cell.t = 'n';
+                else if (typeof cell.v === 'boolean') cell.t = 'b';
+                else if (cell.v instanceof Date) {
+                    cell.t = 'n';
+                    cell.z = XLSX.SSF._table[14];
+                    cell.v = datenum(cell.v);
+                }
+                else cell.t = 's';
+                ws[cell_ref] = cell;
+            }
+        }
+        if (range.s.c < 10000000) ws['!ref'] = XLSX.utils.encode_range(range);
+        return ws;
+    }
+    function s2ab(s) {
+        var buf = new ArrayBuffer(s.length);
+        var view = new Uint8Array(buf);
+        for (var i = 0; i != s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
+        return buf;
+    }
+    function Workbook() {
+        if (!(this instanceof Workbook)) return new Workbook();
+        this.SheetNames = [];
+        this.Sheets = {};
+    }

@@ -1,0 +1,40 @@
+//
+   Created by wangnan on 14-6-11.
+#formTag
+    .modal-header
+        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row
+            .col-md-3
+                h4.modal-title 标签
+    .modal-body
+        .row.m-t-10
+            span.col-md-2.text-right.text-muted.small 标签
+            .col-md-8.text-left
+                input.holo(name='customerTag', type='text', data-role='tagsinput', value='#{customerTagStr}', placeholder='请输入标签')
+                .text-warning 最多输入5个标签，每个标签不得超过20个字符
+    .modal-footer
+        .text-center
+            button#customerTagCancel.btn.btn-lg.btn-default(style='margin-right: 40px;', data-dismiss='modal') 取消
+            button#customerTagOk.btn.btn-lg.btn-success 保存
+
+script.
+    $('[name=customerTag]').tagsinput({
+        trimValue: true,
+        maxTags: 5,
+        maxChars: 20
+    });
+
+    $('#customerTagOk').click(function() {
+        var customerTagStr = $('[name=customerTag]').val();
+        $.ajax({
+            type: 'POST',
+            url: '/crm/customerTag/modify',
+            dataType: 'json',
+            data: 'tagStr=' + customerTagStr + '&id=#{id}',
+            success: function (data) {
+                $('#customerTagModal').modal('hide');
+                toast(data.msg);
+                loadCustomerBaseInfo();
+            }
+        });
+    });

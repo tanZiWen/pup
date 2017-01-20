@@ -1,0 +1,45 @@
+//
+   Created by tanyuan on 7/29/14.
+.row.m-t-20
+    .col-md-10.col-md-offset-1
+        table.table.mm-box
+            tr.th-inverse
+                th  姓名
+                th  性别
+                th  分公司
+                th  部门
+                th  入职时间
+                th  是否选择
+            tbody
+                each employee in data
+                    tr.cust-record(data-id='#{employee._id}')
+                        td #{employee.name}
+                        td
+                            if (employee.sex == 'male')
+                                | 男
+                            else
+                                | 女
+                        td #{employee.areaName}
+                        td #{employee.orgName}
+                        td #{format(employee.ctime)}
+                        td
+                            input(name='#{employee._id}', id='#{employee.area}', type='checkbox')
+
+        #employeePageBar
+
+
+
+
+script.
+    pup.template.renderTemplateByKey('user.dataInfo');
+    $(':checkbox').on('change',function(){
+        var th = $(this);
+        if(th.is(':checked')){
+            $(':checkbox').prop('checked',false);
+            th.prop('checked',true);
+        }
+    });
+    employeePagination.bar('#employeePageBar');
+
+
+

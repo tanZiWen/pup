@@ -1,0 +1,143 @@
+//
+   Created by wangnan on 14-6-11.
+
+each p, i in customerActionPlanList
+    .row.m-t-10
+        span.col-md-2.text-right.text-muted.small 类型
+        span.col-md-3.text-left #{p.typeName}##{p._id}
+        if p.type == 'meet'
+            span.col-md-2.text-right.text-muted.small RM
+            span.col-md-3.text-left
+                if p.rmName
+                    | #{p.rmName}
+                if p.username
+                    | (#{p.username})
+        else
+            span.col-md-2.text-right.text-muted.small
+            span.col-md-3.text-left
+        span.col-md-2.text-right
+            if p.done
+                button.btn.btn-xs.btn-default(onclick='customerActionPlanMod(#{p._id});')
+                    span.icon.icon-comment-7.text-success 备注
+                button.btn.btn-xs.text-muted.m-l-5 已完成
+            else
+                if p.type == 'call'
+                    button.btn.btn-xs.btn-default(onclick='customerActionPlanCall(#{p._id}, #{p.customerId});')
+                        span.icon.icon-phone-3.text-success 拨打
+                else if p.type == 'email'
+                    button.btn.btn-xs.btn-default(onclick='customerActionPlanComplete(#{p._id});')
+                        span.icon.icon-mail-alt.text-success 发邮件
+                else
+                    button.btn.btn-xs.btn-default(onclick='customerActionPlanComplete(#{p._id});')
+                        span.icon.icon-pencil-squared.text-success 标记完成
+                button.btn.btn-xs.btn-default.m-l-5(onclick='customerActionPlanDelete("#{p._id}", "#{p.typeName}");')
+                    span.glyphicon.glyphicon-trash.text-success
+    .row.m-t-10
+        span.col-md-2.text-right.text-muted.small 预计时间
+        span.col-md-3.text-left #{p.actionDateStr} - #{p.actionEndDateStr}
+        span.col-md-2.text-right.text-muted.small 完成时间
+        span.col-md-4.text-left
+            if p.doTimeStr
+                | #{p.doTimeStr}
+    .row.m-t-10
+        if p.type == 'meet'
+            span.col-md-2.text-right.text-muted.small 约见地址
+            span.col-md-10.text-left
+                if p.dateAddress
+                    | #{p.dateAddress}
+    .row.m-t-10
+        span.col-md-2.text-right.text-muted.small 备注
+        span.col-md-10.text-left
+            if p.comment
+                | #{p.comment}
+    .row.m-t-10
+        .divider.divider-default
+
+#customerActionPlanCompleteModal.modal(tabindex='-1', data-width='760', style='display: none;')
+#customerActionPlanModModal.modal(tabindex='-1', data-width='760', style='display: none;')
+#customerActionPlanDelConfirm.modal(tabindex='-1', style='display: none;')
+    .modal-body
+        p#customerActionPlanDelConfirmContent 确定删除？
+        p(style='font-size: 20px; font-face: bold; display: none;')
+            i.icon.icon-spin5.animate-spin.text-success
+    .modal-footer
+        .text-center
+            button.cancel.btn.btn-default(style='margin-right: 40px;', data-dismiss='modal') 取消
+            button#customerActionPlanDelBtn.btn.btn-danger 确定
+
+script.
+    var actionPlanCallCenter = new CallCenter('actionPlanCallCenter');
+    function customerActionPlanCall(id, customerId) {
+        console.log('customerActionPlanCall');
+        actionPlanCallCenter.show(customerId);
+        actionPlanCallCenter.save = function(callData) {
+            console.log('customerActionPlanCall complete action plan');
+            var paramStr = 'id=' + id
+                + '&comment=' + callData.customerServiceRecord.comment;
+            $.ajax({
+                type: 'POST',
+                url: '/crm/customerActionPlan/complete',
+                dataType: 'json',
+                data: paramStr,
+                success: function (data) {
+                    $('#customerActionPlanCompleteModal').modal('hide');
+                    toast(data.msg);
+                    loadCustomerServiceRecord();
+                    loadCustomerActionPlan();
+                }
+            });
+        }
+    }
+
+    function customerActionPlanComplete(id) {
+        console.log('customerActionPlanComplete : ' + id);
+        pup.template.renderTemplateByKey('customer.actionPlan.complete', {id : id}, {
+            afterRender : function() {
+                console.log('show customerActionPlanCompleteModal');
+                $('#customerActionPlanCompleteModal').modal('show');
+            }
+        });
+    }
+
+    $('#customerActionPlanDelBtn').click(function() {
+        $('#customerActionPlanDelConfirm').modal('hide');
+        var url = '/crm/customer/custm/actionPlanDel';
+        $.ajax({
+                type : 'POST',
+                dataType : 'json',
+                url : url,
+                data : {id : customerActionPlanDelId},
+                success : function(data){
+                    loadCustomerActionPlan();
+                    toast(data.msg);
+                }
+            })
+    });
+
+    var customerActionPlanDelId = '';
+    function customerActionPlanDelete(id, typeName) {
+        console.log('customerActionPlanDelete : id=' + id + ', typeName=' + typeName);
+        customerActionPlanDelId = id;
+        $('#customerActionPlanDelConfirmContent').html('确定删除行动计划[' + typeName + '#' + id + '] ?');
+        $('#customerActionPlanDelConfirm').modal('show');
+    }
+
+    $('#customerActionPlanCompleteModal').on('hidden.bs.modal', function (e) {
+        loadCustomerServiceRecord();
+        loadCustomerActionPlan();
+    });
+
+    function customerActionPlanMod(id) {
+        console.log('customerActionPlanMod : ' + id);
+        pup.template.renderTemplateByKey('customer.actionPlan.mod', {id : id}, {
+            afterRender : function() {
+                console.log('show customerActionPlanModModal');
+                $('#customerActionPlanModModal').modal('show');
+            }
+        });
+    }
+
+    $('#customerActionPlanModModal').on('hidden.bs.modal', function (e) {
+        loadCustomerActionPlan();
+    });
+

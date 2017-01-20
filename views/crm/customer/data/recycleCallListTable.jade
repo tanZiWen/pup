@@ -1,0 +1,69 @@
+
+table.table.table-hover#recycleTable
+    .thead
+        tr
+            th(style='width: 40%') 客户(#{data.bc.length})
+            th(style='width: 20%') 归属
+            th(style='width: 20%') 类型
+            th(style='width: 20%')
+                input.checkbox(select='selected',type='checkbox', id='checkAll')
+    .tbody
+        each customer in data.bc
+            tr.cust-record(id='#{customer._id}')
+                td #{customer.name}
+                td #{customer.belongArea.areaName}
+                td #{customer.statusName}
+                td
+                    input.checkbox(select='selected',type='checkbox', name='customerBox', id='customerBox#{customer._id}', value='#{customer._id}')
+
+table.table.table-hover#recycleNocallTable
+    .thead
+        tr
+            th(style='width: 60%') 销售
+            th(style='width: 20%') 总数
+            th(style='width: 20%')
+                input.checkbox(select='selected',type='checkbox', id='checkAll')
+    .tbody
+        each customer in data.nocall
+            tr.cust-record(id='#{customer._id}')
+                td #{customer.userName}
+                td #{customer.count}
+                td
+                    input.checkbox(select='selected',type='checkbox', name='customerBox', id='customerBox#{customer._id}', value='#{customer._id}')
+
+
+script.
+    $('#reclycleCallListData .cust-record').click(function(ev) {
+        if($('#reclycleCallListData #customerBox' + $(this).attr('id')).is(':checked')) {
+            $('#reclycleCallListData #customerBox' + $(this).attr('id')).attr('checked', false);
+        } else {
+            $('#reclycleCallListData #customerBox' + $(this).attr('id')).prop("checked",true);
+        }
+    });
+
+    $('#recycleTable #checkAll').click(function(ev) {
+        ev.stopPropagation();
+        if($(this).is(':checked')) {
+            $("#recycleTable input:checkbox[name='customerBox']").prop("checked",true);
+        } else {
+            $("#recycleTable input:checkbox[name='customerBox']").attr('checked', false);
+        }
+    });
+
+    $('#recycleNocallTable #checkAll').click(function(ev) {
+        ev.stopPropagation();
+        if($(this).is(':checked')) {
+            $("#recycleNocallTable input:checkbox[name='customerBox']").prop("checked",true);
+        } else {
+            $("#recycleNocallTable input:checkbox[name='customerBox']").attr('checked', false);
+        }
+    });
+
+    $("input:checkbox[name='customerBox']").click(function(ev) {
+        ev.stopPropagation();
+    });
+
+    $('#recycleConBtn, #recycleCloseBtn').click(function() {
+        $('#recycleMask').hide();
+        queryRecycleCallList();
+    });

@@ -1,0 +1,99 @@
+//
+   Created by tanyuan on 5/20/15.
+
+
+form#editWechatForm(action='/crm/wechat/wehcatEdit/edit')
+    .modal-header
+        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row
+            .col-md-3
+                h4.modal-title  微信号修改
+    .modal-body
+        .row
+            .col-md-2.text-right.text-muted 微信号
+            .col-md-4.text-left
+                input.holo(type='text', id='code', name='code', class='required', value='#{wechatAccount.code}', readonly='readonly')
+            .col-md-2.text-right.text-muted 密码
+            .col-md-4.text-left
+                input.holo(type='text', id='password', name='password', class='required', value='#{wechatAccount.password}')
+        .row.m-t-20
+            .col-md-2.text-right.text-muted 手机号
+            .col-md-4.text-left
+                input.holo(type='text', id='telNo', name='telNo', class='telNo', value='#{wechatAccount.telNo}')
+            .col-md-2.text-right.text-muted 昵称
+            .col-md-4.holo.text-left
+                input.holo(type='text', id='nickname', name='nickname', class='required', value='#{wechatAccount.nickname}')
+                input(type='text', value='#{wechatAccount._id}', hidden='true', name='_id')
+        .row.m-t-20
+            .col-md-2.text-right.text-muted 设备编号
+            .col-md-4.text-left
+                select(class='selectpicker', id='device', name='device')
+                    each device in devices
+                        if wechatAccount.deviceNo == device._id
+                            option(value='#{device._id},#{device.name}', selected='selected') #{device.name}
+                        else
+                            option(value='#{device._id},#{device.name}') #{device.name}
+
+            .col-md-2.text-right.text-muted 沟通人员
+            .col-md-4.text-left
+                select(class='selectpicker', id='commuUser', name='commuUser')
+                    each user in commuUsers
+                        if wechatAccount.commuUserId == user._id
+                            option(value='#{user._id},#{user.username},#{user.realName}', selected='selected') #{user.username}-#{user.realName}
+                        else
+                            option(value='#{user._id},#{user.username},#{user.realName}') #{user.username}-#{user.realName}
+
+        .row.m-t-20
+            .col-md-2.text-right.text-muted 初次沟通日期
+            .col-md-4.text-left
+                if  wechatAccount.commuStartTime
+                    input(type='text', id='commuStartTime', value='#{format(wechatAccount.commuStartTime)}', class="form-control", name='commuStartTime', placeholder='初次沟通日期')
+                else
+                    input(type='text', id='commuStartTime', value='', class="form-control", name='commuStartTime', placeholder='初次沟通日期')
+            .col-md-2.text-right.text-muted 结束沟通日期
+            .col-md-4.text-left
+                if wechatAccount.commuEndTime
+                    input(type='text', id='commuEndTime', value='#{format(wechatAccount.commuEndTime)}', class="form-control", name='commuEndTime', placeholder='结束沟通日期')
+                else
+                    input(type='text', id='commuEndTime', value='', class="form-control", name='commuEndTime', placeholder='结束沟通日期')
+        .row.m-t-20
+            .col-md-2.text-right.text-muted qq
+            .col-md-4.text-left
+                if wechatAccount.qq
+                    input.holo(type='text', id='qq', name='qq', value='#{wechatAccount.qq}', class='email')
+                else
+                    input.holo(type='text', id='qq', name='qq', value='', class='email')
+    .modal-footer
+        .row.text-center
+            button.btn.btn-lg.btn-default(data-dismiss='modal') 取消
+            button.btn.btn-lg.btn-success(type='submit') 确定
+
+script.
+    $('#commuStartTime').datetimepicker({format : 'yyyy-mm-dd', autoclose: true, weekStart: 1, minView : 'month'});
+    $('#commuEndTime').datetimepicker({format : 'yyyy-mm-dd', autoclose: true, weekStart: 1, minView : 'month'});
+    $('.selectpicker').selectpicker({noneSelectedText: '请选择'});
+    $('#editWechatForm #code').css({ background: "#F0F0F0" });
+    $('#editWechatForm').submit(function(ev) {
+        ev.preventDefault();
+        var url = $(this).attr('action');
+        var editData = $(this).serializeObject();
+        editData._id = $('[name=_id]').val();
+        $(this).validate_popover({popoverPosition: 'top'});
+        if ($(this).validate().form()) {
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                data: editData,
+                url: url,
+                success: function (data) {
+                    if (data.msg.type == 'success') {
+                        $('#editAccount').modal('hide');
+                        accountPagination.reload();
+                    }
+                    toast(data.msg);
+                }
+            })
+        }
+        return false;
+
+    })

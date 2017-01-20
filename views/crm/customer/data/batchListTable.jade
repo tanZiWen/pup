@@ -1,0 +1,92 @@
+//
+   Created by michael on 6/4/14.
+
+table.table
+    tr
+        th 批号
+        th 归属
+        th 数量
+        th
+            input.checkbox(select='selected',type='checkbox', id='checkAll', checked='checked')
+    each batch in data
+        tr.cust-record
+            td #{batch.name}
+            td
+                if batch.belongArea
+                    #{batch.belongArea.areaName}
+                else
+                    | 空
+            td
+                if status == '1'
+                    | #{batch.bcCount}
+                else
+                    if callTypeVal
+                        if  callTypeVal == '1'
+                            | #{batch.noCallCount}
+                        else
+                            | #{batch.callCount}
+                    else
+                        | #{batch.unbcCount}
+            td
+                if status == '1'
+                    input(type='hidden', id='batchCount#{batch._id}', value='#{batch.bcCount}')
+                else
+                    if callTypeVal
+                        if  callTypeVal == '1'
+                            input(type='hidden', id='batchCount#{batch._id}', value='#{batch.noCallCount}')
+                        else
+                            input(type='hidden', id='batchCount#{batch._id}', value='#{batch.callCount}')
+                    else
+                        input(type='hidden', id='batchCount#{batch._id}', value='#{batch.unbcCount}')
+                input.checkbox(checked='checked',type='checkbox', name='batchBox', value='#{batch._id}')
+
+    tr
+        td.text-center(colspan='4')
+            input(type='hidden', name='batchTotalCount', id='batchTotalCount', value='#{count}')
+            label#totalCountLabel.control-label #{count}条/
+            label#leftCount.control-label #{count}
+            label.control-label 条
+            input(style='width: 60px;', name='validCount', id ="validCount", value='#{count}', onkeyup="assignDataCount(this)")
+
+script.
+
+    batchLoadComplete();
+    dataCount = parseInt($('#batchTotalCount').val());
+    validCount = dataCount;
+    leftCount = dataCount;
+
+    $("#batchListData input:checkbox[name='batchBox']:checked").each(function(key, value) {
+        batchSelectedIds.push(parseInt($(this).val()));
+    });
+
+    $("#batchListData").find('input[name=batchBox]').click(function() {
+        resetBatchData();
+    });
+
+    $('#batchListData #checkAll').click(function(ev) {
+        ev.stopPropagation();
+        if($(this).is(':checked')) {
+            $("#batchListData input:checkbox[name='batchBox']").prop("checked",true);
+        } else {
+            $("#batchListData input:checkbox[name='batchBox']").attr('checked', false);
+        }
+        resetBatchData();
+    });
+
+    function resetBatchData() {
+        var totalCount = 0;
+        batchSelectedIds = [];
+        $("#batchListData").find("input:checkbox[name=batchBox]:checked").each(function(key, value) {
+            batchSelectedIds.push(parseInt($(this).val()));
+            var inputId = 'batchCount'+$(this).val();
+            totalCount += parseInt($('#' + inputId).val());
+        });
+
+        validCount = totalCount;
+        $('#batchListData #batchTotalCount').val(dataCount);
+        $('#batchListData #totalCountLabel').html(dataCount + '条/');
+        $('#batchListData #leftCount').html(totalCount);
+        $('#batchListData #validCount').val(totalCount);
+        if ($.isFunction(window.assign))
+            assign(getAssignType());
+    }

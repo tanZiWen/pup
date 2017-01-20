@@ -1,0 +1,27 @@
+//
+   Created by tanyuan on 9/28/14.
+
+each actionPlan in actionPlans
+    .row.m-t-10
+        span.col-md-2.text-right.text-muted 类型:
+        span.col-md-2.text-left #{actionPlan.typeName}
+        span.col-md-2.text-right.text-muted RM:
+        span.col-md-2.text-left #{actionPlan.rmName}
+        span.col-md-2.text-right.text-muted 预计执行时间:
+        span.col-md-2.text-left #{actionPlan.actionDate}
+    .row.m-t-10
+        span.col-md-2.text-right.text-muted 完成时间:
+        span.col-md-2.text-left #{actionPlan.actionEndDate}
+        span.col-md-2.text-right.text-muted 地址类型:
+        span.col-md-2.text-left #{actionPlan.addressTypeName}
+        span.col-md-2.text-right.text-muted 约见类型:
+        span.col-md-2.text-left #{actionPlan.meetTypeName}
+    .row.m-t-10
+        span.col-md-2.text-right.text-muted 约见地址:
+        span.col-md-2.text-left #{actionPlan.dateAddress}
+    .row.m-t-10
+        span.col-md-2.text-right.text-muted 备注:
+        span.col-md-2.text-left #{actionPlan.comment}
+    .row.m-t-10
+        .divider.divider-default
+

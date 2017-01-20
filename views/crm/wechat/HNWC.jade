@@ -1,0 +1,135 @@
+//
+   Created by tanyuan on 7/3/15.
+.sidebar.sidebar-left.mm-box
+    #muAdd.sidemenu
+        i.icon.icon-plus-6
+        | 添加
+.row.m-t-20#formSearch
+    .col-sm-8.col-sm-offset-2.mm-box.form-horizontal.filter-pan
+        .form-group.m-t-5
+            label.col-md-2.text-right 微信工作号
+            .col-md-4.text-left
+                select(class='selectpicker', name='accountId', id='accountId', data-live-search='true')
+                    option(value='') 请选择
+                    each account in wechatAccounts
+                        option(value='#{account._id}') #{account.code}
+        //.form-group.m-t-20
+        //    label.col-md-2.text-right 设备号
+        //    .col-md-4.text-left
+        //        select(class='selectpicker', name='deviceNo', id='deviceNo', data-live-search='true')
+        //            option(value='') 请选择
+        //            each divice in divices
+        //                option(value='#{divice._id}') #{divice.name}
+        .row.form-group.m-t-20
+            .divider.divider-default
+        .row.form-group.m-t-20
+            .col-md-12.text-center
+                button.btn.btn-primary(onclick='searchHNWC()')
+                    i.icon.icon-filter-1
+                    | 过滤
+.row.m-t-25
+    .col-sm-8.col-sm-offset-2
+        #HNWCListData.row
+#addHNWC.modal(style='display: none;', data-width='760px')
+    form#addHNWCForm(action='/crm/wechat/addHNWC')
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            .row
+                .col-md-3
+                    h4.modal-title 高净值客户添加
+        .modal-body
+            .row
+                .col-md-2.text-right.text-muted 客户姓名
+                .col-md-4.text-left
+                    input.holo(name='name', id='name', type='text')
+                .col-md-2.text-right.text-muted 客户评级
+                .col-md-4.text-left
+                    #selectCustRateType.labelRadio
+                        each custRateType in custRateTypes
+                            input(type='radio', name='rate', id='rate', value='#{custRateType.key}', data-name='#{custRateType.name}')
+            .row.m-t-20
+                .col-md-2.text-right.text-muted 微信工作号
+                .col-md-4.text-left
+                    select(class='selectpicker', name='account', id='account', data-live-search='true')
+                        each account in wechatAccounts
+                            option(value='#{account._id},#{account.code}') #{account.code}
+                .col-md-2.text-right.text-muted 客户联系方式
+                .col-md-4.text-left
+                    select(class='selectpicker', name='telNo', id='telNo', data-live-search='true')
+            .row.m-t-20
+                .col-md-2.text-right.text-muted 初步接触情况
+                .col-md-10.text-left
+                    textarea.holo(id='primaryComment', name='primaryComment', type='text', style='width: 100%;', rows='3', placeholder='客户初步接触情况')
+            .row.m-t-20
+                .col-md-2.text-right.text-muted 备注
+                .col-md-10.text-left
+                    textarea.holo(id='comment', name='comment', type='text', style='width: 100%;', rows='3', placeholder='备注')
+        .modal-footer
+            .row.text-center
+                button.btn.btn-lg.btn-default(data-dismiss='modal') 取消
+                button.btn.btn-lg.btn-success(type='submit') 确定
+script.
+    $('.selectpicker').selectpicker({noneSelectedText: '请选择'});
+    var custRateTypeRadio = new pup.widgets.labelRadio('#selectCustRateType').radio(function () {
+    });
+    function searchHNWC() {
+        var accountId = $('#formSearch #accountId').val();
+        HNWCListPagination.clear();
+        if (accountId) {
+            HNWCListPagination.condition('accountId', accountId);
+        }
+
+        HNWCListPagination.first();
+    };
+    var HNWCListPagination = new pup.Pagination({templateKey: "momentsMsg.HNWCList"});
+    HNWCListPagination.first();
+    $('#muAdd').click(function (ev) {
+        ev.preventDefault();
+        $('#addHNWC').modal('show');
+    });
+    loadAccountContacts($('[name=account]').val().split(',')[0]);
+    $('[name=account]').change(function (ev) {
+        ev.preventDefault();
+        var val = $(this).val();
+        loadAccountContacts(val.split(',')[0]);
+    });
+    function loadAccountContacts(val) {
+        $.getJSON("/crm/wechat/HNWC/" + val, function (data) {
+            $('[name=telNo] option').remove();
+            _.each(data.contacts, function (value) {
+                var html = '<option value="' + value.telNo + '">' + value.telNo + '</option>';
+                $('[name=telNo]').append(html);
+            })
+            $('[name=telNo]').selectpicker('refresh');
+        });
+    };
+
+    $('#addHNWCForm').validate_popover({popoverPosition: 'top'});
+    $('#addHNWCForm').submit(function (ev) {
+        ev.preventDefault();
+        var url = $(this).attr('action');
+        var data = $(this).serializeObject();
+        var account = data.account.split(',');
+        data.accountId = account[0];
+        data.accountCode = account[1];
+        delete data.account;
+        data.rate = custRateTypeRadio.val();
+        if ($(this).validate().form()) {
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: data,
+                dataType: 'JSON',
+                success: function (data) {
+                    if (data.msg.type == 'success') {
+                        $('#addHNWC').modal('hide');
+                        $('#addHNWCForm')[0].reset();
+                        loadAccountContacts($('[name=account]').val().split(',')[0]);
+                        HNWCListPagination.sort('ctime', -1).first();
+                    }
+                    toast(data.msg);
+                }
+            })
+        }
+        return false;
+    })

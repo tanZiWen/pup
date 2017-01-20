@@ -1,0 +1,37 @@
+.row(style='margin-top: 20px;')
+    .mm-box.col-md-8.col-md-offset-2
+        h4(style='color:#a52410;') 创建订单
+        .row
+            .divider(style='background: #a52410;height: 1px;margin:10px auto;')
+        .row
+            .col-md-2
+                input.holo(type='text', style='width: 100%', placeholder='选择客户')
+            .col-md-6
+                input.holo(type='text', style='width: 100%', placeholder='选择产品')
+            .col-md-2
+                input.holo(type='text', style='width: 100%', placeholder='下单金额')
+            h6.text-muted 万元
+        input.holo(type='text', style='width: 100%', placeholder='备注')
+        .row
+            .divider(style='background: #999;height: 1px;margin:20px auto;')
+        .row.text-center(style='height: 80px;')
+            button.btn.btn-lg.btn-danger(style='margin-right: 40px;') 取消
+            button.btn.btn-lg.btn-success 确定
+
+script.
+    $('#mu-apps').click(function() {
+        $('#apps').show();
+        $('#message').hide();
+    });
+    $('#mu-msg').click(function() {
+        $('#message').show();
+        $('#apps').hide();
+    });
+
+    $('.app-box').click(function() {
+        var path = $(this).data('href');
+        window.open(path);
+    });
+    $('.f-task').click(function() {
+        window.open('/crm/audit/detail');
+    });

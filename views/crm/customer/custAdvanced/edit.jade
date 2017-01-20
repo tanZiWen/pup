@@ -1,0 +1,75 @@
+
+//
+   Created by tanyuan on 11/14/14.
+.modal-header
+    button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+    .row
+        .col-md-4
+            h4.modal-title(style='display: inline-block;') 修改客户状态
+.modal-body
+    form#editStatusForm
+        .row
+            .col-md-2.text-right 原状态
+            .col-md-3.text-left
+                if customerStatus
+                    input.holo(name='oldStatus', type='text', value='#{customerStatus.name}', data-id='#{customerStatus.key}', readonly='readonly')
+                else
+                    input.holo(name='oldStatus', type='text', value='无', data-id='', readonly='readonly')
+            .col-md-2.text-center
+                .glyphicon.glyphicon-arrow-right
+            .col-md-2.text-right 更新状态
+            .col-md-3.text-left
+                select(class='selectpicker show-tick form-control', name='newStatus', data-live-search="true")
+                    each status in statusList
+                        option(value='#{status.key}') #{status.name}
+
+        .row.m-t-20
+            .col-md-2.text-right 修改原因
+            .col-md-10.text-left
+                textarea.holo(name='statusReason', type='text', style='width: 100%;', placeholder='备注', class='required')
+.modal-footer
+    .text-center
+        button.cancel.btn.btn-lg.btn-default(data-dismiss='modal', style='margin-right: 40px;') 取消
+        button.btn.btn-lg.btn-success(onclick='editStatus(#{id})') 确定
+script.
+    $('.selectpicker').selectpicker('refresh');
+    function editStatus(id) {
+        var oldStatus = $('[name=oldStatus]').data('id');
+        var newStatus = $('[name=newStatus]').val();
+        var reason = $('[name=statusReason]').val();
+        $('#editStatusForm').validate_popover({onsubmit: false, popoverPosition: 'top'});
+        var url = '/crm/customer/custAdvanced/editStatus/'+id;
+        $('body').oLoader({
+            wholeWindow: true,
+            effect:'slide'
+        });
+        if($('#editStatusForm').validate().form()) {
+            $('#editStatus').modal('hide');
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                url: url,
+                data: {oldStatus: oldStatus, newStatus: newStatus, reason: reason},
+                success: function(data) {
+                    if(data.msg.type == 'success') {
+                        customerAdvancedPagination.reload();
+                    }else{
+                        $('#editStatus').modal('show');
+                    }
+                    $('body').oLoader('hide');
+                    toast(data.msg);
+                }
+            });
+        }
+    }
+    //$('#editStatusForm').keypress(function(e) {
+    //    $('#statusReason').focus();
+    //    var code = (e.keyCode ? e.keyCode : e.which);
+    //    if(code == 13) {
+    //        $(this).off('keypress');
+    //        editStatus(#{id});
+    //        e.preventDefault();
+    //        return false;
+    //    }
+    //});
+

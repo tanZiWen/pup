@@ -1,0 +1,65 @@
+//
+   Created by wangnan on 14-6-16.
+
+.row.m-t-10
+    span.col-md-2.text-right.text-muted.small 姓名
+    span.col-md-2.text-left
+        if customer.name
+            | #{customer.name}
+        if customer.sex == 'male'
+            span.m-l-5 先生
+        else if customer.sex == 'female'
+            span.m-l-5 小姐
+    span.col-md-2.text-right.text-muted.small 编号
+    span.col-md-2.text-left #{customer.code}
+    span.col-md-2.text-right.text-muted.small 手机号码
+    span.col-md-2.text-left
+        if customer.telNo
+            | #{customer.telNo}
+.row.m-t-10
+    span.col-md-2.text-right.text-muted.small 状态
+    span.col-md-2.text-left #{customer.statusName}
+    span.col-md-2.text-right.text-muted.small 拨打状态
+    span.col-md-2.text-left #{customer.callStatusName}
+    span.col-md-2.text-right.text-muted.small 质检状态
+    span.col-md-2.text-left #{customer.auditStatusName}
+.row.m-t-10
+    span.col-md-2.text-right.text-muted.small 投资偏好
+    span.col-md-2.text-left #{customer.investmentPreferenceName}
+    span.col-md-2.text-right.text-muted.small 体量
+    span.col-md-2.text-left #{customer.bodyMassName}
+    span.col-md-2.text-right.text-muted.small 会员等级
+    span.col-md-2.text-left #{customer.levelName}
+.row.m-t-10
+    span.col-md-2.text-right.text-muted.small Email
+    span.col-md-2.text-left
+        if customer.email
+            | #{customer.email}
+    span.col-md-2.text-right.text-muted.small 数据来源
+    span.col-md-4.text-left
+        if customer.addType == 'add'
+            | 由用户 #{customer.cusername} ##{customer.crealName} 添加
+        else
+            | 从批次 #{customer.batchName} ##{customer.ImpBatchId} 导入
+.row.m-t-10
+    span.col-md-2.text-right.text-muted.small 顾问
+    span.col-md-2.text-left
+        if customer.refSeller
+            | #{customer.refSeller.realName + ' '}
+    span.col-md-2.text-right.text-muted.small RM
+    span.col-md-2.text-left
+        if customer.refManager
+            | #{customer.refManager.realName+ ' '}
+
+.row.m-t-10
+    span.col-md-2.text-right.text-muted.small 备注
+    span.col-md-10.text-left
+        if customer.comment
+            | #{customer.comment}
+.row.m-t-10
+    span.col-md-2.text-right.text-muted.small 标签
+    .col-md-10.text-left
+        #customerTagsInfo
+            if customer.tags && customer.tags.length != 0
+                each t in customer.tags
+                    .label.label-default.m-l-5 #{t}

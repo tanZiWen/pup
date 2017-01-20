@@ -1,0 +1,220 @@
+script.
+    function modalShow() {
+        $('#changePwd').modal('show');
+    }
+    function changePwd() {
+        var url = $('#password').attr('action');
+        $('#password').validate_popover({popoverPosition : 'top'});
+        var data = $('#password').serialize();
+        if($('#password').validate().form()) {
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                data: data,
+                url: url,
+                success: function(data) {
+                    if(data.type == 'success') {
+                        $('#password')[0].reset();
+                        $('#changePwd').modal('hide');
+                    }
+                    toast(data);
+                }
+            })
+        }
+    }
+
+
+    $(function() {
+        $('#logout').click(function() {
+            document.cookie = "authorize_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+            document.cookie = "refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+            window.location="/";
+        });
+        if('#{currentApp.code}' == 'CRM') {
+            $('#msgCount').hide();
+            $('#taskCount').hide();
+            $('#msgBar').click(function() {
+                pup.template.renderTemplateByKey('crm.message.list');
+            });
+            $('#taskBar').click(function() {
+                pup.template.renderTemplateByKey('crm.task.list');
+            });
+
+            var webSocketAddress = "http://#{webSocketAddress}";
+            //console.log(webSocketAddress);
+            //var socket = io.connect(webSocketAddress);
+
+            console.log('webSocketAddress:', webSocketAddress);
+            pup.socketIO.connect(webSocketAddress);
+            var socket = pup.socketIO.getSocket();
+
+            refreshTaskCount(socket);
+            refreshMsgCount(socket);
+
+            socket.on('usernum', function(result) {
+                console.log("当前连接人数:" + result.number + ', 连接用户：' + JSON.stringify(result.usernames));
+            });
+
+            socket.on('notificationRefreshTaskCount', function(result) {
+                refreshTaskCount(socket);
+            });
+
+            socket.on('notificationRefreshMsgCount', function(result) {
+                refreshMsgCount(socket);
+            });
+
+            socket.on('wechatNewMsgNotif', function(data) {
+                if(data && $("#chatDialog") != undefined && $("#chatDialog").is(":visible")) {
+                    if(data.from.wechatNo == $("#chatDialog").attr("accountId") && data.to.comment == $("#chatDialog").attr("contactId") && !massFlag) {
+                        appendMsg({'ctime' : data.ctime, nickname: data.from.nickname, content : data.content}, true);
+                    } else if(data.to.wechatNo == $("#chatDialog").attr("accountId") && data.from.comment == $("#chatDialog").attr("contactId") && !massFlag) {
+                        appendMsg({'ctime' : data.ctime, nickname: data.from.comment, content : data.content}, false);
+                    }
+                    console.log("curAccountId: " + $("#chatDialog").attr("accountId") + ", notification: " + JSON.stringify(data));
+                }
+                if(data && $("#chatRoom") != undefined && $("#chatRoom").is(":visible")) {
+                    if($("#chatRoom #contacts").is(":visible")) {
+                        if(!massFlag)
+                            refreshContactsByTags();
+                        pup.template.renderTemplateByKey("wechat.msgContactList");
+                    } else {
+                        if(!massFlag)
+                            pup.template.renderTemplateByKey("wechat.msgContactList");
+                        refreshContactsByTags();
+                    }
+                }
+            });
+        }
+    });
+
+    function refreshTaskCount(socket) {
+        socket.emit('task.count', {}, function(result) {
+            $('#taskCount').hide();
+            resetTaskMenu(result);
+        });
+    }
+
+    function refreshMsgCount(socket) {
+        socket.emit('message.count', {}, function(result) {
+            $('#msgCount').hide();
+            resetMsgMenu(result);
+        });
+    }
+
+    function resetMsgMenu(data) {
+        for(var i = 0; i < data.length; i ++) {
+            var message = data[i];
+            if(message.type == 'msg') {
+                if(message.count > 0) {
+                    $('#msgCount').html(message.count);
+                    $('#msgCount').show();
+                }
+            }
+        }
+    }
+
+    function resetTaskMenu(data) {
+        for(var i = 0; i < data.length; i ++) {
+            var message = data[i];
+            if(message.type == 'task') {
+                if(message.count > 0) {
+                    $('#taskCount').html(message.count);
+                    $('#taskCount').show();
+                }
+            }
+        }
+
+
+        //var totalNum = data.totalNum;
+        //var msgArr = data.data;
+        //$('#msgCount').html(totalNum);
+        //if(totalNum && totalNum > 0) {
+        //    $('#msgCount').show();
+        //}
+        //$( "#msgMenu" ).remove();
+        //var msgDropDownHtml = $('#msgDropDown').html();
+        //var msgMenuBuffer = "";
+        //if(msgArr && msgArr.length > 0) {
+        //    msgMenuBuffer += "<ul id='msgMenu' role='menu' aria-labelledby='dropdownMenuUser' class='dropdown-menu'>";
+        //    for(var i = 0; i < msgArr.length; i++) {
+        //        var msg = msgArr[i];
+        //        msgMenuBuffer += "<li role='presentation'>"
+        //        + "<a role='menuitem' tabindex='-1' href='/user/setting'>"
+        //        + "<i style='position: absolute;' class='text-left'>" + msg.key_name
+        //        + "</i><div style='margin-left: 100px;' class='label text-right label-danger'>" + msg.count
+        //        + "</div></a></li>";
+        //    }
+        //    msgMenuBuffer += "</ul>";
+        //    var ul = $(msgMenuBuffer);
+        //    ul.insertAfter("#mu-msg");
+        //}
+    }
+
+#changePwd.modal(tabindex='-1', data-width='760', style='display: none;')
+    form#password.form-signin(action='/changePwd', method='post')
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            .row
+                .col-md-3
+                    h4.modal-title 密码修改
+        .modal-body
+            .row.m-t-30
+                .col-md-4.text-right
+                    span.text-muted 原密码:
+                .col-md-4.text-left
+                    input.form-control(type='text', name='oldPwd', placeholder='原密码', required='required')
+            .row.m-t-30.text-center
+                .col-md-4.text-right
+                    span.text-muted 新密码:
+                .col-md-4
+                    input.m-t-10.form-control(type='text', name='newPwd', placeholder='新密码', required='required')
+        .modal-footer
+            .row.text-center
+                button.btn.btn-lg.btn-default(style='margin-right: 40px;', data-dismiss='modal') 取消
+                button.btn.btn-lg.btn-success(type='button', onclick='changePwd()') 确定
+
+input(type='hidden', id='userId', value='#{session.user._id}')
+.navbar.navbar-default.navbar-fixed-top
+    .container
+        .navbar-header
+            button.navbar-toggle(type='button', data-toggle='collapse', data-target='.navbar-collapse')
+                span.icon-bar
+                span.icon-bar
+                span.icon-bar
+            a.navbar-brand(href='/' + currentApp.code + '/main')
+                img(src='/images/logo.jpg' width='24px' height='24px')
+                | &nbsp;#{currentApp.code}
+        if user && currentApp.code
+            if currentApp.code == 'PUP'
+                .collapse.navbar-collapse
+                    ul.nav.navbar-nav.navbar-right
+                        li.dropdown
+                            a.dropdown-toggle(href='#', data-toggle='dropdown')
+                                if session.user.realName
+                                    | #{session.user.realName} (#{session.user.username})
+                                else
+                                    | (#{session.user.username})
+                            ul.dropdown-menu(role="menu", aria-labelledby="dropdownMenuUser")
+                                li(role="presentation")
+                                    a.pointer-cursor(role='menuitem', tabindex="-1", onclick='modalShow()') 密码修改
+                                li(role="presentation")
+                                    a(role='menuitem', tabindex="-1", href='/logout') 注销
+
+            else
+                .collapse.navbar-collapse
+                    ul.nav.navbar-nav.navbar-left
+                        include portal/menu
+                    if currentApp.code == 'CRM'
+                        ul.nav.navbar-nav.navbar-right
+                            li#msgBar
+                                a#mu-msg.dropdown-toggle(href='javascript:void(0);')
+                                    i.icon-comment-1
+                                    #msgCount.label.label-danger(style='display : none;') 5
+                            li#taskBar
+                                a#mu-task.dropdown-toggle(href='javascript:void(0);')
+                                    i.icon-tasks-1
+                                    #taskCount.label.label-danger(style='display : none;') 6
+
+script.
+
+

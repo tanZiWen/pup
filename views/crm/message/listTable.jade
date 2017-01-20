@@ -1,0 +1,62 @@
+//
+   Created by tanyuan on 11/25/14.
+table.table.mm-box
+    tr.th-inverse.text-center
+        td 标题
+        td 被操作人
+        td 消息类型
+        td 是否已读
+        td 发送时间
+        td 阅读时间
+    tbody
+        each sysMessage in sysMessageList
+            if sysMessage.read == true
+                tr.cust-record.text-center(data-id = '#{sysMessage._id}')
+                    td #{sysMessage.title}
+                    if !_.isEmpty(sysMessage.beOptPer)
+                        td #{sysMessage.beOptPer.username}(#{sysMessage.beOptPer.realName})
+                    else
+                        td 空
+                    td #{sysMessage.typeName}
+                    td 已阅读
+                    td #{sysMessage.sendTime}
+                    td #{sysMessage.readTime}
+            else
+                tr.cust-record.text-center.th-inverse-success(data-id = '#{sysMessage._id}')
+                    td #{sysMessage.title}
+                    if !_.isEmpty(sysMessage.beOptPer)
+                        td #{sysMessage.beOptPer.username}(#{sysMessage.beOptPer.realName})
+                    else
+                        td 空
+                    td #{sysMessage.typeName}
+                    td 未阅读
+                    td #{sysMessage.sendTime}
+                    td #{sysMessage.readTime}
+
+
+#messageContent.modal(tabindex='-1', data-width='960', style='display: none;')
+
+#sysMessageBar
+
+script.
+    sysMessageListPagination.bar('#sysMessageBar');
+    $('.cust-record').click(function(ev) {
+        ev.preventDefault();
+        var id = $(this).data('id');
+        var url = '/crm/message/messageContent/'+id;
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: url,
+            success: function(data) {
+                $('#messageContent').html(data.sysMessage.content);
+                $('#messageContent').modal('show');
+                sysMessageListPagination.reload();
+            }
+        });
+    });
+    $('#messageContent').on('hidden.bs.modal', function (e) {
+        $('#messageContent').html('');
+    });
+
+

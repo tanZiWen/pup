@@ -1,0 +1,35 @@
+//
+   Created by tanyuan on 7/3/14.
+table.table.mm-box
+    tr.th-inverse
+        th  操作日期
+        th  膜拜数
+        th  邀请数
+        th  认证量
+        th  膜拜认证率
+        th  邀请认证率
+    tbody
+        each wechatList in wechatLists
+            tr.cust-record.wechat-list(data-id='#{wechatList._id}')
+                td #{wechatList._id}
+                td #{wechatList.tryCount}
+                td #{wechatList.successCount}
+                td #{wechatList.authCustomers}
+                td #{wechatList.tryAccountRate}
+                td #{wechatList.successCountRate}
+#detail.modal.fade(tabindex='-1', data-width='760', style='display: none;')
+    #detailList
+
+
+script.
+    var wechatList = new pup.Pagination({templateKey : "wechat.detailList"});
+    $('.wechat-list').click(function() {
+        $('#detail').modal('show');
+        var date = $(this).data('id');
+        wechatList.setCondition({operateDate: date}).first();
+    });
+
+
+
+
+

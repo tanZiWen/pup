@@ -1,0 +1,353 @@
+
+.row.m-t-20.m-b-20
+    #chatRoom.col-sm-12.col-sm-offset-0.mm-box.form-horizontal.filter-pan(style='height: 700px;')
+        .col-sm-4(style='height:100%;')
+            ul.nav.nav-tabs(role="tablist", id="wechatTabs")
+                li.active
+                    a(role='tab', data-toggle='tab', href='#accounts') Accounts
+                li
+                    a(role='tab', data-toggle='tab', href='#contacts') Contacts
+                li
+                    a(role='tab', data-toggle='tab', href='#recentMsg')
+                        span.m-r-10 UnreadMsg
+                        #unReadTotalMsg.label.label-danger
+
+            .tab-content.scroll(style='height:93%;border: 1px solid transparent;border-width: 0px 1px 1px 1px;border-color: #eeeeee;')
+                #accounts.tab-pane.active
+                    #accountListTable
+                #contacts.tab-pane
+                    .row(style="margin: 10px;")
+                        .col-sm-5
+                            button#massMsgBtn.btn.btn-small.btn-primary.text-left(style='display:none;')
+                                i.icon-megaphone-3(style='margin-right: 10px;')
+                                span 群发
+                        //.col-sm-7.text-center(style='margin-top:2px;')
+                        //    .input-group.input-group-sm
+                        //        span.input-group-addon
+                        //            i.icon.icon-search-1
+                        //        input.form-control
+                    .row(style="margin: 10px;display:none;",id='tags')
+                        .col-sm-12
+                            #tagCheckbox.labelRadio
+                                each tag in tags
+                                    input(name='tag', type='checkbox', value='#{tag}', data-name="#{tag}")
+                    .row.m-t-10
+                        .divider.divider-default
+
+                    .row.m-b-10
+                        label.control-label.col-sm-3 排序
+                        .col-sm-6.text-left
+                            #sortTag.labelRadio
+                                input(name='tag', type='radio', value='lastChatSort', data-name="消息", checked)
+                                input(name='tag', type='radio', value='letterSort', data-name="昵称")
+                        .col-sm-3(style='padding-top:5px;')
+                            span.icon-btn(title='展开过滤条件', id='expandSearch')
+                                i.icon.icon-plus-6
+
+                    #contactListTable
+                #recentMsg.tab-pane
+                    #msgContactListTable
+        #chatDialog.col-sm-8(style='height:100%;border: 1px solid #dddddd;', contactId="", accountId="")
+            .row.text-left.m-t-10.m-b-10
+                .col-sm-4.text-left
+                    span#contactTitle
+                .col-sm-8.text-left
+                    i.icon.icon-tags-2
+                    span#contactTags
+                input(type='hidden', id='curChatNo')
+            p(style="border-bottom: 1px solid #ccc;")
+            ul.nav.nav-tabs(role="tablist", id="wechatTabs")
+                li.active
+                    a(role='tab', data-toggle='tab', href='#chat') Chat
+                li
+                    a(role='tab', data-toggle='tab', href='#moments') Moments
+            .tab-content(style='height:100%;width:100%;')
+                #chat.tab-pane.active(style='height:100%;width:100%;')
+                    #msgHistoryPanel.scroll.text-left(style="height:57%;width:100%;border: 1px solid transparent;border-width: 0px 1px 1px 1px;border-color: #dddddd;")
+
+                    .row
+                        .col-sm-10
+                            span.emotion 表情
+
+                    p.text-left
+                        textarea(style="height:25%;border: 1px solid #ccc;width: 100%;border-color: #dddddd;", rows='8', id="sendMsgTa")
+                #moments.tab-pane.scroll.text-left(style='height:85%;width:100%;border: 1px solid transparent;border-width: 0px 1px 1px 1px;border-color: #dddddd;padding-top:10px;')
+
+div(id="emotionsContainer")
+
+#editTag.modal.fade(tabindex='-1', data-width='760', style='display: none;')
+    form#formEditTag(action='/crm/wechat/edit')
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            .row
+                .col-md-3
+                    h4.modal-title 更新标签
+        .modal-body
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 行业标签
+                .col-md-8.text-left
+                    input(type='hidden', name='contactId')
+                    input.holo(type='text' style='width:200px;' placeholder='new tag', id="industryTags", name='industryTags', data-role='tagsinput', value='', class='required')
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 职位标签
+                .col-md-8.text-left
+                    input.holo(type='text', placeholder='new tag', id="jobTags", name='jobTags', data-role='tagsinput', value='', class='required')
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 住址标签
+                .col-md-8.text-left
+                    input.holo(type='text', placeholder='new tag', id="addressTags", name='addressTags', data-role='tagsinput', value='', class='required')
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 分类标签
+                .col-md-8.text-left
+                    input.holo(type='text', placeholder='new tag', id="tags", name='tags', data-role='tagsinput', value='', class='required')
+        .modal-footer
+            .text-center
+                button.cancel.btn.btn-lg.btn-default(style='margin-right: 40px;', type='button') 取消
+                button#ok.btn.btn-lg.btn-success(type='submit') 确定
+
+
+        //.col-sm-2(style='padding-right: 15px;height:100%;border-right: 1px solid #ccc;')
+        //    p.text-center
+        //        button.btn.btn-primary.text-center(style="width:80px;height:40px;")
+        //            i.icon.icon-chat-6(style="font-size:20px;")
+        //            span#unReadMsg.badge 3
+        //    p.text-center.m-t-20
+        //        button.btn.btn-primary.text-center(style="width:80px;height:40px;") 我的
+        //    p.text-center.m-t-20
+        //        select(class='selectpicker show-tick',data-size='6', style='width:200px', data-width='100%', id='account', name='account', class='required')
+        //            if accounts
+        //                each account in accounts
+        //                    option(value="#{account._id}") #{account.code}
+        //    p.text-center.m-t-20
+        //        select(class='selectpicker show-tick',data-size='6', style='width:200px', data-width='100%', id='group', name='group', class='required')
+        //            option group1
+        //            option group2
+        //
+        //#contactListTable.col-sm-3.scroll(style='padding-right: 15px;height:100%;border-right: 1px solid #ccc;')
+        //
+        //.col-sm-7(style='padding-right: 15px;height:100%;border-right: 1px solid #ccc;')
+        //    p.text-left
+        //        .scroll(style="height:60%;width:100%")
+        //    p(style="border-bottom: 1px solid #ccc;")
+        //
+        //    p.text-left
+        //        textarea(style="border: none;width: 100%", rows='10')
+
+
+script.
+
+
+    $('.emotion').qqFace({
+        id : 'facebox', //表情盒子的ID
+        assign:'sendMsgTa', //给那个控件赋值
+        path:'/stylesheets/face/'	//表情存放的路径
+    });
+    //$(".sub_btn").click(function(){
+    //    var str = $("#sendMsgTa").val();
+    //    $("#show").html(replace_em(str));
+    //});
+
+    $('.cancel').click(function() {
+        $('.modal').modal('hide');
+    });
+    var massFlag = false;
+    var curMonitorAccountId = "";
+    var curAccountId = null;
+    var curAccountNickname = null;
+    var curContactId = null;
+    var curContactType = 'contact';
+    $("#chatDialog").hide();
+    $('.selectpicker').selectpicker({noneSelectedText:'请选择'});
+
+    pup.template.renderTemplateByKey("wechat.accountList");
+    pup.template.renderTemplateByKey("wechat.msgContactList");
+
+    var socket = pup.socketIO.getSocket();
+    socket.emit('chatRoom.init', {}, function(msg) {
+        console.log(msg);
+    });
+
+    $("#sendMsgTa").keydown(function (e) {
+        var content = $(this).val();
+        if (e.ctrlKey && e.keyCode == 13) {
+            $(this).val($(this).val() + "\n");
+        } else if (e.keyCode == 13 && content != "") {
+            if(!massFlag) {
+                socket.emit('chatRoom.sendMsg', {accountId : curAccountId, type : curContactType, contactId : curContactId, content : content}, function(msg) {
+                    console.log(JSON.stringify(msg));
+                });
+
+                appendMsg({'ctime' : new Date(), nickname: curAccountNickname, content : content}, true);
+                $(this).val('');
+            } else {
+                var contactIds = [];
+                $('#contactListTable .list-group-item').find("input[name='selectMassContact']:checked").each(function(value) {
+                    contactIds.push($(this).val());
+                });
+                socket.emit('chatRoom.sendMassMsg', {accountId : curMonitorAccountId, contactIds : contactIds, content : content}, function(msg) {
+                    console.log(JSON.stringify(msg));
+                });
+
+                appendMsg({'ctime' : new Date(), nickname: "群发", content : content}, true);
+                $(this).val('');
+            }
+        }
+    });
+
+    $('#expandSearch').click(function() {
+        if($("#contacts #tags").is(":visible")) {
+            $("#contacts #tags").slideUp(200);
+        } else {
+            $("#contacts #tags").slideDown(200);
+        }
+
+    });
+
+    $('#msgHistoryPanel').scroll(function() {
+        if(!massFlag) {
+            var topDis = $(this).scrollTop();
+            if(topDis < 5) {
+                //get msg history
+                //var condition = {accountData : curAccountId, contactData :curContactId};
+                //var msgHistoryPagination = new pup.Pagination({templateKey : "wechat.historyList", pageCount : 1});
+                //msgHistoryPagination.setCondition(condition).setSort({ctime : -1}).first();
+            }
+        }
+    });
+
+    $('#massMsgBtn').click(function(ev) {
+        ev.stopPropagation();
+        if(!massFlag) {
+            $('#chatDialog').find("a[href='#moments']").hide();
+            $('#msgHistoryPanel').html('');
+            $(this).find("span").html('取消');
+            massFlag = true;
+            $("#chatDialog").show();
+            $("#contactTitle").html("群发");
+            $('#contactListTable .list-group-item').find("input[name='selectMassContact']").each(function(value) {
+                $(this).show();
+                $(this).prop('checked', true);
+            });
+        } else {
+            $(this).find("span").html('群发');
+            massFlag = false;
+            $("#chatDialog").hide();
+            $('#chatDialog').find("a[href='#moments']").show();
+
+            //fresh contact list
+            refreshContactsByTags();
+        }
+    });
+
+    function appendMsg(from, isMyOwn) {
+        if(isMyOwn) {
+            $("#msgHistoryPanel").append("<div class='row text-center'><span class='small text-muted'>" + format(from.ctime, 'hh : mm') + "</span></div>");
+            $("#msgHistoryPanel").append("<div class='row text-left m-b-10'>" + "<div class='col-sm-10' align='right'><div class='alert alert-success small text-left' style='width:250px'>"
+                    + replace_em(from.content) + "</div></div>"
+                    +"<div class='col-sm-2 text-right'><span class='small text-muted'>" + from.nickname + "</span></div>" + "</div>");
+        } else {
+            $("#msgHistoryPanel").append("<div class='row text-center'><span class='small text-muted'>" + format(from.ctime, 'hh : mm') + "</span></div>");
+            $("#msgHistoryPanel").append("<div class='row text-left m-b-10'>" + "<div class='col-sm-2'><span class='small text-muted m-r-5'>"
+                + from.nickname + "</span></div>"
+                +"<div class='col-sm-10'><div class='alert alert-success small' style='width:250px'>" + replace_em(from.content) + "</div></div>" + "</div>");
+
+        }
+
+        scrollBottom();
+    }
+
+    var lr = new pup.widgets.labelCheckBox('#tagCheckbox').checkbox(function(value) {
+        refreshContactsByTags();
+    });
+
+    var sortTag = new pup.widgets.labelRadio('#sortTag').radio(function(value) {
+        refreshContactsByTags();
+    });
+
+    function isMyMsg(wechat) {
+        if(wechat && curAccountId && wechat == curAccountId)
+            return true;
+        return false;
+    }
+
+    function scrollBottom() {
+        $("#msgHistoryPanel")[0].scrollTop = $("#msgHistoryPanel")[0].scrollHeight;
+    }
+
+    $("#wechatTabs a[href='#recentMsg']").click(function(ev) {
+        ev.preventDefault();
+        pup.template.renderTemplateByKey("wechat.msgContactList");
+
+    });
+
+    $('#formEditTag').submit(function(ev) {
+        console.log(lr.val());
+        ev.preventDefault();
+        var contactId = $(this).find("input[name='contactId']").val();
+        var url = '/crm/wechat/contact/modifyTags';
+        $.ajax({
+            type: "POST",
+            url: url,
+            dataType: 'json',
+            data: {contactId : contactId,
+                industryTags : $(this).find('#industryTags').tagsinput('items'),
+                jobTags : $(this).find('#jobTags').tagsinput('items'),
+                addressTags : $(this).find('#addressTags').tagsinput('items'),
+                tags : $(this).find('#tags').tagsinput('items')},
+            success: function (data) {
+                if(data.type == 'success'){
+                    $('#editTag').modal('hide');
+                    refreshContactsByTags();
+                }
+                toast(data);
+            }
+        });
+    });
+
+    function modifyMsgTotalCount(item) {
+        if($(item).find("#unReadMsg").is(":visible")) {
+            var countHtml = $(item).find("#unReadMsg").html();
+            var curContactMsgCount = countHtml == "" ? 0 : parseInt(countHtml);
+            var curMsgTotalCountHtml = $("#unReadTotalMsg").html();
+
+            if(curMsgTotalCountHtml != "") {
+                var curMsgTotalCount = parseInt(curMsgTotalCountHtml) - curContactMsgCount;
+                if(curMsgTotalCount == 0) {
+                    $("#unReadTotalMsg").html("");
+                } else {
+                    $("#unReadTotalMsg").html(curMsgTotalCount);
+                }
+            }
+        }
+    }
+
+    function hiddenContactMsgCount(contactId) {
+        $("#contactListTable").find(".list-group-item").each(function(item) {
+            if($(this).attr('contactId') == contactId) {
+                $(this).find("#unReadMsg").hide();
+                return false;
+            }
+        });
+    }
+
+    function refreshContactsByTags() {
+        $('#contactListTable').html('');
+        var condition = {};
+        if(lr.val().length > 0) {
+            condition.tags = lr.val();
+        }
+        if(sortTag.val().length > 0) {
+            condition.sortTag = sortTag.val();
+        }
+        if(curMonitorAccountId != "") {
+            condition.accountId = curMonitorAccountId;
+        }
+        if($("#chatDialog").is(":visible")) {
+            if(curAccountId != null &&  curAccountId != "" && curContactId != null && curContactId != "") {
+                condition.curAccountId = curAccountId;
+                condition.curContactId = curContactId;
+            }
+        }
+
+        pup.template.renderTemplateByKey("wechat.contactList", condition);
+    }

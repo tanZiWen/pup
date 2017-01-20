@@ -1,0 +1,105 @@
+.sidebar.sidebar-left.mm-box
+    #muAdd.sidemenu
+        i.icon.icon-plus-6
+        | 添加
+.row.m-t-20
+    form#formSearch
+        .col-sm-8.col-sm-offset-2.mm-box.form-horizontal.filter-pan
+            .form-group.m-t-5(id='requireArea', name='requireArea')
+#attentNearbyPeople.modal.fade(tabindex='-1', data-width='760', style='display: none;')
+    form#formAdd(action='/crm/wechat/attentNearby/add')
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            .row
+                .col-md-3
+                    h4.modal-title  添加附近的人
+        .modal-body
+            .row(style='margin-top:30px')
+                .col-md-2.text-right.text-muted.small 位置坐标
+                .col-md-2.text-left
+                    input.holo(type='text', id='long', name='long', class='number required')
+                .col-md-2.text-left
+                    input.holo(type='text', id='lat', name='lat', class='number required')
+            .row(style='margin-top:30px;')
+                .col-md-2.text-right.text-muted.small 位置描述
+                .col-md-4.text-left
+                    input.holo(type='text', id='posComment', name='posComment')
+                .col-md-2.text-right.text-muted.small 人数
+                .col-md-2.text-left
+                    input.holo(type='text', id='count', name='count', class='digits countLimit required')
+            .row(style='margin-top:30px')
+                .col-md-2.text-right.text-muted.small 所用账号
+                .col-md-3
+                    select(class='selectpicker', name='accountId', id='accountId')
+                        each account in accounts
+                            option(value='#{account._id}') #{account.nickname}
+            .row(style='margin-top:30px;')
+                .col-md-2.text-right.text-muted.small 打招呼
+                .col-md-8.text-left
+                    input.holo(type='text', id='validateMsg', name='validateMsg')
+        .modal-footer
+            .text-center
+                button#cancel.cancel.btn.btn-lg.btn-default(style='margin-right: 40px;', type='button') 取消
+                button#submit.btn.btn-lg.btn-success(type='submit') 确定
+.row.m-t-25
+    .col-sm-8.col-sm-offset-2 
+        #attentNearbyListData.row
+
+script.
+
+    $('.selectpicker').selectpicker({noneSelectedText:'请选择'});
+
+    var attentNearbyPagination = new pup.Pagination({templateKey : "attentNearby.dataList"});
+    //跳转到第一页
+    attentNearbyPagination.sort('ctime', -1).first();
+
+    $('#muAdd').click(function() {
+        $('#attentNearbyPeople').modal('show');
+        $('#formAdd').validate_popover({onsubmit: false, popoverPosition: 'top'});
+        $("#attentNearbyPeople").on("scroll", function() { $.validator.reposition(); });
+        $('#attentNearbyPeople').on('hide.bs.modal', function (e) {
+           $('.popover').each( function() {
+              $(this).hide();
+           });
+        });
+        $(window).resize(function() {
+           $.validator.reposition();
+        });
+    });
+
+    $('#cancel, .close').click(function() {
+        $('#attentNearbyPeople').modal('hide');
+        $('.popover').each( function() {
+            $(this).hide();
+        });
+    });
+
+    // 条数验证
+    jQuery.validator.addMethod("countLimit", function(value, element) {
+        return this.optional(element) || (value >= 1 && value <= 50);
+    }, "条数只能在1到50之间");
+
+    $('#formAdd').validate_popover({popoverPosition : 'top'});
+
+    $('#formAdd').submit(function(ev) {
+        ev.preventDefault();
+        var serializeForm = $('#formAdd').serializeObject();
+        if($('#formAdd').validate().form()) {
+            var url = $(this).attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                dataType: 'json',
+                data: serializeForm,
+                success: function (data) {
+                    if(data.msg.type == 'success') {
+                        $('#attentNearbyPeople').modal('hide');
+                        $('#formAdd')[0].reset();
+                        attentNearbyPagination.reload();
+                    }
+                    toast(data.msg);
+                }
+            });
+        }
+        return false;
+    });

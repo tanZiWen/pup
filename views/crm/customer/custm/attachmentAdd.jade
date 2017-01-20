@@ -1,0 +1,66 @@
+//
+   Created by wangnan on 14-6-11.
+form#attachmentAddForm(action='/crm/customer/custm/attachmentAdd', enctype="multipart/form-data")
+    .modal-header
+        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row
+            .col-md-3
+                h4.modal-title 添加附件
+        .modal-body
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 附件
+                .col-md-8.text-left
+                    input(type='file', name='code', id='code', class='reqiured')
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 文件名
+                .col-md-8.text-right
+                    input.holo(type='text', name='name', id='name', class='required')
+                    input.holo(type='hidden', name='customerId', value='#{customerId}')
+        .modal-footer
+            .text-center
+                button.btn.btn-lg.btn-default(style='margin-right: 40px;', data-dismiss='modal') 取消
+                button#ok.btn.btn-lg.btn-success 确定
+
+script.
+    $("#attachmentAddForm :file").filestyle({
+        'buttonText' : '选择文件',
+        'classButton' : 'btn btn-primary',
+        'classIcon' : 'icon-plus-6'
+    });
+    $('#attachmentAddForm').submit(function(ev) {
+        $(this).validate_popover({onsubmit: false, popoverPosition: 'top'});
+        if($(this).validate().form()) {
+            if($('#attachmentAddForm #code').next().children().first().val() == "") {
+                toast({type:'error', body:'请选择文件'});
+            }
+        }
+        return false;
+    });
+
+    $('#attachmentAddForm #code').fileupload({
+        formData: {},
+        validation: {
+            allowedExtensions: ['xlsl', 'jpg', 'gif', 'png']
+        },
+        add : function(e, data) {
+            var name = data.files[0].name;
+            name = name.substring(0, name.lastIndexOf('.'));
+            $('#attachmentAddForm #name').val(name);
+            $('#attachmentAddForm').submit(function(ev) {
+                if($('#attachmentAddForm').validate().form()) {
+                   var formData = $('#attachmentAddForm').serializeObject();
+                   data.formData = formData;
+                   data.submit();
+                }
+                return false;
+            });
+        },
+        done : function(e, data) {
+            if(data.result.msg.type == 'success') {
+               $('#customerAttachmentAddModal').modal('hide');
+               $('#attachmentAddForm')[0].reset();
+                loadCustomerAttachment();
+            }
+           toast(data.result.msg);
+        }
+    });

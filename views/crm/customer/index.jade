@@ -1,0 +1,38 @@
+.sidebar-mini.sidebar-left.mm-box
+    #lMenuCustomerAdd.sidemenu.text-center
+        i.icon.icon-plus-6
+    .divider.divider-default
+    #lMenuCustomerActionPlanSchedule.sidemenu.text-center
+        i.icon.icon-calendar
+    .divider.divider-default
+    #lMenuCustomerList.sidemenu.text-center
+        i.icon.icon-list-bullet
+    .divider.divider-default.text-center
+    #lMenuCustomerCallList.sidemenu.text-center
+        i.icon.icon-phone-3
+
+#customerContent
+#customerScheduleContent
+#modalCustomerAddModal.modal(tabindex='-1', data-width='760', style='display: none;')
+
+script.
+ 
+    $('#lMenuCustomerList').click(function() {
+        pup.template.renderTemplateByKey('customer.list');
+    });
+    $('#lMenuCustomerCallList').click(function() {
+        pup.template.renderTemplateByKey('customer.callList.list');
+    });
+    $('#lMenuCustomerAdd').click(function() {
+        pup.template.renderTemplateByKey('customer.add', null, {
+            afterRender : function() {
+                $('#modalCustomerAddModal').modal('show');
+            }
+        });
+    });
+
+    $('#lMenuCustomerActionPlanSchedule').click(function() {
+        pup.template.renderTemplateByKey('customer.schedule');
+    });
+
+    pup.template.renderTemplateByKey('customer.list');

@@ -1,0 +1,76 @@
+//
+   Created by michael on 5/29/14.
+each moments in data
+    if moments.type == 'text'
+        .row.m-b-10
+            .col-sm-2.top-right.m-l-5
+                span.small.text-muted #{getBriefDate(moments.ctime)}
+            .col-sm-8
+                a.list-group-item
+                    .row.m-l-5
+                        span.small.text-muted #{moments.title}
+
+    if moments.type == 'media'
+        .row.m-b-10
+            .col-sm-2.top-right.m-l-5
+                span.small.text-muted #{getBriefDate(moments.ctime)}
+            .col-sm-8
+                a.list-group-item(href='#{moments.reprintUrl}', target='_blank')
+                    if moments.mediaComment
+                        .row.m-l-5
+                            span.small.text-muted #{moments.mediaComment}
+                    .row
+                        if moments.thumbUrl
+                            .col-sm-2
+                                span
+                                    img.thumbnail(width='60px', height='60px', src='/crm/wechat/moments/#{moments.thumbUrl}')
+                        .col-sm-6
+                            span.small.text-muted #{moments.title}
+
+    if moments.type == 'album'
+        .row.m-b-10
+            .col-sm-2.top-right.m-l-5
+                span.small.text-muted #{getBriefDate(moments.ctime)}
+            .col-sm-8
+                a.list-group-item.album
+                    .row
+                        if moments.thumbUrl
+                            .col-sm-2
+                                span
+                                    img.thumbnail(width='60px', height='60px', src='/crm/wechat/moments/#{moments.thumbUrl}')
+                        .col-sm-6
+                            span.small.text-muted #{moments.title}
+                    .row.m-l-5
+                        span.small.text-muted 共 #{moments.photos.length} 张
+
+#showAlbum.modal.fade(tabindex='-1', style='display: none;')
+    .modal-header
+        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row
+            .col-md-3
+    .modal-body.scroll
+        .row.text-center.center-block(style='height: 600px; width: 400px;')
+            #albums.carousel.slide(data-ride="carousel")
+                ol.carousel-indicators
+                    li.active(data-target="#albums" data-slide-to="0")
+                    li(data-target="#albums" data-slide-to="1")
+                    li(data-target="#albums" data-slide-to="2")
+                .carousel-inner
+                    .active.item
+                        img.img-responsive(src='/crm/wechat/moments/b4eb21c8-6bc7-49b5-bf42-b1f5b7facefd.png')
+                        .carousel-caption
+                            p Cras justo odio, dapibus ac facilisis in, egestas eget quam
+                    .item
+                        img.img-responsive(src='/crm/wechat/moments/0c7189a4-73c6-4973-8b4e-0b3cfb857d32.png')
+                    .item
+                        img.img-responsive(src='/crm/wechat/moments/b4eb21c8-6bc7-49b5-bf42-b1f5b7facefd.png')
+                a.carousel-control.left(href="#albums" data-slide="prev")
+                    span.glyphicon.glyphicon-chevron-left
+                a.carousel-control.right(href="#albums" data-slide="next")
+                    span.glyphicon.glyphicon-chevron-right
+
+script.
+    $('.carousel').carousel();
+    $('#moments .album').click(function(ev) {
+        $('#showAlbum').modal('show');
+    });

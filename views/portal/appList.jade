@@ -1,0 +1,34 @@
+//
+   Created by wangnan on 14-4-25.2
+
+#portal_app.row(style='margin-top: 20px;')
+    .col-sm-12
+        if apps
+            each app in apps
+                .row
+                    .mm-box.app-box.col-sm-6.col-sm-offset-3.m-t-20(style='background: #{app.bgColor || "#D46408"};', onclick='openApp("#{app.code}", "#{app.indexPage}", "#{app.appUrl}");')
+                        h1.app-title.text-center.m-t-30 #{app.code}
+                        p.app-subtitle.text-center #{app.name}
+
+script.
+    function openApp(code, indexPage, appUrl) {
+        var sessionId = '#{token}';
+        console.log('open app : code=' + code + ' ,indexPage=' + indexPage + ' ,appUrl=' + appUrl + ', sessionId=' + sessionId);
+        if(appUrl != null && appUrl != 'undefined' && appUrl.trim != '') {
+            if(appUrl.indexOf('?') == -1) {
+                appUrl += '?token=' + sessionId;
+            } else {
+                appUrl += '&token=' + sessionId;
+            }
+            window.open(appUrl, code);
+        } else {
+            window.open('/' + code + '/main', code);
+        }
+
+    }
+
+
+
+
+
+

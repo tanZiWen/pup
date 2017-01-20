@@ -1,0 +1,131 @@
+//
+   Created by tanyuan on 5/20/15
+
+.sidebar.sidebar-left.mm-box
+    #muAdd.sidemenu
+        i.icon.icon-plus-6
+        | 添加
+
+#addWechat.modal(style='display: none;', data-width= '760px')
+    form#addWechatForm(action='/crm/wechat/wehcatAdd/add')
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            .row
+                .col-md-3
+                    h4.modal-title  微信号添加
+        .modal-body
+                .row
+                    .col-md-2.text-right.text-muted 微信号
+                    .col-md-4.text-left
+                        input.holo(type='text', id='code', name='code', class='required')
+                    .col-md-2.text-right.text-muted 密码
+                    .col-md-4.text-left
+                        input.holo(type='text', id='password', name='password', value='prosnav1234', class='required')
+                .row.m-t-20
+                    .col-md-2.text-right.text-muted 手机号
+                    .col-md-4.text-left
+                        input.holo(type='text', id='telNo', name='telNo', class='telNo')
+                    .col-md-2.text-right.text-muted 昵称
+                    .col-md-4.text-left
+                        input.holo(type='text', id='nickname', name='nickname', class='required')
+                .row.m-t-20
+                    .col-md-2.text-right.text-muted 设备编号
+                    .col-md-4.text-left
+                        select(class='selectpicker', id='deviceNo', name='deviceNo')
+                            each device in devices
+                                option(value='#{device._id}') #{device.name}
+                    .col-md-2.text-right.text-muted qq
+                    .col-md-4.text-left
+                        input.holo(type='text', id='qq', name='qq')
+
+        .modal-footer
+            .row.text-center
+                button.btn.btn-lg.btn-default(data-dismiss='modal') 取消
+                button.btn.btn-lg.btn-success(type='submit') 确定
+.row.m-t-20
+    .col-md-8.col-md-offset-2.mm-box
+        .row.form-group.m-t-20
+            .col-md-2.text-right.text-muted 微信号
+            .col-md-4.text-left
+                input.holo(type='text', id='searchCode', name='searchCode')
+            .col-md-2.text-right.text-muted 昵称
+            .col-md-4.text-left
+                input.holo(type='text', id='searchNickName', name='searchNickName')
+        .row.form-group.m-t-20
+            .col-md-2.text-right.text-muted 手机号
+            .col-md-4.text-left
+                input.holo(type='text', id='searchTelNo', name='searchTelNo')
+        .row.form-group.m-t-20
+            .divider.divider-default
+        .row.form-group.m-t-20
+            .col-md-12.text-center
+                button.btn.btn-primary(onclick='search()')
+                    i.icon.icon-filter-1
+                    | 过滤
+
+.row.m-t-25
+    .col-sm-8.col-sm-offset-2
+        #addListData.row
+
+
+script.
+    $('#muAdd').click(function() {
+        $('#addWechatForm')[0].reset();
+        $('#addWechat').modal('show');
+    });
+
+    $('.selectpicker').selectpicker({noneSelectedText: '请选择'});
+
+    var accountPagination = new pup.Pagination({templateKey: "wechatAccountAdd.dataList"});
+
+    accountPagination.sort('ctime', -1).first();
+
+    jQuery.validator.addMethod("telNo", function(value, element) {
+        return this.optional(element) || (value.length == 11);
+    }, "电话号码格式不正确!");
+
+    $('#addWechatForm').submit(function(ev) {
+        ev.preventDefault();
+        var url = $(this).attr('action');
+        var addData = $(this).serializeObject();
+        $(this).validate_popover({popoverPosition : 'top'});
+        if($(this).validate().form()) {
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                data: addData,
+                url: url,
+                success: function(data) {
+                    if(data.msg.type == 'success') {
+                        $('#addWechat').modal('hide');
+                        accountPagination.reload();
+                    }
+
+                    toast(data.msg);
+                }
+            })
+        }
+        return false;
+    });
+
+    function search() {
+        var code = $('[name=searchCode]').val();
+        var nickname = $('[name=searchNickName]').val();
+        var telNo = $('[name=searchTelNo]').val();
+
+        accountPagination.clear();
+
+        if(code) {
+            accountPagination.condition('code', code);
+        }
+
+        if(nickname) {
+            accountPagination.condition('nickname', nickname);
+        }
+
+        if(telNo) {
+            accountPagination.condition('telNo', telNo);
+        }
+
+        accountPagination.sort('ctime', -1).first();
+    }

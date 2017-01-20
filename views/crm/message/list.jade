@@ -1,0 +1,52 @@
+//
+   Created by tanyuan on 11/25/14.
+.row.m-t-25
+    .col-sm-8.col-sm-offset-2.mm-box.form-horizontal
+        .row.m-t-20
+            .form-group
+                label.control-label.col-md-2 消息类型
+                .col-md-10
+                    #selectSysMessageType.labelRadio
+                        each sysMessageType in sysMessageTypeList
+                            input(name='sysMessageType', type='radio', value='#{sysMessageType.key}', data-name="#{sysMessageType.name}")
+            .form-group
+                label.control-label.col-md-2 是否已读
+                .col-md-10
+                    #selectIsRead.labelRadio
+                        each isRead in isReadList
+                            input(name='isRead', type='radio', value='#{isRead.key}', data-name="#{isRead.name}")
+.row.m-t-25
+    .col-sm-8.col-sm-offset-2.form-horizontal
+        #sysMessageTable.row
+
+script.
+    var sysMessageTypeRadio = new pup.widgets.labelRadio('#selectSysMessageType').radio(function() {
+        sysMessageSearch();
+    });
+
+    var isReadRadio = new pup.widgets.labelRadio('#selectIsRead').radio(function() {
+        sysMessageSearch();
+    });
+
+    function sysMessageSearch() {
+        var sysMessageType = sysMessageTypeRadio.val();
+        var isRead = isReadRadio.val();
+
+        sysMessageListPagination.clear();
+
+        if(sysMessageType) {
+            sysMessageListPagination.condition('sysMessageType', sysMessageType);
+        }
+        if(isRead) {
+            sysMessageListPagination.condition('isRead', isRead);
+        }
+
+        sysMessageListPagination.first();
+    }
+
+    var sysMessageListPagination = new pup.Pagination({templateKey : "crm.message.listTable"});
+    sysMessageListPagination.setPageCount(12);
+    sysMessageListPagination.first();
+
+
+

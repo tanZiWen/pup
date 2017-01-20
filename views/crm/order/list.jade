@@ -1,0 +1,238 @@
+.row.m-t-20
+    .col-sm-8.col-sm-offset-2.mm-box.form-horizontal.filter-pan
+        form#query(onsubmit='return false;')
+            .form-group
+                label.control-label.col-md-2 客户手机
+                .col-md-10
+                    input.holo(type='text', name='telNo', id='telNo', style='display: inline-block;margin-right:10px;width:300px;')
+                    button.btn.btn-primary.m-l-5(data-toggle="modal", type='submit', id='queryQuick')
+                        i.icon-search-8(style='margin-right: 5px;')
+                        span 快速查找
+            .form-group
+                label.control-label.col-md-2 产品类型
+                .col-md-10(style='margin-top:5px;')
+                    #type.labelRadio
+                        input(name='type', type='radio', value='', data-name="全部", checked='checked')
+                        each type in typeList
+                            input(name='type', type='radio', value='#{type.key}', data-name="#{type.name}")
+
+#detail.modal(tabindex='-1', data-width='760', style='display: none;')
+    form#formModify(action='/crm/order/modify')
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            .row
+                .col-md-3
+                    h4.modal-title 订单编辑
+        .modal-body
+            .row
+                span.col-md-2.text-right.text-muted.small 订单号
+                span.col-md-3.text-left.small#id
+                span.col-md-2.text-right.text-muted.small 客户
+                span.col-md-3.text-left.small#cusName
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 产品类别
+                .col-md-3(style='margin-top:5px;')
+                    #type.btn-group(data-toggle='buttons-radio')
+                        each type in typeList
+                            button.btn.btn-sm.btn-light-info(value='#{type.key}', type='button')  #{type.name}
+                span.col-md-2.text-right.text-muted.small 产品名称
+                span.col-md-3.text-left.small#prdName
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 金额
+                .col-md-2.text-left
+                    input.holo(type='hidden', name="_id", id="_id")
+                    input.holo(type='text', name="amount", id="amount", class='required digits')
+                .col-md-1.text-left
+                    h6.text-muted 万元
+                span.col-md-2.text-right.text-muted.small 销售
+                .col-md-3.text-left
+                    span.col-md-3.text-left.small#crealName
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 下单日期
+                .col-md-5.text-left
+                    input.holo(type='text', name="ctime", id="ctime", , class='required', readonly)
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 状态
+                .col-md-5(style='margin-top:5px;')
+                    #status.btn-group(data-toggle='buttons-radio')
+                        each status in statusList
+                            button.btn.btn-sm.btn-light-info(value='#{status.key}', type='button')  #{status.name}
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 备注
+                .col-md-8.text-left
+                    input.holo(type='text', id="comment", name="comment")
+        .modal-footer
+            .text-center
+                button.cancel.btn.btn-lg.btn-default(style='margin-right: 40px;', data-dismiss='modal', type='button') 取消
+                button#ok.btn.btn-lg.btn-success(type='submit') 确定
+.row.m-t-25
+    .col-sm-8.col-sm-offset-2
+        #orderListData.row
+
+#opAcceptConfirm.modal(tabindex='-1', style='display: none;')
+    .modal-body
+        p#confirmMsg 确定撤销？
+        p#opStatus(style='font-size: 20px; font-face: bold; display: none;')
+            i.icon.icon-spin5.animate-spin.text-success
+    .modal-footer
+        .text-center
+            button.cancel.btn.btn-default(style='margin-right: 40px;', data-dismiss='modal') 取消
+            button#ok.btn.btn-danger 确定
+
+#add.modal(tabindex='-1', data-width='760', style='display: none;')
+    form#formDividend(action='/crm/order/dividend')
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            .row
+                .col-md-3
+                    h4.modal-title 添加派息
+        .modal-body
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 成立日期
+                .col-md-3.text-right
+                    input(type='text', name='establishDate', id='establishDate', class='required form-control')
+                span.col-md-2.text-right.text-muted.small 起息日期
+                .col-md-3.text-left
+                    input.holo(type='text', name='valueDate', id='valueDate', class='required endDate form-control')
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 金额
+                .col-md-3.text-right
+                    input.holo(type='text', name='amount', id='amount', class='required digits')
+                .col-md-1.text-left
+                h6.text-muted 万元
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 备注
+                .col-md-8
+                    input.holo(type='text', style='width: 100%;', placeholder='备注', name='comment', id='comment')
+        .modal-footer
+            .text-center
+                button.cancel.btn.btn-lg.btn-default(style='margin-right: 40px;', type='reset') 取消
+                button#ok.btn.btn-lg.btn-success(type='submit') 确定
+script.
+    $('#formDividend #establishDate').datetimepicker({format : 'yyyy-mm-dd', autoclose: true, weekStart: 1, todayBtn: true, minView : 'month'});
+    $('#formDividend #valueDate').datetimepicker({format : 'yyyy-mm-dd', autoclose: true, weekStart: 1, todayBtn: true, minView : 'month'});
+    $('#ctime').datetimepicker({format : 'yyyy-mm-dd', autoclose: true, weekStart: 1, todayBtn: true, minView : 'month'});
+    var orderPagination = new pup.Pagination({
+        templateKey : "order.dataList",
+    });
+    //跳转到第一页
+    orderPagination.first();
+
+    $('#query #queryQuick').click(function() {
+        if($('#telNo').val() == '') {
+            var condition = {};
+            if($('#query #type').find("input[type='radio']:checked").val() != '') {
+                condition.type = $('#query #type').find("input[type='radio']:checked").val();
+            }
+            orderPagination.setCondition(condition).first();
+        } else {
+            orderPagination.setCondition({telNo: $('#telNo').val()}).first();
+        }
+    });
+
+    $('#mu-apps').click(function() {
+        $('#apps').show();
+        $('#message').hide();
+    });
+    $('#mu-msg').click(function() {
+        $('#message').show();
+        $('#apps').hide();
+    });
+    $('.app-box').click(function() {
+        var path = $(this).data('href');
+        window.open(path);
+    });
+
+    $('.cancel, .close').click(function() {
+        $('.popover').each( function() {
+            $(this).hide();
+        });
+        $('#main .modal').modal('hide');
+    });
+
+    $('#formModify').validate_popover({popoverPosition : 'top'});
+
+    $('#formModify').submit(function(ev) {
+        ev.preventDefault();
+        var type = $("#formModify #type > .btn.active").val();
+        var status = $("#formModify #status > .btn.active").val();
+        var serializeForm = $('#formModify').serialize();
+        var allForm = serializeForm + '&' + 'status='+status+'&type=' + type ;
+        if($('#formModify').validate().form()) {
+            var url = $(this).attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                dataType: 'json',
+                data: allForm,
+                success: function (data) {
+                    if(data.type == 'success') {
+                        $('#detail').modal('hide');
+                        orderPagination.reload();
+                    }
+                    toast(data);
+                }
+            });
+        }
+        return false;
+    });
+
+    var curOrderId = 0;
+
+    $('#opAcceptConfirm #ok').click(function() {
+        $('#opAcceptConfirm').modal('hide');
+        var url = '/crm/order/' + curOrderId;
+        $.ajax({
+            type: 'DELETE',
+            url: url,
+            dataType: 'json',
+            data: {},
+            success: function (data) {
+                var formData = data.msg.body;
+                if(data.msg.type == 'success'){
+                    orderPagination.reload();
+                }
+                toast(data.msg);
+
+            }
+        });
+    });
+    $('#formDividend').validate_popover({popoverPosition : 'top'});
+
+    jQuery.validator.addMethod("endDate", function(value, element) {
+        var endDate = $(element).val();
+        var minDate = $('#formDividend #establishDate').val();
+        return this.optional(element) || (endDate >= minDate);
+        }, "请填写合法起息日期");
+
+    $('#formDividend').submit(function(ev) {
+        ev.preventDefault();
+        var formData = $('#formDividend').serializeObject();
+        formData.orderId = curOrderId;
+        if($('#formDividend').validate().form()) {
+            var url = $(this).attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                dataType: 'json',
+                data: formData,
+                success: function (data) {
+                    if(data.type == 'success') {
+                        $('#formDividend')[0].reset();
+                        $('#add').modal('hide');
+                        orderPagination.reload();
+                    }
+                    toast(data);
+                }
+            });
+        }
+        return false;
+    });
+
+    var lr = new pup.widgets.labelRadio('#query #type').radio(function(value) {
+        var condition = {};
+        if(lr.val() != '') {
+            condition['product.type'] = lr.val();
+        }
+        orderPagination.setCondition(condition).first();
+    });

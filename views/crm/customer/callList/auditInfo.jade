@@ -1,0 +1,47 @@
+//
+   Created by tanyuan on 9/29/14.
+
+.modal-header
+    h4.pan-title.modal-title 质检记录
+.modal-body
+    each audit in audits
+        .row.m-t-10
+            span.col-md-3.text-muted.text-right 质检时间
+            span.col-md-3.text-left  #{audit.callTime}
+            span.col-md-3.text-muted.text-right 质检类型
+            span.col-md-3.text-left  #{audit.resultName}
+        .row.m-t-10
+            span.col-md-3.text-muted.text-right 送质检状态
+            span.col-md-3.text-left  #{audit.typeName}
+            span.col-md-3.text-muted.text-right 质检后状态
+            span.col-md-3.text-left  #{audit.customerStatusName}
+        .row.m-t-10
+            span.col-md-3.text-muted.text-right 评论
+            span.col-md-9.text-left.f-comment(data-content='#{audit.comment}') #{audit.commentStr}
+        .row.m-t-10(style='width:100%')
+            .divider.divider-default
+#auditInfoBar
+
+script.
+    customerAuditPagination.bar('#auditInfoBar');
+    $('.f-comment').each(function() {
+        $(this).qtip({
+            content: {
+                text: $(this).data('content')
+            },
+            position: {
+                my: 'bottom center',
+                at: 'top center',
+                target: 'mouse',
+                viewport: $('#customerAuditInfo'),
+                adjust: {
+                    mouse: false,
+                    scroll: false
+                }
+            },
+            show: 'mouseover',
+            hide: 'mouseout',
+            style: {classes : 'qtip-bootstrap'}
+        })
+    })
+

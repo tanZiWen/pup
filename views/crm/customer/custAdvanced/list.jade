@@ -1,0 +1,330 @@
+//
+   Created by tanyuan on 11/14/14.
+.row.m-t-25
+    .col-md-8.col-md-offset-2.mm-box.form-horizontal
+        .row
+            .form-group.m-t-10
+                label.col-md-3.text-right 手机/客户姓名/编码
+                .col-md-9.text-left
+                    input.holo(name='telOrNameOrCode', type='text', style='display: inline-block;margin-right:10px;width:300px;')
+
+            .form-group.m-t-10
+                label.control-label.col-md-3 批次号
+                .col-md-9.text-left
+                    input.holo(name='customerImplSearch', type='text', style='display: inline-block;margin-right:10px;width:300px;')
+            .form-group.m-t-10
+                label.col-md-3.text-right 客户状态
+                .col-md-9.text-left
+                    #selectCustomerStatus.labelRadio
+                        each status in data.statusList
+                            input(name='status', type='radio', value='#{status.key}', data-name="#{status.name}")
+
+            .form-group.m-t-10
+                label.col-md-3.text-right 拨打状态
+                .col-md-9.text-left
+                    #selectCustomerCallStatus.labelRadio
+                        each callStatus in data.callStatusList
+                                input(name='callStatus', type='radio', value='#{callStatus.key}', data-name="#{callStatus.name}")
+
+            .form-group.m-t-10
+                label.col-md-3.text-right 质检状态
+                .col-md-9.text-left
+                    #selectCustomerAuditStatus.labelRadio
+                        each auditStatus in data.auditStatusList
+                            input(name='auditStatus', type='radio', value='#{auditStatus.key}', data-name="#{auditStatus.name}")
+
+            .form-group.m-t-10
+                label.col-md-3.text-right 是否在公共池
+                .col-md-9.text-left
+                    #selectIsInCommPool.labelRadio
+                        input(name='commPool', type='radio', value='true', data-name="是")
+                        input(name='commPool', type='radio', value='false', data-name="否")
+
+            .form-group.m-t-10
+                label.col-md-3.text-right 顾问
+                .col-md-4.text-left
+                    select(class='selectpicker show-tick form-control', name='consultant', data-size='5', data-live-search="true")
+                        option(value='') 请选择
+                        option(value='empty') 无
+                        each consultant in data.consultants
+                            option(value='#{consultant._id}') #{consultant.username}(#{consultant.realName})
+
+            .form-group.m-t-10
+                label.col-md-3.text-right RM
+                .col-md-4.text-left
+                    select(class='selectpicker show-tick form-control', name='rm', data-size='5', data-live-search="true")
+                        option(value='') 请选择
+                        option(value='empty') 无
+                        each rm in data.rms
+                            option(value='#{rm._id}') #{rm.username}(#{rm.realName})
+            .form-group.m-t-10
+                label.col-md-3.text-right 上传文件
+                .col-md-9.text-left
+                    input(type='file', name='bathModify', id='bathModify')
+            .form-group.m-t-10
+                .col-md-12
+                    .divider.divider-default
+            .form-group.m-t-10
+                .col-md-12.text-center
+                    button.btn.btn-primary(onclick='customerListSearch()')
+                        i.icon.icon-filter-1
+                        | 过滤
+                    button.btn.btn-success.m-l-10#filter
+                        | 上传
+                    button.btn.btn-info.m-l-10#multiModify
+                        | 批量修改
+                    button.btn.btn-danger.m-l-10(onclick='downloadTemplate()')
+                        | 下载模板
+
+.row.m-t-25
+    .col-sm-8.col-sm-offset-2
+        #customerAdvancedListTable.row
+
+
+#editStatus.modal(tabindex='-1', data-width='760', style='display: none;')
+#editConsultant.modal(tabindex='-1', data-width='760', style='display: none;')
+#editRM.modal(tabindex='-1', data-width='760', style='display: none;')
+#customerBasicInfo.modal(tabindex='-1', data-width='760', stype='display: none;')
+
+
+script.
+    var customerListTable = [];
+    var customerMultiTel = [];
+    var customerNotExistTel = [];
+    var customerIllegal = [];
+    $('[name=bathModify]').filestyle({
+        'buttonText': '选择文件',
+        'classButton': 'btn btn-success',
+        'classIcon': 'icon-plus-6'
+    });
+
+    $('[name=bathModify]').fileupload({
+        formData: {},
+        validation: {
+            allowedExtensions: ['csv']
+        },
+        url: '/crm/customer/custAdvanced/confirmNumberOverVlaue',
+        add: function (e, data) {
+            $('#filter').off('click').on('click', function(ev) {
+                ev.preventDefault();
+                $('body').oLoader({
+                    wholeWindow: true,
+                    effect: 'slide'
+                });
+                $('[name=bathModify]').filestyle('clear');
+                data.submit();
+                return false;
+            });
+        },
+        done: function (e, data) {
+            console.log(data);
+            if (data.result.msg.type == 'success') {
+                customerListTable = data.result.customers;
+                customerMultiTel =data.result.multiTel.join();
+                customerNotExistTel = data.result.notExistTel.join();
+                customerIllegal = data.result.illegal.join();
+                $('body').oLoader('hide');
+                pup.widgets.layerManager.open({
+                    layerKey : 'multiModifyLayer',
+                    targetSelector : null,
+                    html : '',
+                    template : {
+                        key : 'customer.custAdvanced.multiModify',
+                        dataParam : {totalCount: data.result.totalCount},
+                        beforeRender : function() {},
+                        afterRender : function() {}
+                    },
+                    closeButton : {
+                        visible : false
+                    },
+                    beforeClose : function() {
+                        toastr.clear();
+                        return true;
+                    }
+                });
+            }
+        }
+    });
+
+    $('#multiModify').click(function(ev) {
+        ev.preventDefault();
+        var telOrNameOrCode = $('[name=telOrNameOrCode]').val();
+        var customerImplSearch = $('[name=customerImplSearch]').val();
+        var status = statuslableRadio.val();
+        var callStatus = callStatuslabelRadio.val();
+        var auditStatus = auditStatuslabelRadio.val();
+        var free = commPoolRadio.val();
+        var consultant = $('[name=consultant]').val();
+        var rm = $('[name=rm]').val();
+
+        var formData = {};
+
+        if (telOrNameOrCode) {
+            formData.telOrNameOrCode = telOrNameOrCode;
+        }
+        if (customerImplSearch) {
+            formData.customerImplSearch = customerImplSearch;
+        }
+        if (status) {
+            formData.status = status;
+        }
+        if (callStatus) {
+            formData.callStatus = callStatus;
+        }
+        if (auditStatus) {
+            formData.auditStatus = auditStatus;
+        }
+        if (free) {
+            formData.free = free;
+        }
+        if (consultant) {
+            formData.consultant = consultant;
+        }
+        if (rm) {
+            formData.rm = rm;
+        }
+
+        $('body').oLoader({
+            wholeWindow: true,
+            effect:'slide'
+        });
+
+        var url = '/crm/customer/custAdvanced/confirmNumberOverVlaue';
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: url,
+            data: formData,
+            success: function(data) {
+               $('body').oLoader('hide');
+                customerListTable = data.customers;
+               if(data.msg.type == 'success') {
+                    pup.widgets.layerManager.open({
+                        layerKey: 'multiModifyLayer',
+                        targetSelector: null,
+                        html: '',
+                        template: {
+                            key: 'customer.custAdvanced.multiModify',
+                            dataParam: {conditions : data.conditions, totalCount: data.totalCount},
+                            beforeRender: function () {
+                            },
+                            afterRender: function () {
+                            }
+                        },
+                        closeButton: {
+                            visible: false
+                        },
+                        beforeClose: function () {
+                            toastr.clear();
+                            return true;
+                        }
+                    });
+                }else {
+                    toast(data.msg);
+                }
+            }
+        });
+        return false;
+    });
+
+    $('.selectpicker').selectpicker('refresh');
+    var statuslableRadio = new pup.widgets.labelRadio('#selectCustomerStatus').radio(function() {
+       //customerListSearch();
+    });
+    var callStatuslabelRadio = new pup.widgets.labelRadio('#selectCustomerCallStatus').radio(function() {
+        //customerListSearch();
+    });
+
+    var auditStatuslabelRadio = new pup.widgets.labelRadio('#selectCustomerAuditStatus').radio(function() {
+        //customerListSearch();
+    });
+
+    var commPoolRadio = new pup.widgets.labelRadio('#selectIsInCommPool').radio(function() {
+        //customerListSearch();
+    });
+
+    var customerAdvancedPagination = new pup.Pagination({templateKey : "customer.custAdvanced.listTable"});
+    customerAdvancedPagination.first();
+
+    function customerListSearch() {
+        var telOrNameOrCode = $('[name=telOrNameOrCode]').val();
+        var customerImplSearch = $('[name=customerImplSearch]').val();
+        var status = statuslableRadio.val();
+        var callStatus = callStatuslabelRadio.val();
+        var auditStatus = auditStatuslabelRadio.val();
+        var free = commPoolRadio.val();
+        var consultant = $('[name=consultant]').val();
+        var rm = $('[name=rm]').val();
+
+        customerAdvancedPagination.clear();
+
+        if(telOrNameOrCode) {
+            customerAdvancedPagination.condition('telOrNameOrCode', telOrNameOrCode);
+        }
+        if(customerImplSearch) {
+            customerAdvancedPagination.condition('customerImplSearch', customerImplSearch);
+        }
+        if(status) {
+            customerAdvancedPagination.condition('status', status);
+        }
+        if(callStatus) {
+            customerAdvancedPagination.condition('callStatus', callStatus);
+        }
+        if(auditStatus) {
+            customerAdvancedPagination.condition('auditStatus', auditStatus);
+        }
+        if(free) {
+            customerAdvancedPagination.condition('free', free);
+        }
+        if(consultant) {
+            customerAdvancedPagination.condition('consultant', consultant);
+        }
+        if(rm) {
+            customerAdvancedPagination.condition('rm', rm);
+        }
+        customerAdvancedPagination.first();
+    }
+    $('[name=telOrNameOrCode]').keypress(function(e) {
+        var code = (e.keyCode ? e.keyCode : e.which);
+        if(code == 13) {
+            customerListSearch()
+            e.preventDefault();
+            return false;
+        }
+    });
+    $('[name=customerImplSearch]').keypress(function(e) {
+        var code = (e.keyCode ? e.keyCode : e.which);
+        if(code == 13) {
+            customerListSearch()
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    function downloadTemplate() {
+        window.location.href = '/download/download.csv';
+    }
+
+    //function quickSearch() {
+    //    $('body').oLoader({
+    //        wholeWindow: true,
+    //        effect:'slide'
+    //    });
+    //    var telOrNameOrCode = $('[name=telOrNameOrCode]').val();
+    //    customerAdvancedPagination.clear();
+    //    if(telOrNameOrCode) {
+    //        customerAdvancedPagination.condition('telOrNameOrCode', telOrNameOrCode);
+    //    }
+    //    customerAdvancedPagination.first({
+    //        afterRender: function() {
+    //            $('body').oLoader('hide');
+    //        }
+    //    });
+    //}
+
+
+
+
+
+
+

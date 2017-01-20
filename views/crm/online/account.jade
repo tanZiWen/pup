@@ -1,0 +1,106 @@
+.sidebar.sidebar-left.mm-box
+    #muAdd.sidemenu
+        i.icon.icon-plus-6
+        | 添加
+.row.m-t-20
+    .col-sm-8.col-sm-offset-2.mm-box.form-horizontal.filter-pan
+        .form-group
+            label.control-label.col-md-2 关键字
+            .col-md-10
+                input.holo(type='text', style='display: inline-block;margin-right:10px;width:300px;')
+                button.btn.btn-primary
+                    i.icon.icon-search-8.m-r-5
+                    | 查找
+        .form-group
+            label.control-label.col-md-2.text-right 所属小组
+            .col-md-10.text-left
+                .btn-group(data-toggle='buttons-radio')
+                    button.btn-sm.btn.btn-light-info.active(type='button') 简怡组
+                    button.btn-sm.btn.btn-light-info(type='button') 嘉伟组
+                    button.btn-sm.btn.btn-light-info(type='button') 王菁组
+                    button.btn-sm.btn.btn-light-info(type='button') 家仪组
+.row.m-t-25
+    .col-sm-8.col-sm-offset-2
+        .row
+            table.table.mm-box
+                tr.th-inverse
+                    th  微信号
+                    th  小组
+                    th  状态
+                    th  创建日期
+                - for (var x = 0; x < 10; x++)
+                    tr.cust-record
+                        td  prosnav001
+                        td  组1
+                        td  正常
+                        td  2014-1-1
+#addAccount.modal(tabindex='-1', data-width='760', style='display: none;')
+    .modal-header
+        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row
+            .col-md-3
+                h4.modal-title 添加账号
+    .modal-body
+        .row.m-t-10
+            span.col-md-2.text-right.text-muted.small 微信号
+            .col-md-4.text-left
+                input.holo(type='text', name='tags')
+        .row.m-t-10
+            span.col-md-2.text-right.text-muted.small 所属小组
+            .col-md-10.text-left
+                .btn-group(data-toggle='buttons-radio')
+                    button.btn-sm.btn.btn-light-info.active(type='button') 简怡组
+                    button.btn-sm.btn.btn-light-info(type='button') 嘉伟组
+                    button.btn-sm.btn.btn-light-info(type='button') 王菁组
+                    button.btn-sm.btn.btn-light-info(type='button') 家仪组
+        .row.m-t-10
+            span.col-md-2.text-right.text-muted.small 描述
+            .col-md-10.text-left
+                input.holo(type='text', style='width: 100%;')
+    .modal-footer
+        .text-center
+            button.cancel.btn.btn-lg.btn-default(style='margin-right: 40px;') 取消
+            button#ok.btn.btn-lg.btn-success 确定
+#editAccount.modal(tabindex='-1', data-width='760', style='display: none;')
+    .modal-header
+        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row
+            .col-md-3
+                h4.modal-title 编辑账号
+    .modal-body
+        .row.m-t-10
+            span.col-md-2.text-right.text-muted.small 微信号
+            .col-md-4.text-left
+                input.holo(type='text', name='tags')
+            span.col-md-2.text-right.text-muted.small 帐号状态
+            .col-md-4.text-left
+                .btn-group(data-toggle='buttons-radio')
+                    button.btn-sm.btn.btn-light-info.active(type='button') 正常
+                    button.btn-sm.btn.btn-light-info(type='button') 被封
+        .row.m-t-10
+            span.col-md-2.text-right.text-muted.small 所属小组
+            .col-md-10.text-left
+                .btn-group(data-toggle='buttons-radio')
+                    button.btn-sm.btn.btn-light-info.active(type='button') 简怡组
+                    button.btn-sm.btn.btn-light-info(type='button') 嘉伟组
+                    button.btn-sm.btn.btn-light-info(type='button') 王菁组
+                    button.btn-sm.btn.btn-light-info(type='button') 家仪组
+        .row.m-t-10
+            span.col-md-2.text-right.text-muted.small 描述
+            .col-md-10.text-left
+                input.holo(type='text', style='width: 100%;')
+    .modal-footer
+        .text-center
+            button.cancel.btn.btn-lg.btn-default(style='margin-right: 40px;') 取消
+            button#ok.btn.btn-lg.btn-success 确定
+script.
+    $('#muAdd').click(function() {
+        $('#addAccount').modal('show');
+    });
+    $('.cust-record').click(function() {
+        $('#editAccount').modal('show');
+    });
+    $('.cancel').click(function() {
+        $('#addAccount').modal('hide');
+        $('#editAccount').modal('hide');
+    });

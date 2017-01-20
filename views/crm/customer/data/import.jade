@@ -1,0 +1,213 @@
+.modal-header.row
+    h4.pan-title.modal-title(style='display: inline-block;') 导入数据
+.row
+    .divider.divider-danger
+form#importForm(action='/crm/customerBatch/create', enctype="multipart/form-data")
+    .row.m-t-10
+        .col-sm-12.form-group
+            label.control-label.col-md-2 文件
+            .col-md-6(style='margin-top:5px;')
+                input#file(type='file', name='file')
+    .row
+        .col-sm-12.form-group
+            .col-md-4.col-md-offset-2
+                #fileProgressBar.progress(style='display:none;')
+                    .progress-bar.progress-bar-success(role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 0%;")
+    .row
+        .col-sm-12.form-group
+            label.col-sm-2.control-label 采购
+            select(class='selectpicker', name='belongOrg', id='belongOrg', data-width="auto")
+                each org in orgs
+                    option(value='#{org.code}') #{org.name}
+            select(class='selectpicker', name='buyer', id='buyer', data-width="auto", data-live-search='true')
+
+    .row.m-t-10
+        .col-sm-12.form-group
+            label.col-sm-2.control-label(for='name') 批次名称
+            .col-sm-4
+                input.holo(type='text',name='name', id='name', class='required')
+    .row.m-t-10
+        .col-sm-12.form-group
+            label.col-sm-2.control-label(for='cycle') 类型
+            .col-sm-4
+                #dataLevel.btn-group(data-toggle='buttons-radio')
+                    each level, i in dataLevels
+                        if i == 0
+                            button.btn-sm.btn.btn-light-info.active(type='button', value='#{level.key}') #{level.name}
+                        else
+                            button.btn-sm.btn.btn-light-info(type='button', value='#{level.key}') #{level.name}
+            label.col-sm-2.control-label(for='cycle') 归属
+            .col-sm-4
+                #area.btn-group(data-toggle='buttons-radio')
+                    each area, i in areas
+                        if i == 0
+                            button.btn-sm.btn.btn-light-info.active(type='button', value='#{area.code}') #{area.name}
+                        else
+                            button.btn-sm.btn.btn-light-info(type='button', value='#{area.code}') #{area.name}
+
+    input.holo(type='text', style='width: 100%', placeholder='备注', name='comment', id='comment')
+    .row
+        .divider(style='background: #999;height: 1px;margin:20px auto;')
+    .row.text-center(style='height: 80px;')
+        button.btn.btn-lg.btn-default(style='margin-right: 40px;', type='reset') 取消
+        button#ok.btn.btn-lg.btn-success(type='button', disabled='disabled') 确定
+#importMask.box-mask.mask-full(style='opacity: .9;')
+    .row(style='margin-top: 60px')
+        .col-sm-6.col-sm-offset-3.text-center
+            h3#importProgress(style='color: #FFFFFF;') 正在处理
+    .row#import-next-actions(style='margin-top: 20px; display: none;')
+        .col-sm-6.col-sm-offset-3.text-center
+            button#importConBtn.btn.btn-primary(type='button') 继续导入
+            button#importAssignBtn.btn.btn-success.m-l-15(type='button') 分配数据
+
+script.
+    $('.selectpicker').selectpicker({noneSelectedText:'请选择'});
+
+    $(":file").filestyle({
+        'buttonText' : '选择文件',
+        'classButton' : 'btn btn-primary',
+        'classIcon' : 'icon-plus-6'
+    });
+
+    $("#import").on("scroll", function() { $.validator.reposition(); });
+
+    $('#import').on('hide.bs.modal', function (e) {
+        $('.popover').each( function() {
+            $(this).hide();
+        });
+    });
+
+    $('#importForm #belongOrg').change(function() {
+        getUserListForImport($(this).val());
+    });
+
+    getUserListForImport($('#importForm #belongOrg').val());
+
+    function getUserListForImport(orgCode) {
+        var url = '/crm/user/userListByArea';
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType: 'json',
+            data: {'orgCode' : orgCode},
+            success: function (data) {
+                $('#buyer option').remove();
+                if(data.data.length == 0) {
+                    $('#userListData').html('');
+                }
+                $.each(data.data, function(key, value) {
+                    if(key == 0) {
+                        $('#importForm #buyer').append('<option value='+value._id+' selected>'+value.realName+'</option>');
+                    } else {
+                        $('#importForm #buyer').append('<option value='+value._id+'>'+value.realName+'</option>');
+                    }
+                })
+                $('.selectpicker').selectpicker('refresh');
+            }
+        });
+    }
+
+    $('#importForm').validate_popover({onsubmit: false, popoverPosition: 'top'});
+
+    $('#importForm').submit(function(ev) {
+        if($(this).validate().form()) {
+            if($('#importForm #belongOrg').val() == '' || $('#importForm #buyer').val() == '') {
+                toast({type:'error', body:'请选择采购'});
+            } else if($('#importForm #file').next().children().first().val() == "") {
+                toast({type:'error', body:'请选择文件'});
+            }
+        }
+        return false;
+    });
+
+    var fileName = '';
+    var allowedExtensions =  ['xlsx', 'xls'];
+    $('#importForm #file').fileupload({
+        url : '/crm/customerBatch/fileUpload',
+        formData: {},
+        acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
+        add : function(e, data) {
+            if(data.files.length > 0) {
+                var extension = data.files[0].name.substring(data.files[0].name.lastIndexOf('.') + 1);
+                var flag = false;
+                for (var i = 0; i < allowedExtensions.length; i++) {
+                    if (allowedExtensions[i] == extension) {
+                        flag = true;
+                    }
+                }
+                if(flag) {
+                    $('#fileProgressBar').show();
+                    data.submit();
+                } else {
+                    $('#importForm')[0].reset();
+                    toast({type : 'error', body: '请选择excel格式文件'});
+                    $('#fileProgressBar').hide();
+                    $('#importForm #ok').attr('disabled', 'disabled');
+                }
+            }
+        },
+        progress : function(e, data) {
+            var loaded = data._progress.loaded;
+            var total = data._progress.total;
+            $('#fileProgressBar .progress-bar').width(parseInt(loaded * 100 / total) + '%');
+            $('#fileProgressBar .progress-bar').html(parseInt(loaded * 100 / total) + '%');
+        },
+        done : function(e, data) {
+            $('#importForm #ok').removeAttr('disabled');
+            fileName = data.result.name;
+        }
+
+    });
+
+    $('#importForm #ok').off('click').on('click', function() {
+        if($('#importForm').validate().form()) {
+            if(fileName == '') {
+                toast({type : 'error', body: '请选择文件'});
+            } else {
+                var formData = $('#importForm').serializeObject();
+                formData.area = $("#importForm #area > .btn.active").val();
+                formData.dataLevel = $("#importForm #dataLevel > .btn.active").val();
+                formData.filename = fileName;
+                $('#import').find('#importMask').slideDown(150);
+                $('#import-next-actions').hide();
+                $.ajax({
+                    type: "POST",
+                    url: '/crm/customerBatch/create',
+                    dataType: 'json',
+                    data: formData,
+                    success: function (data) {
+                        console.log(data);
+                        fileName = '';
+                        if(data.msg.type == 'success') {
+                            $('#importForm')[0].reset();
+                            batchName = '';
+                        }
+                        $('#fileProgressBar').hide();
+                        $('#importProgress').text(data.msg.body);
+                        $('#import-next-actions').show();
+                        $('#importForm #ok').attr('disabled', 'disabled');
+                    },
+                    error : function(e, data) {
+                        toast({type : 'error', body: '请求连接异常，请重试'});
+                        $('#importForm')[0].reset();
+                        batchName = data.msg.data.name;
+                        $('#import').find('#importMask').hide();
+                        $('#importForm #ok').attr('disabled', 'disabled');
+                    }
+                });
+            }
+        }
+        return false;
+    });
+
+    $('#importMask #importConBtn').click(function() {
+        $('#import').find('#importMask').hide();
+        $('#importProgress').text('正在处理');
+    })
+
+    $('#importMask #importAssignBtn').click(function() {
+        $('#importProgress').text('正在处理');
+        showAssiagnMenu(2);
+    })
+
+

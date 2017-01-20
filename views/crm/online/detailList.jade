@@ -1,0 +1,32 @@
+//
+   Created by tanyuan on 7/16/14.
+.modal-header
+    .row
+        label.col-md-6.text-right(style='font-size:20px') 操作日期
+        .col-md-6.text-left
+            span(style='font-size:20px') #{pagination.condition.operateDate}
+.modal-body
+    .row
+        .col-md-10.col-md-offset-1
+            table.table.mm-box.scroll
+                tr.th-inverse
+                    th(style="width: 30%")  操作账号
+                    th(style="width: 20%")  膜拜数
+                    th(style="width: 20%")  邀请数
+                    th(style="width: 20%")  认证量
+                tbody
+                    each wechatList in wechatLists
+                        tr.cust-record
+                            td #{wechatList.accountCode}
+                            td #{wechatList.tryCount}
+                            td #{wechatList.successCount}
+                            td #{wechatList.authCustomersNum}
+#wechatPageBar
+script.
+    wechatList.bar('#wechatPageBar');
+    $('#cancel').click(function() {
+        alert('xxxx');
+        $('#detail').modal('hide');
+    })
+
+

@@ -1,0 +1,163 @@
+//
+   Created by tanyuan on 11/18/15.
+doctype html
+html
+    head
+        title 帆茂统一平台
+        link(href='/stylesheets/bootstrap.css', rel='stylesheet')
+        script(src='/javascripts/jquery-1.11.0.min.js')
+        link(rel='stylesheet', href='/stylesheets/toastr.min.css')
+        script(src='/javascripts/toastr.min.js')
+        script(src='/javascripts/utils.js')
+        script(src='/javascripts/runtime.js')
+        script(src='/javascripts/template.js')
+    style.
+        body {
+            padding-top: 40px;
+            background-color: #eee;
+            overflow-x: hidden;
+        }
+
+        .function-bar {
+            background-color: #FFFFFF;
+            border-top: 1px solid #cccccc;
+            -webkit-box-shadow: 0 -5px 5px -5px rgba(0, 0, 0, .4);
+            box-shadow: 0 -5px 5px -5px rgba(0, 0, 0, .4);
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 100px;
+            z-index: 10;
+        }
+        .container {
+            background-color: #fbfcfd;
+            height: 80%;
+            margin-left: 20%;
+            width: 60%;
+            position: fixed;
+            z-index: 10;
+            border: 1px solid #cccccc;
+            -webkit-box-shadow: 0 -5px 5px -5px rgba(0, 0, 0, .4);
+            box-shadow: 0 -5px 5px -5px rgba(0, 0, 0, .4);
+        }
+        .hd {
+            height: 33px;
+            overflow: hidden;
+            margin-bottom: 24px;
+            border-bottom: 1px dotted #c8c8c8;
+            font-size: 20px;
+            font-weight: normal;
+            font-family: "Microsoft YaHei", \5fae\8f6f\96c5\9ed1, arial, \5b8b\4f53;
+            color: #323232;
+        }
+        .hf {
+            height: 33px;
+            overflow: hidden;
+            font-size: 20px;
+            font-weight: normal;
+            font-family: "Microsoft YaHei", \5fae\8f6f\96c5\9ed1, arial, \5b8b\4f53;
+            color: #323232;
+        }
+        .iptIcon {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 50%;
+            left: 0;
+            margin-top: -8px;
+            background-position: -320px 0;
+        }
+        #validateCode {
+            fontFamily: Fixedsys;
+            letterSpacing: 3px;
+            color: #ff0000;
+            font-size: 23px;
+            background-color: #f0f1f2;
+        }
+    body
+        .row.container
+            #wrap
+                .row(style="margin-left: 40px; margin-top: 40px")
+                    h4.hd 请输入您要找回的密码账号
+                .row(style="margin-top: 40px")
+                    .col-md-4.col-md-offset-4
+                        .input-group.input-group-lg
+                            span.input-group-addon
+                                .glyphicon.glyphicon-user
+                            input.form-control(style="width:300px", id='username', name='username', type="text", placeholder="请输入账号")
+                .row(style="margin-top: 40px")
+                    .col-md-4.col-md-offset-4.pointer-cursor
+                        .input-group.input-group-lg
+                            input.form-control(style="width:300px", type="text", id='code', name='code', placeholder="请输入验证码")
+                            span.input-group-addon
+                                .glyphicon.glyphicon-refresh
+                            button.btn.pointer-cursor(style="margin-left: 10px")#validateCode
+                .row(style="margin-top: 40px")
+                    .col-md-4.col-md-offset-4
+                        button#next.btn.btn-lg.btn-primary(style="width:350px") 下一步
+
+    .function-bar
+        .row.text-center(style='margin-top: 30px')
+            p.text-muted © 2014 帆茂投资管理有限公司
+
+script.
+    toastr.options.extendedTimeOut = 1000000;
+    toastr.options.closeButton = true;
+    toastr.options.positionClass = 'toast-top-center';
+    function createCode() {
+        var code = "";
+        var codeLength = 5;
+        var selectChar = new Array(0,1,2,3,4,5,6,7,8,9,'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z')
+        for(var i=0; i<codeLength; i++) {
+            var charIndex = Math.floor(Math.random()*36);
+            code += selectChar[charIndex];
+        }
+        return code
+    }
+    $('#validateCode').text(createCode());
+
+    $('#validateCode').click(function(ev) {
+        ev.preventDefault();
+        $('#validateCode').text(createCode());
+    });
+    $('#next').click(function(ev) {
+        ev.preventDefault();
+        var username = $('#username').val();
+        if(username == '') {
+            toastr.clear();
+            toastr.info('账号不能为空!');
+            return;
+        }
+        var code = $('#code').val();
+        if(code == '') {
+            toastr.clear();
+            toastr.info('验证码不能为空!');
+            return;
+        }
+        var validateCode = $('#validateCode').text();
+        if(code.toLowerCase() != validateCode.toLowerCase()) {
+            toastr.clear();
+            toastr.info('验证码不匹配!');
+            $('#validateCode').text(createCode());
+            return;
+        }
+        var url = '/validateUsername';
+        var data = {};
+        data.username = username;
+        $.ajax({
+            type: 'GET',
+            url: url,
+            dataType: 'json',
+            data: data,
+            success: function (data) {
+                if(data.msg) {
+                    toast(data.msg);
+                }else {
+                    var executableTemplate = eval('/auth/user/verifyCode'.replace('/', '').replace(/\//g, '_'));
+                    $('#wrap').html(executableTemplate(data));
+                }
+            }
+        });
+        return false;
+    });

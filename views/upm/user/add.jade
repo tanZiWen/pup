@@ -1,0 +1,138 @@
+//
+   Created by tanyuan on 7/30/14.
+form#addForm(action='/upm/user/add', enctype='multipart/form-data')
+    .modal-header
+        button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+        .row.m-t-20
+            .col-md-4
+                h4.modal-title 第二步:&nbsp&nbsp 配置用户
+    .modal-body
+        .row
+            .col-md-2.text-right.text-muted.small 登录名
+            .col-md-3.text-left
+                input.holo(type='text', placeholder='登录名', id='username', name='username', class='required')
+            .col-md-2.text-right.text-muted.small 姓名
+            .col-md-3.text-left
+                input.holo(type='text', placeholder='姓名', id='realName', name='realName', class='required')
+        .row.m-t-20
+            .col-md-2.text-right.text-muted.small 性别
+            .col-md-3.text-left
+                .btn-group(data-toggle='buttons-radio', id='sex', name='sex')
+                    each sex, i in sexList
+                        if(i == 0)
+                            button.btn.btn-sm.btn-light-info.active(value='#{sex.key}', type='button') #{sex.name}
+                        else
+                            button.btn.btn-sm.btn-light-info(value='#{sex.key}', type='button') #{sex.name}
+            .col-md-2.text-right.text-muted.small 分机号
+            .col-md-3.text-left
+                input.holo(type='text', placeholder='分机号', id='extNo', name='extNo', class='fourDigit number')
+        .row.m-t-20
+            .col-md-2.text-right.text-muted.small Email
+            .col-md-4.text-left
+                input.holo(type='text', placeholder='Email', class='email', id='email', name='email', class='required')
+        .row.m-t-20
+            .col-md-2.text-right.text-muted.small 职位
+            .col-md-3.text-left
+                select(class='selectpicker', id='position', name='position')
+                    each position in positionList
+                        option(value='#{position.key}') #{position.name}
+
+        .row.m-t-20
+            .col-md-2.text-right.text-muted.small 分公司
+            .col-md-10.text-left
+                .btn-group(data-toggle='buttons-radio', id='orgCode', name='orgCode')
+                    each org, i in orgList
+                        if(i == 0)
+                            button.btn.btn-sm.btn-light-info.active(value='#{org.code}') #{org.name}
+                        else
+                            button.btn.btn-sm.btn-light-info(value='#{org.code}') #{org.name}
+
+        .row.m-t-20(style='display: none')
+            .col-md-2.text-right.text-muted.small 工作组
+            .col-md-3.text-left
+                select(class='selectpicker', id='workGroup', name='workGroup')
+
+        .row.m-t-20
+            .col-md-2.text-right.text-muted.small 角色
+            .col-md-10.text-left
+                each roleCode in roleCodesList
+                    input(type='checkbox', class='checkbox checkbox-inline', id='roleCodes', name='roleCodes', value='#{roleCode.code}', data-label='#{roleCode.name}')
+
+
+        input(type='text', hidden='true', id='employeeid', name='employeeid')
+        input(type='text', hidden='true', id='workno', name='workno')
+    .modal-footer
+        .text-center
+            button.btn.btn-lg.btn-default(data-dismiss='modal', type='button') 取消
+            button#ok.btn.btn-lg.btn-success(type='button') 确定
+
+#ifAddUser.modal(style='display: none')
+    .modal-body
+        p 确认添加？
+    .modal-footer
+        .text-center
+            button.btn.btn-default(type='button', data-dismiss='modal') 取消
+            button.btn.btn-danger#ok(type='button') 确定
+
+script.
+    $('#addForm #workGroup').closest('.row').show();
+    $('#addForm #workGroupRole').closest('.row').show();
+    $('.checkbox').checkbox();
+    $('.selectpicker').selectpicker({noneSelectedText:'请选择'});
+    $('#addForm #ok').click(function(){
+        $('#addForm').validate_popover({popoverPosition : 'top'});
+        if($('#addForm').validate().form()) {
+            $('#ifAddUser').modal('show');
+        }
+    });
+    $('#ifAddUser #ok').click(function() {
+        var roles = [];
+        var sex = $('#addForm #sex > .btn.active').val();
+        var orgCode = $('#addForm #orgCode > .btn.active').val();
+        $('#addForm #roleCodes:checked').each(function() {
+           roles.push($(this).val());
+        })
+        var serializeForm = $('#addForm').serializeObject();
+        serializeForm.sex = sex;
+        serializeForm.orgCode = orgCode;
+        serializeForm.roleCodes = roles;
+        var email = serializeForm.email;
+        if(email.substring(email.length - 11, email.length) != 'prosnav.com') {
+            toastr.clear();
+            toast({type: 'error', body: '邮箱格式不正确,必须是公司内部邮箱!'});
+            return;
+        }
+        var url = $('#addForm').attr('action');
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            data: serializeForm,
+            url: url,
+            success: function(data) {
+                if(data.msg.type == 'success') {
+                    $('#addForm #roleCodes').prop('checked', false);
+                    $('#add').modal('hide');
+                    userPagination.last();
+                }
+                $('#ifAddUser').modal('hide');
+                toast(data.msg);
+            }
+        });
+        return false;
+    });
+
+    $('#addForm #position').change(function() {
+        var position = $(this).val();
+        if(position == 'rm' || position == 'consultant') {
+            $('#addForm #workGroup').closest('.row').show();
+            $('#addForm #workGroupRole').closest('.row').show();
+        }else {
+            $('#addForm #workGroup').closest('.row').hide();
+            $('#addForm #workGroupRole').closest('.row').hide();
+        }
+    })
+    jQuery.validator.addMethod("fourDigit", function(value, element) {
+           var length = value.length;
+           return this.optional(element) || length == 4;
+           }, "请填写四位数字分机号");
+

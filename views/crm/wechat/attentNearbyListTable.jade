@@ -1,0 +1,22 @@
+
+table.table.mm-box
+    tr.th-inverse
+        th 位置
+        th 描述
+        th 账号
+        th 条数
+        th 创建时间
+    tbody
+        each attentNearby in data
+            tr
+                td #{attentNearby.posValue}
+                td #{attentNearby.posComment}
+                td #{attentNearby.accountNickname}
+                td #{attentNearby.count}
+                td #{format(attentNearby.ctime)}
+
+#attentNearbyPageBar
+
+script.
+
+    attentNearbyPagination.bar('#attentNearbyPageBar');

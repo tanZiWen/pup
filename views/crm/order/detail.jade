@@ -1,0 +1,117 @@
+.sidebar.sidebar-left.mm-box
+    #muAdd.sidemenu
+        i.icon.icon-yen
+        | 派息
+.row(style='margin-top: 20px;')
+    .mm-box.col-md-8.col-md-offset-2(style='padding-bottom: 15px')
+        .modal-header.row
+            h4.pan-title.modal-title(style='display: inline-block;') 订单信息
+        .row.m-t-10
+            input(type='hidden', name='_id', id='_id', value='#{_id}')
+            span.col-md-2.text-right.text-muted.small 订单号
+            span.col-md-2.text-left #{code}
+            span.col-md-2.text-right.text-muted.small 客户
+            span.col-md-2.text-left #{customer.name}
+            span.col-md-2.text-right.text-muted.small 销售
+            span.col-md-2.text-left #{crealName}
+        .row.m-t-10
+            span.col-md-2.text-right.text-muted.small 产品名称
+            span.col-md-6.text-left #{product.name}
+            span.col-md-2.text-right.text-muted.small 金额
+            span.col-md-2.text-left #{amount}
+        .row.m-t-10
+            span.col-md-2.text-right.text-muted.small 状态
+            span.col-md-2.text-left #{statusName}
+            span.col-md-2.text-right.text-muted.small 下单日期
+            span.col-md-2.text-left #{format(ctime)}
+        .row.m-t-10
+            span.col-md-2.text-right.text-muted.small 备注
+            span.col-md-10.text-left
+            if comnent
+                |#{comment}
+
+.row(style='margin-top: 20px;')
+    .mm-box.col-md-8.col-md-offset-2(style='padding-bottom: 0;')
+        .modal-header.row
+            h4.pan-title.modal-title(style='display: inline-block;') 派息统计
+            .pull-right
+                span#addPayout.m-l-15.icon-btn
+                    i.icon-yen
+        #dividendListData.row
+
+#detailAdd.modal(tabindex='-1', data-width='760', style='display: none;')
+    form#detailFormDividend(action='/crm/order/dividend')
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            .row
+                .col-md-3
+                    h4.modal-title 添加派息
+        .modal-body
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 成立日期
+                .col-md-3.text-right
+                    input(type='text', name='establishDate', id='establishDate', class='required form-control')
+                span.col-md-2.text-right.text-muted.small 起息日期
+                .col-md-3.text-left
+                    input.holo(type='text', name='valueDate', id='valueDate', class='required endDate form-control')
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 金额
+                .col-md-3.text-right
+                    input.holo(type='text', name='amount', id='amount', class='required digits')
+                .col-md-1.text-left
+                h6.text-muted 万元
+            .row.m-t-10
+                span.col-md-2.text-right.text-muted.small 备注
+                .col-md-8
+                    input.holo(type='text', style='width: 100%;', placeholder='备注', name='comment', id='comment')
+        .modal-footer
+            .text-center
+                button.cancel.btn.btn-lg.btn-default(style='margin-right: 40px;', type='reset') 取消
+                button#ok.btn.btn-lg.btn-success(type='submit') 确定
+
+script.
+
+    $('#detailFormDividend #establishDate').datetimepicker({format : 'yyyy-mm-dd', autoclose: true, weekStart: 1, todayBtn: true, minView : 'month'});
+    $('#detailFormDividend #valueDate').datetimepicker({format : 'yyyy-mm-dd', autoclose: true, weekStart: 1, todayBtn: true, minView : 'month'});
+
+    $('#muAdd, #addPayout').click(function() {
+        $('#detailAdd').modal('show');
+    });
+
+    $('.cancel, .close').click(function() {
+        $('#main .modal').modal('hide');
+    });
+
+    $('#formDividend').validate_popover({popoverPosition : 'top'});
+
+    pup.template.renderTemplateByKey('order.dividendList', {id : curOrderId});
+
+    jQuery.validator.addMethod("endDate", function(value, element) {
+        var endDate = $(element).val();
+        var minDate = $('#formDividend #establishDate').val();
+        return this.optional(element) || (endDate >= minDate);
+        }, "请填写合法起息日期");
+    $('#detailFormDividend').validate();
+    $('#detailFormDividend').submit(function(ev) {
+        ev.preventDefault();
+        var formData = $('#detailFormDividend').serializeObject();
+        formData.orderId = curOrderId;
+        if($('#detailFormDividend').validate().form()) {
+            var url = $(this).attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                dataType: 'json',
+                data: formData,
+                success: function (data) {
+                    if(data.type == 'success') {
+                        $('#detailFormDividend')[0].reset();
+                        $('#detailAdd').modal('hide');
+                        pup.template.renderTemplateByKey('order.dividendList', {id : curOrderId});
+                    }
+                    toast(data);
+                }
+            });
+        }
+        return false;
+    });

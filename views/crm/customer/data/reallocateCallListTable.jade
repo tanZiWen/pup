@@ -1,0 +1,35 @@
+
+table.table.table-hover#reallocateTable
+    .thead
+        tr
+            th 客户
+            th 归属
+            th 类型
+            th 勾选
+    .tbody
+        each customer in data.bc
+            tr.cust-record(id='#{customer._id}')
+                td #{customer.name}
+                td #{customer.belongArea.areaName}
+                td #{customer.statusName}
+                td
+                    input.checkbox(select='selected',type='checkbox', name='customerBox', id='customerBox#{customer._id}', value='#{customer._id}')
+
+
+script.
+    $('#reallocateTable .cust-record').click(function(ev) {
+        if($('#reallocateTable #customerBox' + $(this).attr('id')).is(':checked')) {
+            $('#reallocateTable #customerBox' + $(this).attr('id')).attr('checked', false);
+        } else {
+            $('#reallocateTable #customerBox' + $(this).attr('id')).prop("checked",true);
+        }
+    });
+
+    $("input:checkbox[name='customerBox']").click(function(ev) {
+        ev.stopPropagation();
+    });
+
+    $('#reallocateConBtn, #reallocateCloseBtn').click(function() {
+        $('#reallocateMask').hide();
+        pup.template.renderTemplateByKey("customer.recycleMenu");
+    });

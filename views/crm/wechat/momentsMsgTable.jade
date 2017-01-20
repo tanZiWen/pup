@@ -1,0 +1,15 @@
+//
+   Created by tanyuan on 6/19/15.
+
+table.table.mm-box
+    tr.th-inverse
+        th 类型
+        th 时间
+    tbody
+        each wechatMoments in data
+            tr
+                td #{wechatMoments.typeName}
+                td #{format(wechatMoments.ctime)}
+#momentsMsgPageBar
+script.
+    momentsMsgPagination.bar('#momentsMsgPageBar');

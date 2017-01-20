@@ -1,0 +1,166 @@
+//
+   Created by tanyuan on 7/2/14.
+
+.row.m-t-25
+    .col-sm-8.col-sm-offset-2.mm-box.form-horizontal
+        .row
+            .form-group.m-t-20
+                label.control-label.col-md-3.text-right 客户姓名/编号/手机
+                .col-md-9.text-left
+                    input.holo(name='customerNameOrCodeOrTel', type='text', style='display: inline-block;margin-right:10px;width:200px;')
+            .form-group.m-t-20
+                label.control-label.col-md-3.text-right 约见类型
+                .col-md-3.text-left
+                    #selectAddressType.labelRadio
+                        each addressType in addressTypes
+                            input(name='addressType', type='radio', value='#{addressType.key}', data-name='#{addressType.name}')
+                label.control-label.col-md-2.text-left 地址类型
+                .col-md-3.text-left
+                    #selectmeetType.labelRadio
+                        each meetType in meetTypes
+                            input(name='meetType', type='radio', value='#{meetType.key}', data-name='#{meetType.name}')
+            .form-group.m-t-20
+                label.control-label.col-md-3.text-right 行动类型
+                .col-md-3.text-left
+                    #selectActionPlanType.labelRadio
+                        each actionPlanType in actionPlanTypes
+                            input(name='actionPlanType', type='radio', value='#{actionPlanType.key}', data-name='#{actionPlanType.name}')
+                label.control-label.col-md-2.text-left 是否完成
+                .col-md-3.text-left
+                    #selectDoneType.labelRadio
+                        each doneType in doneTypes
+                            input(name='doneType', type='radio', value='#{doneType.key}', data-name='#{doneType.name}')
+            .form-group.m-t-20
+                label.control-label.col-md-3.text-right 员工信息
+                .col-md-3.text-left
+                    select(class='selectpicker show-tick form-control', name='userInfo', data-size='5', data-live-search="true")
+                        option(value='') 请选择
+                        each userInfo in userInfos
+                            option(value='#{userInfo._id}') #{userInfo.username}(#{userInfo.realName})
+            .form-group.m-t-20
+                label.control-label.col-md-3.text-right 时间
+                .col-md-3.f-datetimepicker
+                    input(class='form-control', name='startTime', type='text', style='100%', placeholder='开始')
+                    i.glyphicon.glyphicon-remove.pointer-cursor
+                .col-md-3.f-datetimepicker
+                    input(class='form-control', name='endTime', type='text', style='100%', placeholder='截止')
+                    i.glyphicon.glyphicon-remove.pointer-cursor
+            .form-group.m-t-20
+                .col-md-12
+                    .divider.divider-default
+            .form-group.m-t-20
+                .col-md-12.text-center
+                    button.btn.btn-primary#ok(hpxdata-toggle="modal")
+                        i.icon.icon-filter-1.m-r-5
+                        | 过滤
+
+.row.m-t-25
+    .col-sm-8.col-sm-offset-2
+        #customerPlanData.row
+
+
+
+script.
+    $('.glyphicon-remove').click(function() {
+        $(this).prev().val('');
+    });
+    //var customerPlanPagination = new pup.Pagination({templateKey : "customer.plan.listData"});
+    //customerPlanPagination.first();
+    $('.selectpicker').selectpicker('refresh');
+    $('[name=startTime]').datetimepicker({format : 'yyyy-mm-dd', autoclose: true, weekStart: 1, todayBtn: true, minView : 'month'});
+    $('[name=endTime]').datetimepicker({format : 'yyyy-mm-dd', autoclose: true, weekStart: 1, todayBtn: true, minView : 'month'});
+    var addressTypeRadio = new pup.widgets.labelRadio('#selectAddressType').radio(function() {
+        //searchActionPlan();
+    });
+
+    var meetTypeRadio = new pup.widgets.labelRadio('#selectmeetType').radio(function() {
+        //searchActionPlan();
+    });
+
+    var actionPlanRadio = new pup.widgets.labelRadio('#selectActionPlanType').radio(function() {
+        //searchActionPlan();
+    });
+
+    var doneRadio = new pup.widgets.labelRadio('#selectDoneType').radio(function() {
+        //searchActionPlan();
+    });
+
+    function searchActionPlan() {
+        var customerNameOrCodeOrTel = $('[name=customerNameOrCodeOrTel]').val();
+        var addressType = addressTypeRadio.val();
+        var meetType = meetTypeRadio.val();
+        var actionPlanType = actionPlanRadio.val();
+        var doneType = doneRadio.val();
+        var userInfo = $('[name=userInfo]').val();
+        var startTime = $('[name=startTime]').val();
+        var endTime = $('[name=endTime]').val();
+        customerPlanPagination.clear();
+
+        if(customerNameOrCodeOrTel) {
+            customerPlanPagination.condition('customerNameOrCodeOrTel', customerNameOrCodeOrTel);
+        }
+        if(addressType) {
+            customerPlanPagination.condition('addressType', addressType);
+        }
+        if(meetType) {
+            customerPlanPagination.condition('meetType', meetType);
+        }
+        if(actionPlanType) {
+            customerPlanPagination.condition('actionPlanType', actionPlanType);
+        }
+        if(doneType) {
+            customerPlanPagination.condition('doneType', doneType);
+        }
+        if(userInfo) {
+            customerPlanPagination.condition('userInfo', userInfo);
+        }
+        if(startTime) {
+            customerPlanPagination.condition('startTime', startTime+' 00:00');
+        }
+        if(endTime) {
+            customerPlanPagination.condition('endTime', endTime+' 23:59');
+        }
+        customerPlanPagination.setSort({actionDate : -1});
+        customerPlanPagination.first();
+
+    }
+    $('[name=customerNameOrCodeOrTel]').keypress(function(e) {
+        var code = (e.keyCode ? e.keyCode : e.which);
+        if(code == 13) {
+            searchActionPlan()
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    //var cache = {};
+    //$('#userInfo').autocomplete({
+    //    source: function( request, response ) {
+    //        $.ajax({
+    //            type : 'POST',
+    //            url : '/crm/customer/plan/getUserInfo',
+    //            dataType : 'json',
+    //            data : {userInfo: request.term},
+    //            success : function(data) {
+    //                response($.map(data, function(item) {
+    //                    return {
+    //                        value: item.username+'('+item.realName+')',
+    //                        userInfo: item._id
+    //                    };
+    //                }));
+    //            }
+    //        });
+    //    },
+    //    max: 10,
+    //    autoFocus: true,
+    //    minLength: 1,
+    //    select: function(event, ui) {
+    //        $('[name=userInfo]').val(ui.item.userInfo);
+    //    }
+    //});
+    $('#ok').click(function() {
+        searchActionPlan();
+    });
+    var customerPlanPagination = new pup.Pagination({templateKey : 'customer.plan.listTable'});
+    customerPlanPagination.setSort({actionDate : -1});
+    customerPlanPagination.first();
